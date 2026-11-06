@@ -1,0 +1,45 @@
+# CoSeed 工程入口
+
+CoSeed 是通过 Web 和客户端无关的 MCP 提供入口的项目认知工作台。当前实现仍为本机服务；后续部署与存储方向见 ADR 0002。正式业务功能仍在逐步实现，禁止把前期 Claude Monitor 示例当成 CoSeed 的真实数据。
+
+## 先读什么
+
+- 开发、分支、提交与发布：[CONTRIBUTING.md](CONTRIBUTING.md)。初始化基线之后使用功能分支，按可验收功能或阶段通过 PR 合并到 main；默认 squash，发布用 Tag。
+
+- 当前实现与边界：[ARCHITECTURE.md](ARCHITECTURE.md)
+- 业务规则及未决问题：[docs/requirements/product.md](docs/requirements/product.md)
+- 技术决策：[当前初始化技术栈](docs/adr/0001-local-service-stack.md)；[已确认的 MCP 直连与 Git 资料管理方向](docs/adr/0002-agent-workspace-sync.md)，后者尚未实现
+- 数据模型进度与各模块提案：[docs/database/README.md](docs/database/README.md)；区分首批库表、综述、需求推进和业务设计，尚未接入运行时迁移及业务接口。
+- 配置、启动和排错：[docs/operations/local-development.md](docs/operations/local-development.md)
+- Agent 接入与使用：[简版指南草稿](docs/operations/agent-integration.md)，后续按提示词标准细化，尚未通过 MCP 发布
+- 前端设计与动效的全局约束：[docs/ui/design-system.md](docs/ui/design-system.md)
+- 图形选型及性能验收：[docs/research/diagram-engines-2026.md](docs/research/diagram-engines-2026.md)
+
+## 命令
+
+使用 `.nvmrc` / `.node-version` 指定的 Node，npm 版本以 `package.json` 为准。
+
+```bash
+npm ci
+npm run dev
+npm run check
+npm run test:e2e
+npm run verify:package
+```
+
+接口契约由共享 Zod 结构生成：`npm run api:generate`；检查同步：`npm run api:check`。依赖使用正式稳定版本，直接依赖精确锁定，保留 lockfile；升级后实际验证，不只修改版本号。
+
+设计稿样板：`npm run design:preview`；修改设计 Token 后执行 `npm run design:build`，核对颜色配对和独立样板构建；明暗模式行为验证使用 `npm run test:design`。
+
+## 修改位置
+
+- `src/web/`：阅读页面、组件和图形呈现。所有视觉与动效修改使用 `src/web/design-system/` 的权威 Token、共享样式和 Provider；样板同样消费该入口，不另建主题或字体数值源。
+- `src/server/modules/`：按业务能力组织的规则和服务。
+- `src/server/config/`、`database/`、`security/`：对应基础设施职责。
+- `src/server/mcp/`：协议入口，不复制业务规则。
+- `src/cli/`：命令行参数和启动，不承载业务。
+- `src/contracts/`：共享 Schema 和协议数据类型，不放服务实现或通用杂物。
+
+业务模块导出必要能力，避免通过跨模块访问内部文件形成隐式依赖。前端不得导入服务端代码；测试使用临时数据目录，不能使用个人默认数据库。MCP 与 Web 后续写入必须共享项目隔离、来源校验和修订保存规则。
+
+当前初始化不包含项目创建、业务表和回顾更新。涉及这些规则前，核对产品文档中的待定决策，不能用默认值替用户决定。

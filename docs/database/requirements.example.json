@@ -1,0 +1,128 @@
+{
+  "exampleOnly": true,
+  "note": "对象、版本及关联的说明示例，不是 MCP 请求；实际发生时间未知，统一明确保留为 null。",
+  "requirements": [
+    {
+      "id": "understand-concepts",
+      "content": {
+        "title": "让读者理解项目的核心概念",
+        "markdown": "读者需要先理解业务中的名词和关系，再阅读使用示例、参与设计判断。应明确每个概念的含义，并使图和词条共享身份，能够相互定位。",
+        "status": "ready_for_implementation"
+      }
+    },
+    {
+      "id": "navigate-overview",
+      "content": {
+        "title": "让长篇综述能够快速定位",
+        "markdown": "读者需要快速定位章节，知道当前读到哪里。项目导航与页内目录分别承担跨页面导航和同页阅读定位。",
+        "status": "ready_for_implementation"
+      }
+    }
+  ],
+  "records": [
+    {
+      "id": "define-concept-presentation",
+      "revisionNo": 1,
+      "content": {
+        "requirementId": "understand-concepts",
+        "title": "确定概念图与词条的共同结构",
+        "markdown": "核心概念使用关系图和释义词条，共用概念 ID；关系分为种属、组成和业务关联。列表缩进只表示种属关系，每个概念只解释一次。",
+        "occurredAt": null
+      }
+    },
+    {
+      "id": "choose-reading-toc",
+      "revisionNo": 1,
+      "content": {
+        "requirementId": "navigate-overview",
+        "title": "确定右侧阅读目录",
+        "markdown": "左侧承担项目内容导航，页内目录放在右侧阅读栏，提供同页章节定位。用户明确选择右栏方案，不把此前提议的位置记为最终决定。",
+        "occurredAt": null
+      }
+    }
+  ],
+  "correctionExample": {
+    "exampleOnly": true,
+    "recordId": "define-concept-presentation",
+    "newRevisionNo": 2,
+    "reason": "假设之前遗漏了组成关系不产生缩进的解释，补齐描述仍然修订同一条记录；这是假设的修订示例，不表示真实发生过该次保存。",
+    "content": {
+      "requirementId": "understand-concepts",
+      "title": "确定概念图与词条的共同结构",
+      "markdown": "核心概念使用关系图和释义词条，共用概念 ID；关系分为种属、组成和业务关联。列表缩进只表示种属关系，组成和业务关联不产生缩进；每个概念只解释一次。",
+      "occurredAt": null
+    }
+  },
+  "retrospectiveExample": {
+    "exampleOnly": true,
+    "id": "review-reading-decisions",
+    "content": {
+      "title": "回顾核心概念与阅读目录的决定",
+      "scopeMd": "核对用户关于核心概念展示及右侧阅读目录的原始讨论，分别归并到两个独立需求。这里只说明范围，正式保存时必须关联实际来源片段。",
+      "summaryMd": "本例涉及两个需求，分别整理概念展示和阅读目录的结论。具体是否已保存，以实际成功写操作及其产生的版本为准；该示例没有生产保存结果。"
+    }
+  },
+  "revisionTimeExample": {
+    "exampleOnly": true,
+    "note": "以下保存时间为虚构演示日期，不对应真实项目记录；正式系统从每版关联的写操作读取服务端保存时间。实际发生时间未核实，保持 null。",
+    "recordId": "revision-time-demo",
+    "revisions": [
+      {
+        "revisionNo": 1,
+        "savedAt": 1793944800000,
+        "occurredAt": null,
+        "description": "首次收录该记录"
+      },
+      {
+        "revisionNo": 2,
+        "savedAt": 1793950200000,
+        "occurredAt": null,
+        "description": "补充遗漏，保留原记录身份与首版保存时间"
+      }
+    ]
+  },
+  "statusHistoryExample": {
+    "exampleOnly": true,
+    "note": "以下是虚构的需求版本与状态历史展示，用于说明状态变化从需求版本推导，时间来自系统保存操作；不是新的写入请求格式或真实保存记录。",
+    "requirementId": "status-history-demo",
+    "revisions": [
+      {
+        "revisionNo": 1,
+        "status": "designing",
+        "savedAt": 1793944800000,
+        "change": "首次收录需求"
+      },
+      {
+        "revisionNo": 2,
+        "status": "designing",
+        "savedAt": 1793946600000,
+        "change": "只补充描述，状态不变"
+      },
+      {
+        "revisionNo": 3,
+        "status": "ready_for_implementation",
+        "savedAt": 1793950200000,
+        "change": "必要设计已能支撑实现"
+      },
+      {
+        "revisionNo": 4,
+        "status": "ready_for_implementation",
+        "savedAt": 1793952000000,
+        "change": "只修正措辞，状态不变"
+      }
+    ],
+    "statusHistory": [
+      {
+        "requirementRevisionNo": 1,
+        "status": "designing",
+        "recordedAt": 1793944800000
+      },
+      {
+        "requirementRevisionNo": 3,
+        "status": "ready_for_implementation",
+        "recordedAt": 1793950200000
+      }
+    ],
+    "currentStatusChangedAt": 1793950200000
+  }
+}

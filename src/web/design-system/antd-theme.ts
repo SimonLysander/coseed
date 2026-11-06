@@ -1,0 +1,65 @@
+import { theme, type ThemeConfig } from 'antd';
+import { resolveThemeTokens, type ColorMode } from './tokens.js';
+
+export function createAntdTheme(mode: ColorMode, reducedMotion: boolean): ThemeConfig {
+  const t = resolveThemeTokens(mode);
+  return {
+    algorithm: mode === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm,
+    token: {
+      colorPrimary: t.color.accent.solid,
+      colorPrimaryHover: t.color.accent.hover,
+      colorPrimaryActive: t.color.accent.pressed,
+      colorPrimaryBg: t.color.accent.soft,
+      colorPrimaryBgHover: t.color.accent.softHover,
+      colorPrimaryText: t.color.accent.solid,
+      colorText: t.color.text.primary,
+      colorTextSecondary: t.color.text.secondary,
+      colorTextTertiary: t.color.text.muted,
+      colorTextPlaceholder: t.color.text.muted,
+      colorTextLightSolid: t.color.text.onAccent,
+      colorTextDisabled: t.color.text.disabled,
+      colorBgBase: t.color.surface.paper,
+      colorBgLayout: t.color.surface.page,
+      colorBgContainer: t.color.surface.paper,
+      colorBgElevated: t.color.surface.paper,
+      colorBgContainerDisabled: t.color.surface.disabled,
+      colorBgMask: t.color.overlay.mask,
+      colorBorder: t.color.border.interactive,
+      colorSplit: t.color.border.subtle,
+      colorError: t.color.state.error.foreground,
+      colorSuccess: t.color.state.success.foreground,
+      colorWarning: t.color.state.warning.foreground,
+      colorInfo: t.color.state.info.foreground,
+      fontFamily: t.font.ui,
+      fontSize: t.type.ui.size,
+      controlHeight: t.size.control,
+      controlHeightSM: t.size.controlSmall,
+      controlHeightLG: t.size.controlLarge,
+      borderRadius: 5,
+      motion: !reducedMotion,
+      motionDurationFast: `${t.motion.durationMs.feedback}ms`,
+      motionDurationMid: `${t.motion.durationMs.reveal}ms`,
+      motionDurationSlow: `${t.motion.durationMs.dialog}ms`,
+      zIndexPopupBase: t.layer.popupBase,
+    },
+    components: {
+      Menu: {
+        itemBg: 'transparent',
+        itemSelectedBg: t.color.accent.soft,
+        itemSelectedColor: t.color.accent.solid,
+        itemHeight: t.size.navItem,
+      },
+      Button: {
+        colorPrimary: t.color.accent.solid,
+        colorPrimaryHover: t.color.accent.hover,
+        colorPrimaryActive: t.color.accent.pressed,
+        primaryShadow: 'none',
+        defaultShadow: 'none',
+        paddingInline: t.space['5'],
+        iconGap: t.space['3'],
+      },
+      Input: { activeShadow: 'none' },
+      Modal: { titleFontSize: t.type.dialogTitle.size, boxShadow: t.shape.floatingShadow },
+    },
+  };
+}

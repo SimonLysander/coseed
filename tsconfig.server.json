@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rootDir": "src",
+    "outDir": "dist",
+    "types": ["node"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "declaration": true,
+    "sourceMap": true,
+    "composite": true,
+    "tsBuildInfoFile": "node_modules/.cache/coseed-server.tsbuildinfo"
+  },
+  "include": ["src/cli/**/*.ts", "src/server/**/*.ts", "src/contracts/**/*.ts"],
+  "exclude": ["src/**/*.test.ts"]
+}

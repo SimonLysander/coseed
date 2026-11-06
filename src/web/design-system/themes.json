@@ -1,0 +1,177 @@
+{
+  "version": "1.0.0",
+  "modes": {
+    "light": {
+      "name": "净白",
+      "color": {
+        "overlay": {
+          "mask": "#20242B33"
+        },
+        "surface": {
+          "page": "#FFFFFF",
+          "paper": "#FFFFFF",
+          "sidebar": "#FFFFFF",
+          "hover": "#F3F7F5",
+          "disabled": "#F0F0F2"
+        },
+        "text": {
+          "primary": "#1B1B1F",
+          "secondary": "#55555E",
+          "muted": "#62626D",
+          "onAccent": "#FFFFFF",
+          "disabled": "#7C7C86",
+          "link": "#286B58"
+        },
+        "border": {
+          "subtle": "#E4E4E9",
+          "interactive": "#85858F",
+          "strong": "#5E5E68",
+          "focus": "#2F7864"
+        },
+        "state": {
+          "success": {
+            "foreground": "#4A694D",
+            "background": "#E6EEDC"
+          },
+          "warning": {
+            "foreground": "#7B6232",
+            "background": "#F4EDD8"
+          },
+          "error": {
+            "foreground": "#98544B",
+            "background": "#F4E5DE"
+          },
+          "info": {
+            "foreground": "#506C7B",
+            "background": "#E5EDF1"
+          }
+        },
+        "graph": {
+          "processing": {
+            "background": "#EFF5FD",
+            "border": "#7286A2"
+          },
+          "data": {
+            "background": "#EFF8F1",
+            "border": "#708D79"
+          },
+          "storage": {
+            "background": "#FFF8E8",
+            "border": "#9C834A"
+          },
+          "external": {
+            "background": "#F2F2F4",
+            "border": "#83838E"
+          },
+          "edge": "#6B6B77",
+          "labelBackground": "#FFFFFF",
+          "groupBackground": "#FFFFFF"
+        },
+        "code": {
+          "type": "#446485",
+          "string": "#825D36",
+          "comment": "#5F6A58"
+        },
+        "accent": {
+          "solid": "#2F7864",
+          "hover": "#276753",
+          "pressed": "#205642",
+          "soft": "#E8F4EE",
+          "softHover": "#DAEBE2"
+        }
+      },
+      "shape": {
+        "paperShadow": "none",
+        "floatingShadow": "0 4px 16px #20242B12"
+      }
+    },
+    "dark": {
+      "name": "炭黑",
+      "color": {
+        "overlay": {
+          "mask": "#00000080"
+        },
+        "surface": {
+          "page": "#121212",
+          "paper": "#232329",
+          "sidebar": "#121212",
+          "hover": "#252D29",
+          "disabled": "#2A2A30"
+        },
+        "text": {
+          "primary": "#F1F0FF",
+          "secondary": "#C5C5D0",
+          "muted": "#AAAAB5",
+          "onAccent": "#121212",
+          "disabled": "#92929F",
+          "link": "#A7DCC8"
+        },
+        "border": {
+          "subtle": "#36363F",
+          "interactive": "#80808E",
+          "strong": "#AAAAB8",
+          "focus": "#9CD5BF"
+        },
+        "state": {
+          "success": {
+            "foreground": "#B2CCA6",
+            "background": "#29382B"
+          },
+          "warning": {
+            "foreground": "#E1C58E",
+            "background": "#3C3223"
+          },
+          "error": {
+            "foreground": "#E6B0A6",
+            "background": "#402B2A"
+          },
+          "info": {
+            "foreground": "#B3CBDD",
+            "background": "#263442"
+          }
+        },
+        "graph": {
+          "processing": {
+            "background": "#252F3D",
+            "border": "#8DA4C5"
+          },
+          "data": {
+            "background": "#26332B",
+            "border": "#91B19B"
+          },
+          "storage": {
+            "background": "#373020",
+            "border": "#C6AF79"
+          },
+          "external": {
+            "background": "#2D2D33",
+            "border": "#A0A0AF"
+          },
+          "edge": "#B0B0BD",
+          "labelBackground": "#232329",
+          "groupBackground": "#121212"
+        },
+        "code": {
+          "type": "#A8C4E2",
+          "string": "#D4BB90",
+          "comment": "#ACB6A1"
+        },
+        "accent": {
+          "solid": "#8DCCB4",
+          "hover": "#A7DCC8",
+          "pressed": "#76B79E",
+          "soft": "#24392F",
+          "softHover": "#304A3D"
+        }
+      },
+      "shape": {
+        "paperShadow": "none",
+        "floatingShadow": "0 4px 16px #00000040"
+      }
+    }
+  },
+  "preferences": {
+    "applicationKey": "coseed:appearance",
+    "previewKey": "coseed-design-preview:appearance"
+  }
+}

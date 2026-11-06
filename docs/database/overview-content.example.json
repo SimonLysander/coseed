@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "content": {
+    "product": {
+      "markdown": "CoSeed 面向使用 Coding Agent 开发项目的人，帮助他们持续理解项目需求、实现设计及其变化。开发者通过页面阅读，Agent 通过 MCP 查询和提交整理结果。"
+    },
+    "concepts": {
+      "entries": [
+        {
+          "id": "project",
+          "name": "项目",
+          "descriptionMd": "被理解和推进的软件项目，也是综述、需求、设计及来源的归属边界。"
+        },
+        {
+          "id": "overview",
+          "name": "项目综述",
+          "descriptionMd": "项目当前整体需求的连贯表述，包括产品是什么、核心概念和使用示例。"
+        },
+        {
+          "id": "source",
+          "name": "来源",
+          "descriptionMd": "支撑内容的原始材料片段，例如用户对话、代码及验证结果。"
+        },
+        {
+          "id": "conversation-source",
+          "name": "对话来源",
+          "descriptionMd": "保存用户原始表达及可获得的会话定位，用于核对需求和决定。"
+        }
+      ],
+      "relations": [
+        {
+          "id": "project-contains-overview",
+          "kind": "composition",
+          "source": "project",
+          "target": "overview"
+        },
+        {
+          "id": "conversation-is-source",
+          "kind": "kind-of",
+          "source": "conversation-source",
+          "target": "source"
+        },
+        {
+          "id": "overview-supported-by-source",
+          "kind": "association",
+          "source": "overview",
+          "target": "source",
+          "label": "以其为依据"
+        }
+      ]
+    },
+    "examples": {
+      "introductionMd": "以下以一名开发者与 Coding Agent 共同维护一个项目为例。项目已在 CoSeed 中建立，下面说明如何了解当前需求、回顾开发中的变化，并更新项目内容。",
+      "actors": [
+        { "id": "developer", "name": "开发者" },
+        { "id": "coding-agent", "name": "Coding Agent" }
+      ],
+      "useCases": [
+        {
+          "id": "read-overview",
+          "name": "理解项目当前需求",
+          "actorIds": ["developer", "coding-agent"]
+        },
+        {
+          "id": "review-progress",
+          "name": "回顾并整理明确结论",
+          "actorIds": ["developer", "coding-agent"]
+        },
+        { "id": "update-overview", "name": "更新项目综述并保留依据", "actorIds": ["coding-agent"] }
+      ],
+      "sections": [
+        {
+          "id": "understand-project",
+          "title": "开始工作前，理解项目",
+          "diagram": { "id": "understand-project-diagram", "useCaseIds": ["read-overview"] },
+          "markdown": "开发者先阅读项目综述，了解产品要解决什么问题、核心概念怎样关联，再和 Agent 讨论当前任务。Agent 也查询同一份内容，使用已有需求和设计作为协作依据。"
+        },
+        {
+          "id": "review-and-update",
+          "title": "完成一段工作后，回顾变化",
+          "diagram": {
+            "id": "review-and-update-diagram",
+            "useCaseIds": ["review-progress", "update-overview"]
+          },
+          "markdown": "开发者明确发起一次阶段回顾。Agent 核对指定范围的原始讨论和相关变化，整理已经明确的结论；结论影响项目整体认识时，再更新综述并关联实际依据。"
+        }
+      ]
+    }
+  }
+}

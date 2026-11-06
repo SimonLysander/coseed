@@ -1,0 +1,315 @@
+{
+  "schemaVersion": 1,
+  "entities": [
+    {
+      "id": "requirements",
+      "revisionNo": 1,
+      "content": {
+        "kind": "module",
+        "name": "需求推进",
+        "summary": "保存需求目标、推进结论和各自的修订历史。",
+        "role": "core"
+      }
+    },
+    {
+      "id": "overview",
+      "revisionNo": 1,
+      "content": {
+        "kind": "module",
+        "name": "项目综述",
+        "summary": "维护项目当前的产品表述、核心概念和使用示例。",
+        "role": "core"
+      }
+    },
+    {
+      "id": "agent-client",
+      "revisionNo": 1,
+      "content": {
+        "kind": "external_system",
+        "name": "Coding Agent 客户端",
+        "summary": "由开发者使用，负责整理讨论并通过 MCP 提交内容。"
+      }
+    },
+    {
+      "id": "update-requirement",
+      "revisionNo": 1,
+      "content": {
+        "kind": "component",
+        "name": "需求更新处理",
+        "summary": "检查目标需求、旧版本和本次依据，在一次保存中更新需求并保留相关记录。",
+        "owner": {
+          "kind": "module",
+          "id": "requirements"
+        },
+        "primarySourceId": null
+      }
+    },
+    {
+      "id": "maintain-records",
+      "revisionNo": 1,
+      "content": {
+        "kind": "component",
+        "name": "推进记录维护",
+        "summary": "区分新增结论与纠正旧记录，保存记录身份、每版正文及具体来源。",
+        "owner": {
+          "kind": "module",
+          "id": "requirements"
+        },
+        "primarySourceId": null
+      }
+    },
+    {
+      "id": "agent-review",
+      "revisionNo": 1,
+      "content": {
+        "kind": "component",
+        "name": "回顾整理",
+        "summary": "核对用户指定讨论范围，查询已有内容后提出需要补齐和修正的结果。",
+        "owner": {
+          "kind": "external_system",
+          "id": "agent-client"
+        },
+        "primarySourceId": null
+      }
+    },
+    {
+      "id": "requirement-data",
+      "revisionNo": 1,
+      "content": {
+        "kind": "data_object",
+        "name": "需求",
+        "summary": "一个能够独立讨论、推进和验收的用户目标。",
+        "owner": {
+          "kind": "module",
+          "id": "requirements"
+        },
+        "primarySourceId": null,
+        "typeSourceId": null,
+        "typeName": "Requirement",
+        "typeScript": "type Requirement = {\n  id: string; // 需求身份\n  title: string; // 当前标题\n  status: RequirementStatus; // 当前阶段\n};"
+      }
+    },
+    {
+      "id": "record-data",
+      "revisionNo": 1,
+      "content": {
+        "kind": "data_object",
+        "name": "推进记录",
+        "summary": "围绕一个需求形成的一项结论或结果，允许保留同一记录的多个版本。",
+        "owner": {
+          "kind": "module",
+          "id": "requirements"
+        },
+        "primarySourceId": null,
+        "typeSourceId": null,
+        "typeName": "ProgressRecord",
+        "typeScript": "type ProgressRecord = {\n  id: string; // 记录身份\n  requirementId: string; // 主需求\n  markdown: string; // 本版正文\n  occurredAt: number | null; // 实际发生时间，未知为空\n};"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "id": "requirements-use-overview",
+      "revisionNo": 1,
+      "content": {
+        "kind": "functional_dependency",
+        "sourceId": "requirements",
+        "targetId": "overview",
+        "summary": "定位需求结论对应的综述内容，保持推进记录与当前认识相互关联。"
+      }
+    },
+    {
+      "id": "agent-updates-requirements",
+      "revisionNo": 1,
+      "content": {
+        "kind": "call",
+        "sourceId": "agent-review",
+        "targetId": "update-requirement",
+        "summary": "提交本次明确的需求变化和原始依据。",
+        "operations": [
+          {
+            "name": "提交需求更新",
+            "interfaceSignature": null,
+            "input": "目标项目、需求、旧版本、本次内容和依据",
+            "returns": {
+              "kind": "data",
+              "summary": "保存结果和新版本"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "update-reads-requirement",
+      "revisionNo": 1,
+      "content": {
+        "kind": "read",
+        "sourceId": "update-requirement",
+        "targetId": "requirement-data",
+        "summary": "读取当前需求，核对归属和旧版本。",
+        "operations": [
+          {
+            "name": "读取需求",
+            "selector": "项目、需求",
+            "result": "当前内容和版本"
+          }
+        ]
+      }
+    },
+    {
+      "id": "update-writes-requirement",
+      "revisionNo": 1,
+      "content": {
+        "kind": "write",
+        "sourceId": "update-requirement",
+        "targetId": "requirement-data",
+        "summary": "保存需求当前认识，保留发生变化的状态和内容。",
+        "operations": [
+          {
+            "name": "保存需求新版",
+            "selector": "项目、需求、旧版本",
+            "changes": "标题、正文和状态"
+          }
+        ]
+      }
+    },
+    {
+      "id": "update-maintains-records",
+      "revisionNo": 1,
+      "content": {
+        "kind": "call",
+        "sourceId": "update-requirement",
+        "targetId": "maintain-records",
+        "summary": "共同保存支撑状态变化的推进记录及具体版本。",
+        "operations": [
+          {
+            "name": "保存相关记录",
+            "interfaceSignature": null,
+            "input": "主需求、记录内容和依据",
+            "returns": {
+              "kind": "data",
+              "summary": "记录身份及版本引用"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "records-own-requirement",
+      "revisionNo": 1,
+      "content": {
+        "kind": "object_association",
+        "sourceId": "record-data",
+        "targetId": "requirement-data",
+        "summary": "每条记录有一个主需求，需求可以积累多条推进记录。",
+        "associationKey": "requirementId",
+        "sourceMultiplicity": "0..*",
+        "targetMultiplicity": "1"
+      }
+    }
+  ],
+  "notes": [
+    {
+      "id": "atomic-save",
+      "revisionNo": 1,
+      "content": {
+        "title": "事务边界",
+        "problemMd": "需求状态、推进记录和来源需要共同保存。将相关更新放入同一次事务，避免状态已改而依据未留下的半次更新。",
+        "entityIds": ["update-requirement", "maintain-records"]
+      }
+    }
+  ],
+  "diagrams": [
+    {
+      "id": "business-overview",
+      "revisionNo": 1,
+      "content": {
+        "title": "业务全景",
+        "scope": {
+          "kind": "project"
+        },
+        "entityRefs": [
+          {
+            "id": "requirements",
+            "revisionNo": 1
+          },
+          {
+            "id": "overview",
+            "revisionNo": 1
+          }
+        ],
+        "relationshipRefs": [
+          {
+            "id": "requirements-use-overview",
+            "revisionNo": 1
+          }
+        ],
+        "noteRefs": []
+      }
+    },
+    {
+      "id": "requirements-internal",
+      "revisionNo": 1,
+      "content": {
+        "title": "需求推进内部设计",
+        "scope": {
+          "kind": "module",
+          "moduleRef": {
+            "id": "requirements",
+            "revisionNo": 1
+          }
+        },
+        "entityRefs": [
+          {
+            "id": "update-requirement",
+            "revisionNo": 1
+          },
+          {
+            "id": "maintain-records",
+            "revisionNo": 1
+          },
+          {
+            "id": "agent-review",
+            "revisionNo": 1
+          },
+          {
+            "id": "requirement-data",
+            "revisionNo": 1
+          },
+          {
+            "id": "record-data",
+            "revisionNo": 1
+          }
+        ],
+        "relationshipRefs": [
+          {
+            "id": "agent-updates-requirements",
+            "revisionNo": 1
+          },
+          {
+            "id": "update-reads-requirement",
+            "revisionNo": 1
+          },
+          {
+            "id": "update-writes-requirement",
+            "revisionNo": 1
+          },
+          {
+            "id": "update-maintains-records",
+            "revisionNo": 1
+          },
+          {
+            "id": "records-own-requirement",
+            "revisionNo": 1
+          }
+        ],
+        "noteRefs": [
+          {
+            "id": "atomic-save",
+            "revisionNo": 1
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "CoSeed local HTTP API", "version": "0.1.0" },
+  "paths": {
+    "/api/status": {
+      "get": {
+        "operationId": "getServiceStatus",
+        "summary": "检查本地服务与 SQLite 连接",
+        "responses": {
+          "200": {
+            "description": "服务和数据库已就绪",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "const": "CoSeed" },
+                    "version": { "type": "string", "minLength": 1 },
+                    "status": { "type": "string", "const": "ready" },
+                    "storage": { "type": "string", "const": "ready" }
+                  },
+                  "required": ["name", "version", "status", "storage"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": { "description": "Host 或 Origin 不符合本地访问约束" },
+          "503": { "description": "数据库不可用" }
+        }
+      }
+    }
+  }
+}
