@@ -86,40 +86,50 @@
   align-items: flex-start;
   gap: 12px;
   margin-top: auto;
-  padding: 16px 12px 0;
+  padding: calc(var(--ds-space-6) * 1px) 0 0;
 }
-.sidebar-bottom .ant-btn {
+.sidebar-bottom .ant-btn.ds-nav-item {
   display: grid;
   column-gap: calc(var(--ds-space-4) * 1px);
-  padding: 0;
+  width: 100%;
+  height: auto;
+  border: 0;
+  padding-inline: calc(var(--ds-space-5) * 1px);
   font-size: calc(var(--ds-type-navigation-size) * 1px);
+}
+.sidebar-bottom .ant-btn-color-default.ds-nav-item {
   color: var(--ds-color-text-secondary);
+}
+.sidebar-guide-link {
+  text-decoration: none;
+  border-radius: var(--ds-shape-controlRadius);
+}
+.sidebar-action-label {
+  min-width: 0;
+  white-space: nowrap;
+  text-align: left;
+}
+.sidebar-utilities {
+  display: grid;
+  grid-template-columns: calc(var(--ds-size-navIcon) * 1px) minmax(0, 1fr);
+  align-items: center;
+  gap: calc(var(--ds-space-4) * 1px);
+  width: 100%;
+  padding-inline: calc(var(--ds-space-5) * 1px);
+}
+.sidebar-utilities .appearance-trigger {
+  justify-self: center;
 }
 .sidebar-note {
   color: var(--ds-color-text-muted);
   font-size: 12px;
+  padding-inline: calc(var(--ds-space-5) * 1px);
 }
 .main-area {
   display: flex;
   flex: 1;
   flex-direction: column;
   min-width: 0;
-}
-.page-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: calc(var(--ds-layout-headerHeight) * 1px);
-  padding: 0 calc(var(--ds-layout-pagePadding) * 1px);
-  border-bottom: 1px solid var(--ds-color-border-subtle);
-  font-size: 13px;
-  color: var(--ds-color-text-secondary);
-}
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-left: auto;
 }
 .connection {
   display: inline-flex;
@@ -220,7 +230,7 @@
   .brand > span:last-child,
   .project-slot,
   .sidebar-note,
-  .sidebar-bottom .ant-btn > span:last-child {
+  .sidebar .sidebar-action-label {
     display: none;
   }
   .sidebar nav {
@@ -238,42 +248,43 @@
     justify-items: center;
     padding-inline: 0 !important;
   }
-  .sidebar-bottom {
+  .sidebar-utilities {
+    display: flex;
+    flex-direction: column;
     padding-inline: 0;
   }
-  .sidebar-bottom .ant-btn {
+  .sidebar .connection-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .sidebar-bottom .ant-btn.ds-nav-item {
     grid-template-columns: 1fr;
+    justify-items: center;
     width: 100%;
-    padding: 8px;
+    padding-inline: 0;
   }
 }
 @media (max-width: 767px) {
   .sidebar {
     display: none;
   }
-  .page-header {
-    padding-inline: 12px;
-    gap: 8px;
-  }
-  .header-actions {
-    gap: 12px;
-  }
-  .workbench-menu {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    min-height: 44px;
-    border: 0;
+  .workbench-menu.ant-btn {
+    position: fixed;
+    top: calc(var(--ds-space-4) * 1px);
+    left: calc(var(--ds-space-4) * 1px);
+    z-index: var(--ds-layer-sticky);
+    display: inline-flex;
+    width: calc(var(--ds-size-coarsePointerTarget) * 1px);
+    height: calc(var(--ds-size-coarsePointerTarget) * 1px);
+    padding: 0;
     color: var(--ds-color-text-primary);
-    background: transparent;
+    background: var(--ds-color-surface-page);
   }
-  .connection-label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
+  .main-area {
+    padding-top: calc((var(--ds-size-coarsePointerTarget) + 2 * var(--ds-space-4)) * 1px);
   }
   .empty-page {
     margin-top: 16px;

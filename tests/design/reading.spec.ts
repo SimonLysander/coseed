@@ -1,3 +1,4 @@
+import { chooseAppearance } from '../helpers/appearance.js';
 import { expect, test } from '@playwright/test';
 import { expectNavigationAlignment } from '../helpers/navigation-layout.js';
 
@@ -48,7 +49,7 @@ test('approved reader uses canonical typography without trial fonts', async ({ p
         (element as HTMLElement).style.getPropertyValue('--ds-color-accent-solid'),
       ),
   ).toBe('#2F7864');
-  await page.getByRole('combobox', { name: '明暗模式' }).selectOption('dark');
+  await chooseAppearance(page, 'dark');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   expect(fonts.every((url) => url.includes('patrick-hand'))).toBe(true);
 });

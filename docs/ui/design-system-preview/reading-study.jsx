@@ -7,7 +7,7 @@ import { GitBranchIcon } from '@animateicons/react/lucide/git-branch-icon';
 import { SproutIcon } from '@animateicons/react/lucide/sprout-icon';
 import { ArrowLeftIcon } from '@animateicons/react/lucide/arrow-left-icon';
 import { foundations } from '../../../src/web/design-system/tokens.ts';
-import { AppearanceSelect } from '../../../src/web/design-system/DesignSystemProvider.tsx';
+import { AppearanceToggle } from '../../../src/web/design-system/AppearanceToggle.tsx';
 import './reading-study.css';
 
 const sections = [
@@ -122,7 +122,7 @@ export function ReadingStudy() {
               </Button>
             </Dropdown>
             <span className="study-font-note">系统字体</span>
-            <AppearanceSelect />
+            <AppearanceToggle />
           </div>
         </header>
         <main className="study-main">

@@ -1,3 +1,4 @@
+import { chooseAppearance } from '../helpers/appearance.js';
 import { expect, test } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 
@@ -21,7 +22,7 @@ test('guide navigation, section links and bundled reference work in the built ap
     page.getByRole('heading', { name: '3. 推进一轮工作', exact: true }),
   ).toBeInViewport();
   await expect(page.locator('.guide-toc a[aria-current="location"]')).toContainText('推进一轮工作');
-  await page.getByRole('combobox', { name: '明暗模式' }).selectOption('dark');
+  await chooseAppearance(page, 'dark');
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(
@@ -64,7 +65,7 @@ test('guide remains readable with working contents and navigation on narrow scre
   await page.getByRole('menuitem', { name: '开始一个项目' }).click();
   const heading = page.getByRole('heading', { name: '2. 开始一个项目', exact: true });
   await expect(heading).toBeInViewport();
-  expect((await heading.boundingBox())!.y).toBeGreaterThanOrEqual(48);
+  expect((await heading.boundingBox())!.y).toBeGreaterThanOrEqual(60);
   await page.getByRole('button', { name: '打开主导航' }).click();
   await page.getByRole('dialog').getByRole('menuitem', { name: '项目综述' }).click();
   await expect(page.getByRole('heading', { name: '先从一个项目开始' })).toBeVisible();

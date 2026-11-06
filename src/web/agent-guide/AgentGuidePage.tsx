@@ -1,23 +1,23 @@
 import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { Button, Dropdown } from 'antd';
 import { CopyIcon } from '@animateicons/react/lucide/copy-icon';
 import { foundations } from '../design-system/tokens.js';
 import { guideHref, guideSections, guideText, guideTitle } from './guide-content.js';
 import './agent-guide.css';
 
-export default function AgentGuidePage({
-  headerContainer,
-}: {
-  headerContainer: HTMLElement | null;
-}) {
+export default function AgentGuidePage() {
   const [active, setActive] = useState(guideSections[0]!.id);
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
   useEffect(() => {
     let frame = 0;
     const updateActive = () => {
-      const offset = foundations.layout.headerHeight + foundations.layout.pagePadding;
+      const offset =
+        window.innerWidth < foundations.layout.breakpoint.tablet
+          ? foundations.size.coarsePointerTarget +
+            2 * foundations.space['4'] +
+            foundations.layout.mobilePagePadding
+          : foundations.layout.pagePadding;
       const visible = guideSections.filter(
         ({ id }) =>
           (document.getElementById(id)?.getBoundingClientRect().top ?? Infinity) <= offset,
@@ -70,46 +70,44 @@ export default function AgentGuidePage({
 
   return (
     <div className="guide-page">
-      {headerContainer &&
-        createPortal(
-          <div className="guide-mobile-tools">
-            <Dropdown
-              trigger={['click']}
-              placement="bottomRight"
-              menu={{
-                selectedKeys: [active],
-                items: guideSections.map(({ id, title }) => ({
-                  key: id,
-                  label: <a href={guideHref(id)}>{title}</a>,
-                })),
-              }}
-            >
-              <Button type="text" aria-label="打开阅读目录">
-                目录
-              </Button>
-            </Dropdown>
-          </div>,
-          headerContainer,
-        )}
       <div className="ds-reading-layout guide-layout">
         <article className="ds-prose guide-article" aria-labelledby="agent-guide-title">
           <header className="guide-heading">
             <div className="guide-title-row">
               <h1 id="agent-guide-title">{guideTitle}</h1>
-              <Button
-                className="guide-copy"
-                icon={
-                  <CopyIcon
-                    className="ds-icon"
-                    size={foundations.size.icon}
-                    isAnimated={false}
-                    aria-hidden="true"
-                  />
-                }
-                onClick={() => void copyGuide()}
-              >
-                {copyState === 'copied' ? '已复制' : '复制说明'}
-              </Button>
+              <div className="guide-actions">
+                <div className="guide-mobile-tools">
+                  <Dropdown
+                    trigger={['click']}
+                    placement="bottomRight"
+                    menu={{
+                      selectedKeys: [active],
+                      items: guideSections.map(({ id, title }) => ({
+                        key: id,
+                        label: <a href={guideHref(id)}>{title}</a>,
+                      })),
+                    }}
+                  >
+                    <Button type="text" aria-label="打开阅读目录">
+                      目录
+                    </Button>
+                  </Dropdown>
+                </div>
+                <Button
+                  className="guide-copy"
+                  icon={
+                    <CopyIcon
+                      className="ds-icon"
+                      size={foundations.size.icon}
+                      isAnimated={false}
+                      aria-hidden="true"
+                    />
+                  }
+                  onClick={() => void copyGuide()}
+                >
+                  {copyState === 'copied' ? '已复制' : '复制说明'}
+                </Button>
+              </div>
             </div>
             <p className="guide-lead">
               从连接服务开始，让 Agent 读取项目资料、整理变化，再保存到 CoSeed。

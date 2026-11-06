@@ -1,3 +1,4 @@
+import { chooseAppearance } from '../helpers/appearance.js';
 import { expect, test } from '@playwright/test';
 import themes from '../../src/web/design-system/themes.json' with { type: 'json' };
 const rgb = (hex: string) =>
@@ -6,31 +7,24 @@ const rgb = (hex: string) =>
 test('manual mode persists while switching preserves the draft', async ({ page }) => {
   await page.goto('/');
   await page.getByLabel('项目名称（样例）').fill('尚未保存的输入');
-  await page.getByRole('combobox', { name: '明暗模式' }).selectOption('dark');
+  await chooseAppearance(page, 'dark');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(page.getByLabel('项目名称（样例）')).toHaveValue('尚未保存的输入');
   await page.reload();
-  await expect(page.getByRole('combobox', { name: '明暗模式' })).toHaveValue('dark');
+  await expect(page.getByRole('button', { name: '切换到浅色', exact: true })).toBeVisible();
 });
 
-test('system changes apply only when following the system', async ({ page }) => {
-  await page.emulateMedia({ colorScheme: 'light' });
+test('mode starts light and stays independent of the operating system', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
   await page.goto('/');
-  const select = page.getByRole('combobox', { name: '明暗模式' });
-  await expect(select).toHaveValue('system');
-  await page.emulateMedia({ colorScheme: 'dark' });
+  await expect(page.getByRole('button', { name: '切换到深色', exact: true })).toBeVisible();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await chooseAppearance(page, 'dark');
+  await page.emulateMedia({ colorScheme: 'light' });
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await select.selectOption('light');
-  await page.emulateMedia({ colorScheme: 'light' });
+  await chooseAppearance(page, 'light');
   await page.emulateMedia({ colorScheme: 'dark' });
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  await select.selectOption('system');
-  await page.getByRole('button', { name: '预览弹窗' }).click();
-  await page.emulateMedia({ colorScheme: 'light' });
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  await expect(page.getByRole('dialog')).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(page.getByRole('dialog')).not.toBeVisible();
 });
 
 test('legacy preview preference retains mode before the module loads', async ({ page }) => {
@@ -56,7 +50,7 @@ test('canonical modes reach graph fields and overlays without candidate controls
   await page.goto('/');
   await expect(page.getByRole('radio')).toHaveCount(0);
   for (const mode of ['light', 'dark'] as const) {
-    await page.getByRole('combobox', { name: '明暗模式' }).selectOption(mode);
+    await chooseAppearance(page, mode);
     const colors = themes.modes[mode].color;
     expect(
       await page

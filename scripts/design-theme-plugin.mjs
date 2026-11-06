@@ -13,7 +13,7 @@ export function designThemePlugin({ preview = false } = {}) {
       },
     ]),
   );
-  const bootstrap = `<script>(()=>{const preference=(${readAppearance.toString()})(${JSON.stringify(key)});const mode=preference==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):preference;const colors=${JSON.stringify(colors)};const root=document.documentElement;root.dataset.theme=mode;root.style.colorScheme=mode;root.style.setProperty('--ds-color-surface-page',colors[mode].page);root.style.setProperty('--ds-color-text-primary',colors[mode].text);root.style.background='var(--ds-color-surface-page)';root.style.color='var(--ds-color-text-primary)';document.querySelector('meta[name="theme-color"]')?.setAttribute('content',colors[mode].page);})();</script>`;
+  const bootstrap = `<script>(()=>{const mode=(${readAppearance.toString()})(${JSON.stringify(key)});const colors=${JSON.stringify(colors)};const root=document.documentElement;root.dataset.theme=mode;root.style.colorScheme=mode;root.style.setProperty('--ds-color-surface-page',colors[mode].page);root.style.setProperty('--ds-color-text-primary',colors[mode].text);root.style.background='var(--ds-color-surface-page)';root.style.color='var(--ds-color-text-primary)';document.querySelector('meta[name="theme-color"]')?.setAttribute('content',colors[mode].page);})();</script>`;
   return {
     name: 'coseed-design-theme',
     async generateBundle() {

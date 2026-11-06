@@ -8,7 +8,7 @@ npm run design:preview
 npm run test:design
 ```
 
-样板地址 `http://127.0.0.1:4177/`，阅读样例 `http://127.0.0.1:4177/?view=reading`。固定系统字体和松针绿，支持浅色、深色、跟随系统。字体和绿色候选已移除；不再维护第二套主题定义。
+样板地址 `http://127.0.0.1:4177/`，阅读样例 `http://127.0.0.1:4177/?view=reading`。固定系统字体和松针绿，通过日月按钮直接切换浅色和深色，默认浅色并记住用户选择。字体和绿色候选已移除；不再维护第二套主题定义。
 
 样板显示偏好保存在 `coseed-design-preview:appearance`，正式前端使用 `coseed:appearance`，互不覆盖。两者的首帧初始化由相同构建插件生成。额外字体仅为英文字标 Patrick Hand Latin，来源及 OFL 位于 `src/web/design-system/fonts/`，构建时携带许可。
 

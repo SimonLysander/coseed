@@ -69,16 +69,11 @@ pre {
   line-height: calc(var(--ds-type-code-lineHeight) * 1px);
   font-variant-ligatures: none;
 }
-.appearance-select {
-  height: calc(var(--ds-size-control) * 1px);
-  padding-inline: 8px;
-  font-family: var(--ds-font-ui);
-  font-size: calc(var(--ds-type-label-size) * 1px);
-  color: var(--ds-color-text-primary);
-  background: var(--ds-color-surface-page);
-  border: 1px solid var(--ds-color-border-interactive);
-  border-radius: var(--ds-shape-controlRadius);
-  cursor: pointer;
+.appearance-trigger.ant-btn {
+  width: calc(var(--ds-size-control) * 1px);
+  padding: 0;
+  flex: none;
+  color: var(--ds-color-text-secondary);
 }
 .ant-btn,
 .ant-input,
@@ -176,11 +171,13 @@ pre {
 }
 @media (pointer: coarse) {
   .ds-nav-item,
-  .appearance-select,
   .ant-btn,
   .ant-input,
   .ant-checkbox-wrapper {
     min-height: calc(var(--ds-size-coarsePointerTarget) * 1px);
+  }
+  .appearance-trigger.ant-btn {
+    width: calc(var(--ds-size-coarsePointerTarget) * 1px);
   }
 }
 @media (prefers-reduced-motion: reduce) {

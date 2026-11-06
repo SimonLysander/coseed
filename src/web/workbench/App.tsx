@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Button, Drawer, Menu } from 'antd';
 import { MenuIcon } from '@animateicons/react/lucide/menu-icon';
-import { AppearanceSelect } from '../design-system/DesignSystemProvider.js';
+import { AppearanceToggle } from '../design-system/AppearanceToggle.js';
 import { foundations } from '../design-system/tokens.js';
 import { BookOpenIcon } from '@animateicons/react/lucide/book-open-icon';
 import { GitBranchIcon } from '@animateicons/react/lucide/git-branch-icon';
@@ -19,7 +19,6 @@ const ServiceConnectionDialog = lazy(() => import('./ServiceConnectionDialog.js'
 
 export function App() {
   const [guideOpen, setGuideOpen] = useState(isGuideRoute);
-  const [guideHeader, setGuideHeader] = useState<HTMLDivElement | null>(null);
   useEffect(() => {
     const onHashChange = () => {
       setGuideOpen(isGuideRoute());
@@ -80,34 +79,45 @@ export function App() {
         />
       </nav>
       <div className="sidebar-bottom">
-        <a
+        <Button
           className="ds-nav-item sidebar-guide-link"
+          color={guideOpen ? 'primary' : 'default'}
+          variant="text"
           href="#/agent-guide"
           aria-label="Agent 接入"
           aria-current={guideOpen ? 'page' : undefined}
-          title="Agent 接入"
+          icon={
+            <FileTextIcon className="ds-icon" size={foundations.size.navIcon} aria-hidden="true" />
+          }
           onClick={() => setNavigationOpen(false)}
         >
-          <FileTextIcon
-            className="ds-icon"
-            size={foundations.size.navIcon}
-            isAnimated={false}
-            aria-hidden="true"
-          />
-          <span>Agent 接入</span>
-        </a>
+          <span className="sidebar-action-label">Agent 接入</span>
+        </Button>
         <Button
           className="ds-nav-item"
           type="text"
           aria-label="服务连接"
-          icon={<PlugIcon className="ds-icon" size={foundations.size.icon} />}
+          icon={<PlugIcon className="ds-icon" size={foundations.size.navIcon} />}
           onClick={() => {
             setNavigationOpen(false);
             setConnectionOpen(true);
           }}
         >
-          服务连接
+          <span className="sidebar-action-label">服务连接</span>
         </Button>
+        <div className="sidebar-utilities">
+          <AppearanceToggle />
+          <span className={`connection connection-${connection.state}`} role="status">
+            <span className="connection-dot" />
+            <span className="connection-label">
+              {ready
+                ? '本地服务已就绪'
+                : connection.state === 'loading'
+                  ? '正在连接本地服务'
+                  : '本地服务连接失败'}
+            </span>
+          </span>
+        </div>
         <span className="sidebar-note">项目认知工作台</span>
       </div>
     </div>
@@ -118,30 +128,13 @@ export function App() {
       <aside className="sidebar">{sidebarContent}</aside>
 
       <main className="main-area">
-        <header className="page-header">
-          <button
-            className="workbench-menu"
-            aria-label="打开主导航"
-            onClick={() => setNavigationOpen(true)}
-          >
-            <MenuIcon className="ds-icon" size={foundations.size.navIcon} isAnimated={false} />
-          </button>
-          <span>{guideOpen ? 'Agent 接入' : '项目综述'}</span>
-          {guideOpen && <div className="guide-header-tools" ref={setGuideHeader} />}
-          <div className="header-actions">
-            <AppearanceSelect />
-            <span className={`connection connection-${connection.state}`} role="status">
-              <span className="connection-dot" />
-              <span className="connection-label">
-                {ready
-                  ? '本地服务已就绪'
-                  : connection.state === 'loading'
-                    ? '正在连接本地服务'
-                    : '本地服务连接失败'}
-              </span>
-            </span>
-          </div>
-        </header>
+        <Button
+          className="workbench-menu"
+          type="text"
+          aria-label="打开主导航"
+          onClick={() => setNavigationOpen(true)}
+          icon={<MenuIcon className="ds-icon" size={foundations.size.navIcon} aria-hidden="true" />}
+        />
         {guideOpen ? (
           <Suspense
             fallback={
@@ -150,7 +143,7 @@ export function App() {
               </p>
             }
           >
-            <AgentGuidePage headerContainer={guideHeader} />
+            <AgentGuidePage />
           </Suspense>
         ) : (
           <motion.section

@@ -19,9 +19,9 @@ import {
 } from '../../../src/web/design-system/tokens.ts';
 import {
   DesignSystemProvider,
-  AppearanceSelect,
   useAppearance,
 } from '../../../src/web/design-system/DesignSystemProvider.tsx';
+import { AppearanceToggle } from '../../../src/web/design-system/AppearanceToggle.tsx';
 import { ReadingStudy } from './reading-study.jsx';
 import './style.css';
 
@@ -196,7 +196,7 @@ function Preview() {
                   />
                   <span className="header-context">CoSeed / 全局设计系统</span>
                   <div className="header-tools">
-                    <AppearanceSelect />
+                    <AppearanceToggle />
                     <span className="draft-label">{mode === 'dark' ? '深色样板' : '浅色样板'}</span>
                   </div>
                 </header>
