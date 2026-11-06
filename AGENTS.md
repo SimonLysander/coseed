@@ -1,6 +1,6 @@
 # CoSeed 工程入口
 
-CoSeed 是通过 Web 和客户端无关的 MCP 提供入口的项目认知工作台。当前实现仍为本机服务；后续部署与存储方向见 ADR 0002。正式业务功能仍在逐步实现，禁止把前期 Claude Monitor 示例当成 CoSeed 的真实数据。
+CoSeed 是通过 Web 和客户端无关的 MCP 提供入口的项目认知工作台。当前实现仍为本机服务；后续部署与存储方向见 ADR 0003。正式业务功能仍在逐步实现，禁止把前期 Claude Monitor 示例当成 CoSeed 的真实数据。
 
 ## 先读什么
 
@@ -8,7 +8,7 @@ CoSeed 是通过 Web 和客户端无关的 MCP 提供入口的项目认知工作
 
 - 当前实现与边界：[ARCHITECTURE.md](ARCHITECTURE.md)
 - 业务规则及未决问题：[docs/requirements/product.md](docs/requirements/product.md)
-- 技术决策：[当前初始化技术栈](docs/adr/0001-local-service-stack.md)；[已确认的 MCP 直连与 Git 资料管理方向](docs/adr/0002-agent-workspace-sync.md)，后者尚未实现
+- 技术决策：[当前初始化技术栈](docs/adr/0001-local-service-stack.md)；[数据库权威内容与 Agent 本地读取副本](docs/adr/0003-database-and-agent-cache.md)，后者尚未实现；ADR 0002 的 Git 存储方向已被替代
 - 数据模型进度与各模块提案：[docs/database/README.md](docs/database/README.md)；区分首批库表、综述、需求推进和业务设计，尚未接入运行时迁移及业务接口。
 - 配置、启动和排错：[docs/operations/local-development.md](docs/operations/local-development.md)
 - Agent 接入与使用：[简版指南草稿](docs/operations/agent-integration.md)，后续按提示词标准细化，尚未通过 MCP 发布

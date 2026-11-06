@@ -1,6 +1,6 @@
 # CoSeed 开发与版本规范
 
-本规范适用于 **CoSeed 程序本身的源码仓库**；CoSeed 未来内部管理的项目资料 Git 仓库，其提交和发布规则由业务协议另行设计。
+本规范适用于 **CoSeed 程序本身的源码仓库**。项目资料采用数据库权威存储和 Agent 本地读取副本，见 [ADR 0003](docs/adr/0003-database-and-agent-cache.md)；不另建项目资料 Git 仓库。
 
 ## 分支
 

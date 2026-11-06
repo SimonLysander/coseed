@@ -8,7 +8,7 @@ CoSeed 帮助开发者与 Coding Agent 共同理解、设计和推进软件项�
 
 工程初始化已实现：React 工作台框架、Agent 接入说明阅读页、NestJS/Fastify 服务、CLI、分层配置、SQLite/Drizzle 连接和 MCP 标准握手。项目创建、业务数据、回顾读写工具以及完整业务图仍待实现。此前已经验证过项目综述、业务设计图等阅读原型；原型仍在前期工作目录，尚未迁入本仓库。Claude Monitor 是原型的示例项目，不是 CoSeed 本身。
 
-当前运行实现是提供 Web 和 MCP 入口的本机服务。后续已确认方向为：Agent 使用已有 MCP 能力直接连接 CoSeed 服务，服务内部用 Git 管理项目资料及历史，数据库提供查询索引；无需本地连接器，也不要求业务仓库保存 CoSeed 资料。该方向尚未实现。一个实例可管理多个项目，各项目的内容、来源引用及更正历史独立，默认不跨项目读写。CoSeed 不依赖特定 Coding Agent，不内置执行器或模型 SDK。前端组件方向已确定为 Ant Design + Motion + AnimateIcons；其他推荐和待验证事项见技术选型文档。
+当前运行实现是提供 Web 和 MCP 入口的本机服务。后续已确认方向为：数据库保存项目资料及历史；Agent 使用已有 MCP 能力连接 CoSeed，初始化拉取完整当前资料到本地读取副本，正式修改经 MCP 提交；无需本地连接器，不使用资料 Git 仓库，也不要求业务仓库提交 CoSeed 缓存。该方向尚未实现。一个实例可管理多个项目，各项目的内容、来源引用及更正历史独立，默认不跨项目读写。CoSeed 不依赖特定 Coding Agent，不内置执行器或模型 SDK。前端组件方向已确定为 Ant Design + Motion + AnimateIcons；其他推荐和待验证事项见技术选型文档。
 
 ## 开始开发
 
@@ -44,7 +44,8 @@ npm run verify:package
 - [全局设计系统](docs/ui/design-system.md)：轻手绘基调、紧凑布局、具体 Token 和动态图标规则；正式应用与样板共用系统字体、松针绿和排版；`npm run design:preview` 打开独立样板。
 - [技术选型](docs/adr/0001-local-service-stack.md)：首版技术栈、协议边界、依据及待验证事项。
 - [2026 图形方案调研](docs/research/diagram-engines-2026.md)：X6、React Flow、G6、Mermaid 的适用性及真实图形验证要求。
-- [Git 资料格式调研](docs/research/git-content-formats-2026.md)：成熟先例、四种文件格式比较、可复现实验及待确认建议。
+- [存储及 Agent 读写流程](docs/database/storage-and-agent-flow.md)：数据库、本地读取目录、固定快照、MCP 提交、冲突和恢复；决策见 [ADR 0003](docs/adr/0003-database-and-agent-cache.md)。
+- [Git 资料格式调研](docs/research/git-content-formats-2026.md)：保留的备选方案研究，已不作为当前实施方向。
 
 - [业务设计](docs/requirements/product.md)：产品范围、核心概念、业务关系、职责边界和验收场景。
 - [工作台界面设计](docs/ui/workbench.md)：项目选择、阅读布局、需求详情和回顾入口的第一版草案。
