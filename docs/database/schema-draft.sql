@@ -1,5 +1,7 @@
 -- Design proposal only: not a runtime migration. Requires foreign_keys = ON.
 -- Apply the complete file to an empty, disposable database for design verification.
+-- Earlier common layer: projects/write_operations are superseded by the proposal
+-- in snapshot-coordination-draft.sql. Merge definitions, do not concatenate them.
 
 CREATE TABLE projects (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(trim(id)) > 0),

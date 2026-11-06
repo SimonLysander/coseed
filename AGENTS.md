@@ -10,6 +10,7 @@ CoSeed 是通过 Web 和客户端无关的 MCP 提供入口的项目认知工作
 - 业务规则及未决问题：[docs/requirements/product.md](docs/requirements/product.md)
 - 技术决策：[当前初始化技术栈](docs/adr/0001-local-service-stack.md)；[数据库权威内容与 Agent 本地读取副本](docs/adr/0003-database-and-agent-cache.md)，后者尚未实现；ADR 0002 的 Git 存储方向已被替代
 - 数据模型进度与各模块提案：[docs/database/README.md](docs/database/README.md)；区分首批库表、综述、需求推进和业务设计，尚未接入运行时迁移及业务接口。
+- 项目快照和共同保存模型：[docs/database/snapshot-save-model.md](docs/database/snapshot-save-model.md)；协调层及临时 SQL 验证是提案，不能与旧 SQL 同名定义原样叠加。
 - 配置、启动和排错：[docs/operations/local-development.md](docs/operations/local-development.md)
 - Agent 接入与使用：[简版指南草稿](docs/operations/agent-integration.md)，后续按提示词标准细化，尚未通过 MCP 发布
 - 前端设计与动效的全局约束：[docs/ui/design-system.md](docs/ui/design-system.md)

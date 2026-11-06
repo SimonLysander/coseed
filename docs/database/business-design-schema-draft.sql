@@ -1,6 +1,9 @@
 -- Proposal only; apply after schema-draft.sql to a disposable database.
 -- No runtime migration. All connections must enable foreign_keys.
 -- JSON payloads still require the executable content Schema before persistence.
+-- This earlier standalone fixture still uses schema-draft.sql's common layer.
+-- Compose snapshot coordination and insert-after-seal guards before formal migration;
+-- see snapshot-save-model.md. They are not supplied by this file.
 
 CREATE TABLE business_entities (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(trim(id)) > 0),
