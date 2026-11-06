@@ -17,6 +17,7 @@ CoSeed 是通过 Web 和客户端无关的 MCP 提供入口的项目认知工作
 - 项目快照和共同保存模型：[docs/database/snapshot-save-model.md](docs/database/snapshot-save-model.md)；SQL 以 `migrations/` 为权威，由 Drizzle 顺序执行；查询列映射不用于自动覆盖 DDL。
 - 配置、启动和排错：[docs/operations/local-development.md](docs/operations/local-development.md)
 - Agent 接入与使用：[简版指南草稿](docs/operations/agent-integration.md)，后续按提示词标准细化，尚未通过 MCP 发布
+- MCP 工具及提示词：[设计提案](docs/requirements/mcp-tools-design.md)，包含工具职责、准备／提交建议和按需规范，待用户审阅，尚未实现
 - 前端设计与动效的全局约束：[docs/ui/design-system.md](docs/ui/design-system.md)
 - 图形选型及性能验收：[docs/research/diagram-engines-2026.md](docs/research/diagram-engines-2026.md)
 
