@@ -44,6 +44,7 @@ npm run verify:package
 - [全局设计系统](docs/ui/design-system.md)：轻手绘基调、紧凑布局、具体 Token 和动态图标规则；正式应用与样板共用系统字体、松针绿和排版；`npm run design:preview` 打开独立样板。
 - [技术选型](docs/adr/0001-local-service-stack.md)：首版技术栈、协议边界、依据及待验证事项。
 - [2026 图形方案调研](docs/research/diagram-engines-2026.md)：X6、React Flow、G6、Mermaid 的适用性及真实图形验证要求。
+- [Git 资料格式调研](docs/research/git-content-formats-2026.md)：成熟先例、四种文件格式比较、可复现实验及待确认建议。
 
 - [业务设计](docs/requirements/product.md)：产品范围、核心概念、业务关系、职责边界和验收场景。
 - [工作台界面设计](docs/ui/workbench.md)：项目选择、阅读布局、需求详情和回顾入口的第一版草案。

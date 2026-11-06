@@ -1,0 +1,171 @@
+{
+  "purpose": "Format research fixture only; not a schema decision or workload performance result",
+  "dependencies": {
+    "yaml": "2.9.1",
+    "grayMatter": "4.0.3"
+  },
+  "method": "Same synthetic document, one paragraph changed, UTF-8 bytes of added/deleted Git diff lines; strict parsed-value round trips",
+  "checks": [
+    "isolated_dependencies",
+    "executable_frontmatter_rejected",
+    "duplicate_yaml_keys_rejected"
+  ],
+  "results": [
+    {
+      "format": "json",
+      "filesPerEntry": 1,
+      "storedBytes": 2135,
+      "changedLines": 2,
+      "changedLineBytes": 3976,
+      "roundTrips": [
+        {
+          "fixture": "rich_markdown",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "quoted_metadata",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "no_final_newline",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "leading_blank_line",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "crlf_body",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "empty_body",
+          "exact": true,
+          "markdownExact": true
+        }
+      ]
+    },
+    {
+      "format": "yaml",
+      "filesPerEntry": 1,
+      "storedBytes": 2104,
+      "changedLines": 2,
+      "changedLineBytes": 302,
+      "roundTrips": [
+        {
+          "fixture": "rich_markdown",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "quoted_metadata",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "no_final_newline",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "leading_blank_line",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "crlf_body",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "empty_body",
+          "exact": true,
+          "markdownExact": true
+        }
+      ]
+    },
+    {
+      "format": "markdown_frontmatter",
+      "filesPerEntry": 1,
+      "storedBytes": 2058,
+      "changedLines": 2,
+      "changedLineBytes": 298,
+      "roundTrips": [
+        {
+          "fixture": "rich_markdown",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "quoted_metadata",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "no_final_newline",
+          "exact": false,
+          "markdownExact": false
+        },
+        {
+          "fixture": "leading_blank_line",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "crlf_body",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "empty_body",
+          "exact": false,
+          "markdownExact": false
+        }
+      ]
+    },
+    {
+      "format": "json_and_markdown",
+      "filesPerEntry": 2,
+      "storedBytes": 2091,
+      "changedLines": 2,
+      "changedLineBytes": 298,
+      "roundTrips": [
+        {
+          "fixture": "rich_markdown",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "quoted_metadata",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "no_final_newline",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "leading_blank_line",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "crlf_body",
+          "exact": true,
+          "markdownExact": true
+        },
+        {
+          "fixture": "empty_body",
+          "exact": true,
+          "markdownExact": true
+        }
+      ]
+    }
+  ]
+}
