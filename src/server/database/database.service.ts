@@ -6,6 +6,7 @@ import Database from 'better-sqlite3';
 import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { sql } from 'drizzle-orm';
 import type { RuntimeConfig } from '../config/schema.js';
+import { applyMigrations } from './migrations.js';
 
 @Injectable()
 export class DatabaseService implements OnModuleInit, OnModuleDestroy {
@@ -21,6 +22,8 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     try {
       connection.pragma('journal_mode = WAL');
       connection.pragma('foreign_keys = ON');
+      connection.pragma('busy_timeout = 5000');
+      applyMigrations(connection);
       this.client = drizzle(connection);
       this.connection = connection;
     } catch (error) {

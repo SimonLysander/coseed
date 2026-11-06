@@ -389,12 +389,7 @@ function snapshot(project, version, family) {
 
 try {
   connect();
-  db.exec(
-    readFileSync(
-      new URL('../docs/database/snapshot-coordination-draft.sql', import.meta.url),
-      'utf8',
-    ),
-  );
+  db.exec(readFileSync(new URL('../migrations/0000_coordination.sql', import.meta.url), 'utf8'));
   db.exec(fixtureSchema);
   addFixtureGuards();
   const first = createProject();

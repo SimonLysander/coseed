@@ -40,7 +40,9 @@
     "api:check": "node scripts/write-api-contract.mjs --check",
     "design:build": "node scripts/build-design-system-preview.mjs",
     "design:preview": "node scripts/build-design-system-preview.mjs --serve",
-    "test:design": "playwright test --config playwright.design.config.ts"
+    "test:design": "playwright test --config playwright.design.config.ts",
+    "db:migration": "drizzle-kit generate --custom --dialect=sqlite --schema=./src/server/database/schema/index.ts --out=./migrations",
+    "verify:database": "npm run build:server && node scripts/verify-snapshot-save-model.mjs && node scripts/verify-database-design.mjs && node scripts/verify-business-design-database.mjs"
   },
   "dependencies": {
     "@animateicons/react": "0.13.0",
@@ -55,11 +57,13 @@
     "@nestjs/platform-fastify": "12.3.3",
     "antd": "6.7.0",
     "better-sqlite3": "13.0.3",
+    "canonicalize": "5.1.0",
     "commander": "15.0.0",
     "drizzle-orm": "0.45.4",
     "elkjs": "0.12.1",
     "env-paths": "4.0.0",
     "fastify": "5.12.8",
+    "jsonpointer": "5.0.1",
     "markdown-it": "15.0.3",
     "motion": "14.9.1",
     "react": "19.3.1",

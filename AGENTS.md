@@ -8,9 +8,9 @@ CoSeed 是通过 Web 和客户端无关的 MCP 提供入口的项目认知工作
 
 - 当前实现与边界：[ARCHITECTURE.md](ARCHITECTURE.md)
 - 业务规则及未决问题：[docs/requirements/product.md](docs/requirements/product.md)
-- 技术决策：[当前初始化技术栈](docs/adr/0001-local-service-stack.md)；[数据库权威内容与 Agent 本地读取副本](docs/adr/0003-database-and-agent-cache.md)，后者尚未实现；[成功操作与图快照解析](docs/adr/0004-operation-snapshot-resolution.md)细化保存模型；ADR 0002 的 Git 存储方向已被替代
-- 数据模型进度与各模块提案：[docs/database/README.md](docs/database/README.md)；区分首批库表、综述、需求推进和业务设计，尚未接入运行时迁移及业务接口。
-- 项目快照和共同保存模型：[docs/database/snapshot-save-model.md](docs/database/snapshot-save-model.md)；SQL 草案按共同协调层 → 项目／综述 → 业务设计顺序组合，尚未转为正式迁移。
+- 技术决策：[当前初始化技术栈](docs/adr/0001-local-service-stack.md)；[数据库权威内容与 Agent 本地读取副本](docs/adr/0003-database-and-agent-cache.md)，其数据库存储部分已实现，Agent 缓存待接入；[成功操作与图快照解析](docs/adr/0004-operation-snapshot-resolution.md)细化保存模型；ADR 0002 的 Git 存储方向已被替代
+- 数据模型进度与各模块提案：[docs/database/README.md](docs/database/README.md)；区分首批库表、综述、需求推进和业务设计，正式迁移和内部共同保存／查询服务已实现，业务页面及 MCP 工具待接入；实现边界见 [存储实现](docs/database/storage-implementation.md)。
+- 项目快照和共同保存模型：[docs/database/snapshot-save-model.md](docs/database/snapshot-save-model.md)；SQL 以 `migrations/` 为权威，由 Drizzle 顺序执行；查询列映射不用于自动覆盖 DDL。
 - 配置、启动和排错：[docs/operations/local-development.md](docs/operations/local-development.md)
 - Agent 接入与使用：[简版指南草稿](docs/operations/agent-integration.md)，后续按提示词标准细化，尚未通过 MCP 发布
 - 前端设计与动效的全局约束：[docs/ui/design-system.md](docs/ui/design-system.md)
@@ -43,4 +43,4 @@ npm run verify:package
 
 业务模块导出必要能力，避免通过跨模块访问内部文件形成隐式依赖。前端不得导入服务端代码；测试使用临时数据目录，不能使用个人默认数据库。MCP 与 Web 后续写入必须共享项目隔离、来源校验和修订保存规则。
 
-当前初始化不包含项目创建、业务表和回顾更新。涉及这些规则前，核对产品文档中的待定决策，不能用默认值替用户决定。
+项目创建、业务表和回顾数据的内部保存已实现，公开业务接口和页面仍待接入。涉及产品文档中的待定规则时，不能用默认值替用户决定。

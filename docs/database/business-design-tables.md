@@ -1,12 +1,12 @@
 # 业务设计的物理库表草案
 
-状态：**已按项目快照解析规则调整并在临时 SQLite 验证，未迁移或接入运行时。** 内容语义见[业务设计](business-design.md)，共同版本规则见[保存模型](snapshot-save-model.md)。
+状态：**SQL 已进入正式迁移，内部保存／快照服务已实现；页面和 MCP 业务工具尚未接入。** 内容语义见[业务设计](business-design.md)，共同版本规则见[保存模型](snapshot-save-model.md)。
 
 ## 1. 装载及边界
 
-顺序为 snapshot-coordination-draft.sql → schema-draft.sql → business-design-schema-draft.sql。共同层和项目／综述共八表，业务设计另有十六表；没有独立 project_versions 表。表数是当前设计结果，不作为扩展目标。
+顺序为 ../../migrations/0000_coordination.sql → ../../migrations/0001_project_overview.sql → ../../migrations/0002_business_design.sql。共同层和项目／综述共八表，业务设计另有十六表；没有独立 project_versions 表。表数是当前设计结果，不作为扩展目标。
 
-业务设计仍分四个身份表、四个修订表、四个成员表和四个依据表。它们复用 projects、write_operations、sources，不另建执行者或来源系统。可执行 SQL 见[business-design-schema-draft.sql](business-design-schema-draft.sql)。
+业务设计仍分四个身份表、四个修订表、四个成员表和四个依据表。它们复用 projects、write_operations、sources，不另建执行者或来源系统。可执行 SQL 见[../../migrations/0002_business_design.sql](../../migrations/0002_business_design.sql)。
 
 ## 2. 身份及内容修订
 

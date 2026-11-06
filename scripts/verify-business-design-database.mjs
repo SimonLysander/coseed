@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { businessDesignBundleDraftSchema } from '../docs/database/business-design-draft.ts';
+import { businessDesignBundleSchema as businessDesignBundleDraftSchema } from '../dist/contracts/content/business-design.js';
 import { withProposedDatabase } from './database-design/fixture.mjs';
 
-// Actual proposed 24-table SQL plus complete candidate-snapshot validation.
+// Formal first 24-table SQL plus complete candidate-snapshot validation.
 // This remains a disposable verification fixture, not the production save service.
 const example = JSON.parse(
   readFileSync(new URL('../docs/database/business-design.example.json', import.meta.url), 'utf8'),

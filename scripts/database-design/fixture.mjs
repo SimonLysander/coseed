@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import Database from 'better-sqlite3';
 
-// Shared test fixture for the executable SQL proposals. Never imported by src/.
+// Low-level regression fixture for formal SQL. Production uses Drizzle migrations.
 export const hash = (text) => createHash('sha256').update(text, 'utf8').digest('hex');
 const families = {
   project_revisions: ['project_id', 'projects'],
@@ -24,11 +24,11 @@ export function withProposedDatabase(run, business = false) {
     db.pragma('foreign_keys = ON');
     db.pragma('journal_mode = WAL');
     for (const name of [
-      'snapshot-coordination-draft.sql',
-      'schema-draft.sql',
-      ...(business ? ['business-design-schema-draft.sql'] : []),
+      '0000_coordination.sql',
+      '0001_project_overview.sql',
+      ...(business ? ['0002_business_design.sql'] : []),
     ]) {
-      db.exec(readFileSync(new URL(`../../docs/database/${name}`, import.meta.url), 'utf8'));
+      db.exec(readFileSync(new URL(`../../migrations/${name}`, import.meta.url), 'utf8'));
     }
     const head = (project) =>
       db

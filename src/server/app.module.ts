@@ -1,6 +1,7 @@
 import { Module, type DynamicModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { DatabaseService } from './database/database.service.js';
+import { DatabaseModule } from './database/database.module.js';
+import { ProjectContentModule } from './modules/project-content/project-content.module.js';
 import { McpController } from './mcp/mcp.controller.js';
 import { StatusController } from './modules/system/status.controller.js';
 import type { RuntimeConfig } from './config/schema.js';
@@ -16,9 +17,10 @@ export class AppModule {
           ignoreEnvFile: true,
           load: [() => ({ runtime: config })],
         }),
+        DatabaseModule,
+        ProjectContentModule,
       ],
       controllers: [StatusController, McpController],
-      providers: [DatabaseService],
     };
   }
 }

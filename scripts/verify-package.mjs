@@ -57,6 +57,15 @@ function serviceUrl(process) {
 try {
   const packed = JSON.parse(npm(['pack', '--json', '--pack-destination', directory])).coseed;
   assert(packed.files.some((entry) => entry.path === 'dist/web/index.html'));
+  for (const name of [
+    '0000_coordination.sql',
+    '0001_project_overview.sql',
+    '0002_business_design.sql',
+    '0003_requirements.sql',
+    'meta/_journal.json',
+  ]) {
+    assert(packed.files.some((entry) => entry.path === `migrations/${name}`));
+  }
   assert(!packed.files.some((entry) => entry.path.includes('.test.')));
   const installed = join(directory, 'installed');
   await mkdir(installed);
@@ -128,6 +137,48 @@ try {
   assert.equal(mcp.status, 200);
   assert.equal((await mcp.json()).result.serverInfo.name, 'coseed');
   assert((await stat(join(dataDir, 'coseed.sqlite'))).isFile());
+  const storage = spawnSync(
+    process.execPath,
+    [
+      '--input-type=module',
+      '-e',
+      `
+    import assert from 'node:assert/strict';
+    import { pathToFileURL } from 'node:url';
+    const root = process.env.COSEED_VERIFICATION_PACKAGE;
+    const { createApplication } = await import(pathToFileURL(root + '/dist/server/application.js').href);
+    const { ProjectContentService } = await import(pathToFileURL(root + '/dist/server/modules/project-content/project-content.service.js').href);
+    const app = await createApplication({ host: '127.0.0.1', port: 0, dataDir: process.env.COSEED_VERIFICATION_DATA_DIR, logLevel: 'silent' }, { serveWeb: false });
+    try {
+      const service = app.get(ProjectContentService);
+      const context = { entrypoint: 'system', actorKind: 'system', actorLabel: 'Fictional package verification' };
+      const created = service.createProject({ operationId: 'package-create', name: 'Fictional package fixture' }, context);
+      const receipt = service.save({ projectId: created.projectId, operationId: 'package-save', baseVersion: 0,
+        sources: [{ id: 'package-source', kind: 'document', rawText: 'Fictional verification material.' }],
+        changes: [{ action: 'upsert', objectType: 'requirement', id: 'package-requirement', expectedRevision: null,
+          content: { title: 'Verify storage', markdown: 'Fictional fixture only.', status: 'designing' },
+          citations: [{ sourceId: 'package-source', side: 'after', path: '', explanationMd: 'Fixture supports this content.' }] }] }, context);
+      assert.equal(receipt.version, 1);
+      assert.equal(service.readSnapshot(created.projectId).objects.length, 1);
+      assert.equal(service.readSnapshot(created.projectId, 0).objects.length, 0);
+      assert.equal(service.readHistory(created.projectId, 'requirement', 'package-requirement').length, 1);
+      assert.deepEqual(service.getOperation(created.projectId, receipt.operationId), receipt);
+    } finally { await app.close(); }
+  `,
+    ],
+    {
+      cwd: unrelatedCwd,
+      env: {
+        ...process.env,
+        COSEED_VERIFICATION_PACKAGE: join(installed, 'node_modules', 'coseed'),
+        COSEED_VERIFICATION_DATA_DIR: dataDir,
+      },
+      encoding: 'utf8',
+      timeout: 15_000,
+    },
+  );
+  if (storage.error) throw storage.error;
+  assert.equal(storage.status, 0, storage.stderr || storage.stdout);
   console.info(
     JSON.stringify(
       {
@@ -140,6 +191,7 @@ try {
           'SQLite',
           'Web asset',
           'MCP initialize',
+          'formal migrations and project-content save/history',
         ],
       },
       null,

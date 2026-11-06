@@ -1,6 +1,6 @@
 # ADR 0004：成功保存承载项目版本，图按项目快照解析
 
-状态：**方向已确认；SQL、内容 Schema 及临时验证已调整，业务服务尚未接入。** 本决策细化 ADR 0003，并替代上一版独立 project_versions 登记表和图内固定成员修订的设计。
+状态：**已实施于正式迁移、内容 Schema 和内部保存／查询服务；MCP 及业务页面接入待完成。** 本决策细化 ADR 0003，并替代上一版独立 project_versions 登记表和图内固定成员修订的设计。
 
 ## 决定
 
@@ -25,4 +25,4 @@
 
 ## 边界
 
-具体字段、事务和查询见[快照保存模型](../database/snapshot-save-model.md)，图内容结构见[业务设计](../database/business-design.md)。现有数据库验证不构成真实项目容量、吞吐或远程 MCP 集成验收。本次未执行业务数据迁移。
+具体字段、事务和查询见[快照保存模型](../database/snapshot-save-model.md)，图内容结构见[业务设计](../database/business-design.md)。现有数据库验证不构成真实项目容量、吞吐或远程 MCP 集成验收。迁移与运行边界见[存储实现](../database/storage-implementation.md)。

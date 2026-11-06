@@ -1,6 +1,6 @@
 # CoSeed 数据如何从提交变成页面
 
-状态：**数据流和共同模型已确定，SQL及内容校验是可执行草案，业务服务未接入。** 完整操作流程见[存储及 Agent 读写](storage-and-agent-flow.md)，版本规则见[保存模型](snapshot-save-model.md)。
+状态：**数据库及内部共同保存服务已实现；图中 MCP、页面与本地文件导出部分仍待接入。** 完整操作流程见[存储及 Agent 读写](storage-and-agent-flow.md)，版本规则见[保存模型](snapshot-save-model.md)。
 
 ## 1. 两种数据不要混淆
 
@@ -30,7 +30,7 @@ CoSeed 保存的是综述、需求、推进记录、设计对象、连线、图�
 | 综述               | project_overviews 身份、overview_revisions 的完整 content_json           |
 | 需求               | requirements、requirement_revisions 中的标题、正文、六种状态             |
 | 推进记录           | progress_records、progress_record_revisions 中的主需求、正文、发生时间   |
-| 回顾               | retrospective 身份、修订、来源及成功操作关联；完整 SQL 待补              |
+| 回顾               | retrospective 身份、修订、来源及成功操作关联；完整 SQL 已纳入正式迁移    |
 | 设计节点           | business_entities、business_entity_revisions 的分型内容                  |
 | 设计关系           | business_relationships、business_relationship_revisions 的端点和语义内容 |
 | 图                 | design_diagrams、design_diagram_revisions，三张稳定 ID成员表             |
@@ -38,7 +38,7 @@ CoSeed 保存的是综述、需求、推进记录、设计对象、连线、图�
 | 来源               | sources 原文；每类修订的真实来源关联                                     |
 | 成功保存及项目版本 | write_operations；没有额外 project_versions 表                           |
 
-业务模块分别维护各自字段。结构化正文可为 JSON，真实关联使用类型明确的关系表；没有万能内容表或全项目大 JSON。需求／回顾完整 SQL、跨模块关联仍待补齐，不将这些表名当成已经迁移完成。
+业务模块分别维护各自字段。结构化正文可为 JSON，真实关联使用类型明确的关系表；没有万能内容表或全项目大 JSON。需求／回顾完整 SQL 和跨模块关联已在正式迁移定义，由应用启动迁移；页面和 MCP 的调用仍待接入。
 
 ## 4. 修改一个共享节点
 

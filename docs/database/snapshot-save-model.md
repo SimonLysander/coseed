@@ -1,6 +1,6 @@
 # 项目快照、保存操作及对象修订
 
-状态：**方向已确认，物理 SQL 和保存流程仍为设计草案，未接入运行时。** 本版按 [ADR 0004](../adr/0004-operation-snapshot-resolution.md) 简化：成功操作直接承载项目版本，不再建立 project_versions 表；图内成员按同一项目快照解析。
+状态：**已落实为正式 SQL 迁移和内部共同保存／查询服务；MCP 与业务页面尚未接入。** 本版按 [ADR 0004](../adr/0004-operation-snapshot-resolution.md) 简化：成功操作直接承载项目版本，不再建立 project_versions 表；图内成员按同一项目快照解析。
 
 ## 1. 整体关系
 
@@ -54,7 +54,7 @@ write_operations 同时记录“这次怎么保存”和“保存后的项目版
 
 约束为 UNIQUE(project_id, result_content_version)，项目当前指针及基准均通过同项目复合外键定位操作。普通保存只能基于当前版本；失败或校验不通过的操作不作为成功历史保存。
 
-请求哈希针对项目、基准、逻辑修改及来源等实际输入，排除服务生成的时间和分配结果。具体输入随工具契约固定；建议采用 [RFC 8785](https://www.rfc-editor.org/rfc/rfc8785) 规范化 JSON 后计算，正文原文不得 trim 或改换行。
+请求哈希针对项目、基准、逻辑修改及来源等实际输入，排除服务生成的时间和分配结果。内部服务已采用 [RFC 8785](https://www.rfc-editor.org/rfc/rfc8785) 规范化 JSON 后计算，正文原文不得 trim 或改换行。
 
 先验证权限，再查既有操作。同标识同请求直接返回原成功回执，不先按过期基准拒绝重试；同标识不同请求明确拒绝。相似内容不跨操作按哈希强行去重，因为后来可能再次做出相同决定。
 
@@ -82,7 +82,7 @@ write_operations 同时记录“这次怎么保存”和“保存后的项目版
 
 可移除对象采用版本化 is_deleted：移除新增修订并保留原内容，恢复再新增修订，不能物理覆盖历史。查询必须先取当时最后一版，再过滤删除标记，防止旧版复活。需求取消是业务状态，不等于移除；存储支持不表示本次新增删除界面或工具。项目整体删除不在本轮范围。
 
-需求、回顾及其全部关联仍须补齐正式 SQL；下述验证分别明确实际表和最小验证表的范围，不能混称全部业务已经完成。
+需求、回顾及跨模块引用已纳入正式迁移。内部服务的实际契约和校验边界见[存储实现](storage-implementation.md)，不能据此认为外部工具和业务页面已经完成。
 
 ## 5. 读取一个项目快照
 
@@ -136,13 +136,10 @@ scope_module_id、对象 owner 和图的 entityIds、relationshipIds、noteIds �
 
 数据库提交之后才刷新本地文件。缓存刷新失败只补刷新，不撤销保存或重复新增记录。恢复旧内容要以当前项目版本产生新修订并保留依据，不能回退项目指针或覆盖旧修订。
 
-## 8. 草案装载和验证范围
+## 8. 实现及验证入口
 
-按顺序装载：snapshot-coordination-draft.sql（共同两表）→ schema-draft.sql（来源、项目资料、综述六表）→ business-design-schema-draft.sql（业务设计十六表）。三份可在同一临时数据库组合，不再存在同名定义冲突；总表数是当前草案结果，不作为未来设计目标。
+SQL、事务服务和测试的权威入口见[存储实现](storage-implementation.md)。正式应用由 Drizzle 按 `migrations/meta/_journal.json` 顺序迁移，禁止手工挑选文件向运行数据库装载。
 
-- [共同协调 SQL](snapshot-coordination-draft.sql)：projects、write_operations。
-- [项目及综述 SQL](schema-draft.sql)：实际基础表及封存守卫；[验证入口](../../scripts/verify-database-design.mjs)。
-- [图 SQL](business-design-schema-draft.sql)：稳定成员及历史修订；[验证入口](../../scripts/verify-business-design-database.mjs)，同时使用业务内容 Schema 校验整个候选快照。
-- [通用保存验证](../../scripts/verify-snapshot-save-model.mjs)：实际协调 SQL 加需求、记录、状态依据等最小验证表；这些验证表不冒充已经定稿的完整业务模块 SQL。
+`tests/storage/` 验证实际编译服务及正式迁移；`npm run verify:database` 保留低层 SQL 回归实验，其中通用协调实验使用最小测试表，不代表生产全部字段。所有验证均使用临时目录。
 
-脚本均使用临时数据目录并清理。已覆盖共享节点自动更新、历史图及归属名称稳定、连线／说明变化破坏未编辑图时回滚、成功操作重试、封存、外键失败及重开结果；未覆盖真实规模性能、正式 Drizzle／迁移、完整来源规范、远程授权或 MCP 客户端集成。本次没有接入运行时业务工具或执行个人数据库迁移。
+真实规模容量、远程授权、完整缓存导出和 MCP 客户端业务调用仍待后续阶段验证。

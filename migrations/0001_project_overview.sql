@@ -1,4 +1,4 @@
--- Proposal only, not a runtime migration. Load snapshot-coordination-draft.sql first.
+-- Project metadata, overview content and source storage.
 -- This file defines project metadata, overview content and shared source tables.
 -- The common projects/write_operations definitions have one authority in that file.
 
@@ -18,8 +18,11 @@ CREATE TABLE sources (
     REFERENCES write_operations (project_id, id)
     DEFERRABLE INITIALLY DEFERRED
 ) STRICT;
+
+--> statement-breakpoint
 CREATE INDEX sources_capture ON sources (project_id, captured_by_operation_id);
 
+--> statement-breakpoint
 CREATE TABLE project_revisions (
   project_id TEXT NOT NULL REFERENCES projects (id),
   revision_no INTEGER NOT NULL CHECK (revision_no >= 1),
@@ -39,6 +42,7 @@ CREATE TABLE project_revisions (
     DEFERRABLE INITIALLY DEFERRED
 ) STRICT;
 
+--> statement-breakpoint
 CREATE TABLE project_overviews (
   project_id TEXT PRIMARY KEY NOT NULL REFERENCES projects (id),
   current_revision_no INTEGER CHECK (current_revision_no IS NULL OR current_revision_no >= 1),
@@ -47,6 +51,7 @@ CREATE TABLE project_overviews (
     DEFERRABLE INITIALLY DEFERRED
 ) STRICT;
 
+--> statement-breakpoint
 CREATE TABLE overview_revisions (
   project_id TEXT NOT NULL REFERENCES project_overviews (project_id),
   revision_no INTEGER NOT NULL CHECK (revision_no >= 1),
@@ -69,6 +74,7 @@ CREATE TABLE overview_revisions (
     DEFERRABLE INITIALLY DEFERRED
 ) STRICT;
 
+--> statement-breakpoint
 CREATE TABLE project_revision_sources (
   project_id TEXT NOT NULL,
   revision_no INTEGER NOT NULL,
@@ -81,8 +87,11 @@ CREATE TABLE project_revision_sources (
     REFERENCES project_revisions (project_id, revision_no),
   FOREIGN KEY (project_id, source_id) REFERENCES sources (project_id, id)
 ) STRICT;
+
+--> statement-breakpoint
 CREATE INDEX project_sources_reverse ON project_revision_sources (project_id, source_id, revision_no);
 
+--> statement-breakpoint
 CREATE TABLE overview_revision_sources (
   project_id TEXT NOT NULL,
   revision_no INTEGER NOT NULL,
@@ -95,71 +104,96 @@ CREATE TABLE overview_revision_sources (
     REFERENCES overview_revisions (project_id, revision_no),
   FOREIGN KEY (project_id, source_id) REFERENCES sources (project_id, id)
 ) STRICT;
+
+--> statement-breakpoint
 CREATE INDEX overview_sources_reverse ON overview_revision_sources (project_id, source_id, revision_no);
 
+--> statement-breakpoint
 -- Head movement is forward-only; restoring content creates another revision.
 CREATE TRIGGER project_head_forward BEFORE UPDATE OF current_revision_no ON projects
 WHEN NEW.current_revision_no != OLD.current_revision_no + 1
 BEGIN SELECT RAISE(ABORT, 'project head must advance by one'); END;
+
+--> statement-breakpoint
 CREATE TRIGGER overview_head_forward BEFORE UPDATE OF current_revision_no ON project_overviews
 WHEN NEW.current_revision_no IS NOT coalesce(OLD.current_revision_no, 0) + 1
 BEGIN SELECT RAISE(ABORT, 'overview head must advance by one'); END;
+
+--> statement-breakpoint
 CREATE TRIGGER overview_identity_immutable BEFORE UPDATE OF project_id ON project_overviews
 BEGIN SELECT RAISE(ABORT, 'overview identity is immutable'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER sources_no_update BEFORE UPDATE ON sources
 BEGIN SELECT RAISE(ABORT, 'sources is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER sources_no_delete BEFORE DELETE ON sources
 BEGIN SELECT RAISE(ABORT, 'sources is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER project_revisions_no_update BEFORE UPDATE ON project_revisions
 BEGIN SELECT RAISE(ABORT, 'project_revisions is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER project_revisions_no_delete BEFORE DELETE ON project_revisions
 BEGIN SELECT RAISE(ABORT, 'project_revisions is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER overview_revisions_no_update BEFORE UPDATE ON overview_revisions
 BEGIN SELECT RAISE(ABORT, 'overview_revisions is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER overview_revisions_no_delete BEFORE DELETE ON overview_revisions
 BEGIN SELECT RAISE(ABORT, 'overview_revisions is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER project_revision_sources_no_update BEFORE UPDATE ON project_revision_sources
 BEGIN SELECT RAISE(ABORT, 'project_revision_sources is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER project_revision_sources_no_delete BEFORE DELETE ON project_revision_sources
 BEGIN SELECT RAISE(ABORT, 'project_revision_sources is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER overview_revision_sources_no_update BEFORE UPDATE ON overview_revision_sources
 BEGIN SELECT RAISE(ABORT, 'overview_revision_sources is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER overview_revision_sources_no_delete BEFORE DELETE ON overview_revision_sources
 BEGIN SELECT RAISE(ABORT, 'overview_revision_sources is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER sources_operation_closed BEFORE INSERT ON sources
 WHEN EXISTS (SELECT 1 FROM write_operations WHERE project_id = NEW.project_id AND id = NEW.captured_by_operation_id)
 BEGIN SELECT RAISE(ABORT, 'operation is closed'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER project_revisions_operation_closed BEFORE INSERT ON project_revisions
 WHEN EXISTS (SELECT 1 FROM write_operations WHERE project_id = NEW.project_id AND id = NEW.operation_id)
 BEGIN SELECT RAISE(ABORT, 'operation is closed'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER overview_revisions_operation_closed BEFORE INSERT ON overview_revisions
 WHEN EXISTS (SELECT 1 FROM write_operations WHERE project_id = NEW.project_id AND id = NEW.operation_id)
 BEGIN SELECT RAISE(ABORT, 'operation is closed'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER project_revision_sources_revision_closed BEFORE INSERT ON project_revision_sources
 WHEN EXISTS (SELECT 1 FROM project_revisions r JOIN write_operations o
   ON o.project_id = r.project_id AND o.id = r.operation_id
   WHERE r.project_id = NEW.project_id AND r.revision_no = NEW.revision_no)
 BEGIN SELECT RAISE(ABORT, 'revision is closed'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER overview_revision_sources_revision_closed BEFORE INSERT ON overview_revision_sources
 WHEN EXISTS (SELECT 1 FROM overview_revisions r JOIN write_operations o
   ON o.project_id = r.project_id AND o.id = r.operation_id
   WHERE r.project_id = NEW.project_id AND r.revision_no = NEW.revision_no)
 BEGIN SELECT RAISE(ABORT, 'revision is closed'); END;
 
+--> statement-breakpoint
 CREATE INDEX project_revisions_operation ON project_revisions(project_id, operation_id);
+
+--> statement-breakpoint
 CREATE INDEX overview_revisions_operation ON overview_revisions(project_id, operation_id);

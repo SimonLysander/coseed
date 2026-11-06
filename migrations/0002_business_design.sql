@@ -1,4 +1,4 @@
--- Proposal only; load snapshot-coordination-draft.sql and schema-draft.sql first.
+-- Business design objects, relationships, diagrams and notes.
 -- Not a runtime migration. Operation foreign keys are deferred: save operation LAST.
 -- Graph members and owners use stable IDs, resolved at one project snapshot.
 -- Content Schema validates the complete candidate snapshot before operation insertion.
@@ -16,6 +16,7 @@ CREATE TABLE business_entities (
     DEFERRABLE INITIALLY DEFERRED
 ) STRICT;
 
+--> statement-breakpoint
 CREATE TABLE business_relationships (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(trim(id)) > 0),
   project_id TEXT NOT NULL REFERENCES projects (id),
@@ -27,6 +28,7 @@ CREATE TABLE business_relationships (
     DEFERRABLE INITIALLY DEFERRED
 ) STRICT;
 
+--> statement-breakpoint
 CREATE TABLE design_diagrams (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(trim(id)) > 0),
   project_id TEXT NOT NULL REFERENCES projects (id),
@@ -38,6 +40,7 @@ CREATE TABLE design_diagrams (
     DEFERRABLE INITIALLY DEFERRED
 ) STRICT;
 
+--> statement-breakpoint
 CREATE TABLE technical_notes (
   id TEXT PRIMARY KEY NOT NULL CHECK (length(trim(id)) > 0),
   project_id TEXT NOT NULL REFERENCES projects (id),
@@ -49,8 +52,10 @@ CREATE TABLE technical_notes (
     DEFERRABLE INITIALLY DEFERRED
 ) STRICT;
 
+--> statement-breakpoint
 CREATE INDEX business_entities_project_kind ON business_entities (project_id, kind, id);
 
+--> statement-breakpoint
 CREATE TABLE business_entity_revisions (
   project_id TEXT NOT NULL,
   entity_id TEXT NOT NULL,
@@ -81,8 +86,11 @@ CREATE TABLE business_entity_revisions (
   FOREIGN KEY (project_id, operation_id) REFERENCES write_operations (project_id, id)
     DEFERRABLE INITIALLY DEFERRED
 ) STRICT;
+
+--> statement-breakpoint
 CREATE INDEX business_entities_owner ON business_entity_revisions (project_id, owner_entity_id, entity_id, revision_no);
 
+--> statement-breakpoint
 CREATE TABLE business_relationship_revisions (
   project_id TEXT NOT NULL,
   relationship_id TEXT NOT NULL,
@@ -105,9 +113,14 @@ CREATE TABLE business_relationship_revisions (
   FOREIGN KEY (project_id, operation_id) REFERENCES write_operations (project_id, id)
     DEFERRABLE INITIALLY DEFERRED
 ) STRICT;
+
+--> statement-breakpoint
 CREATE INDEX business_relationships_source ON business_relationship_revisions (project_id, source_entity_id, relationship_id, revision_no);
+
+--> statement-breakpoint
 CREATE INDEX business_relationships_target ON business_relationship_revisions (project_id, target_entity_id, relationship_id, revision_no);
 
+--> statement-breakpoint
 CREATE TABLE design_diagram_revisions (
   project_id TEXT NOT NULL,
   diagram_id TEXT NOT NULL,
@@ -126,8 +139,11 @@ CREATE TABLE design_diagram_revisions (
   FOREIGN KEY (project_id, operation_id) REFERENCES write_operations (project_id, id)
     DEFERRABLE INITIALLY DEFERRED
 ) STRICT;
+
+--> statement-breakpoint
 CREATE INDEX design_diagrams_module ON design_diagram_revisions (project_id, scope_module_id, diagram_id, revision_no);
 
+--> statement-breakpoint
 CREATE TABLE technical_note_revisions (
   project_id TEXT NOT NULL,
   note_id TEXT NOT NULL,
@@ -143,6 +159,7 @@ CREATE TABLE technical_note_revisions (
     DEFERRABLE INITIALLY DEFERRED
 ) STRICT;
 
+--> statement-breakpoint
 CREATE TABLE technical_note_revision_entities (
   project_id TEXT NOT NULL,
   note_id TEXT NOT NULL,
@@ -152,8 +169,11 @@ CREATE TABLE technical_note_revision_entities (
   FOREIGN KEY (project_id, note_id, revision_no) REFERENCES technical_note_revisions (project_id, note_id, revision_no),
   FOREIGN KEY (project_id, entity_id) REFERENCES business_entities (project_id, id)
 ) STRICT;
+
+--> statement-breakpoint
 CREATE INDEX technical_notes_entity ON technical_note_revision_entities (project_id, entity_id, note_id, revision_no);
 
+--> statement-breakpoint
 CREATE TABLE diagram_revision_entities (
   project_id TEXT NOT NULL,
   diagram_id TEXT NOT NULL,
@@ -163,8 +183,11 @@ CREATE TABLE diagram_revision_entities (
   FOREIGN KEY (project_id, diagram_id, revision_no) REFERENCES design_diagram_revisions (project_id, diagram_id, revision_no),
   FOREIGN KEY (project_id, entity_id) REFERENCES business_entities (project_id, id)
 ) STRICT;
+
+--> statement-breakpoint
 CREATE INDEX diagram_entities_reverse ON diagram_revision_entities (project_id, entity_id, diagram_id, revision_no);
 
+--> statement-breakpoint
 CREATE TABLE diagram_revision_relationships (
   project_id TEXT NOT NULL,
   diagram_id TEXT NOT NULL,
@@ -174,8 +197,11 @@ CREATE TABLE diagram_revision_relationships (
   FOREIGN KEY (project_id, diagram_id, revision_no) REFERENCES design_diagram_revisions (project_id, diagram_id, revision_no),
   FOREIGN KEY (project_id, relationship_id) REFERENCES business_relationships (project_id, id)
 ) STRICT;
+
+--> statement-breakpoint
 CREATE INDEX diagram_relationships_reverse ON diagram_revision_relationships (project_id, relationship_id, diagram_id, revision_no);
 
+--> statement-breakpoint
 CREATE TABLE diagram_revision_notes (
   project_id TEXT NOT NULL,
   diagram_id TEXT NOT NULL,
@@ -185,8 +211,11 @@ CREATE TABLE diagram_revision_notes (
   FOREIGN KEY (project_id, diagram_id, revision_no) REFERENCES design_diagram_revisions (project_id, diagram_id, revision_no),
   FOREIGN KEY (project_id, note_id) REFERENCES technical_notes (project_id, id)
 ) STRICT;
+
+--> statement-breakpoint
 CREATE INDEX diagram_notes_reverse ON diagram_revision_notes (project_id, note_id, diagram_id, revision_no);
 
+--> statement-breakpoint
 CREATE TABLE business_entity_revision_sources (
   project_id TEXT NOT NULL,
   entity_id TEXT NOT NULL,
@@ -199,8 +228,11 @@ CREATE TABLE business_entity_revision_sources (
   FOREIGN KEY (project_id, entity_id, revision_no) REFERENCES business_entity_revisions (project_id, entity_id, revision_no),
   FOREIGN KEY (project_id, source_id) REFERENCES sources (project_id, id)
 ) STRICT;
+
+--> statement-breakpoint
 CREATE INDEX business_entity_revision_sources_reverse ON business_entity_revision_sources (project_id, source_id, entity_id, revision_no);
 
+--> statement-breakpoint
 CREATE TABLE business_relationship_revision_sources (
   project_id TEXT NOT NULL,
   relationship_id TEXT NOT NULL,
@@ -213,8 +245,11 @@ CREATE TABLE business_relationship_revision_sources (
   FOREIGN KEY (project_id, relationship_id, revision_no) REFERENCES business_relationship_revisions (project_id, relationship_id, revision_no),
   FOREIGN KEY (project_id, source_id) REFERENCES sources (project_id, id)
 ) STRICT;
+
+--> statement-breakpoint
 CREATE INDEX business_relationship_revision_sources_reverse ON business_relationship_revision_sources (project_id, source_id, relationship_id, revision_no);
 
+--> statement-breakpoint
 CREATE TABLE design_diagram_revision_sources (
   project_id TEXT NOT NULL,
   diagram_id TEXT NOT NULL,
@@ -227,8 +262,11 @@ CREATE TABLE design_diagram_revision_sources (
   FOREIGN KEY (project_id, diagram_id, revision_no) REFERENCES design_diagram_revisions (project_id, diagram_id, revision_no),
   FOREIGN KEY (project_id, source_id) REFERENCES sources (project_id, id)
 ) STRICT;
+
+--> statement-breakpoint
 CREATE INDEX design_diagram_revision_sources_reverse ON design_diagram_revision_sources (project_id, source_id, diagram_id, revision_no);
 
+--> statement-breakpoint
 CREATE TABLE technical_note_revision_sources (
   project_id TEXT NOT NULL,
   note_id TEXT NOT NULL,
@@ -241,8 +279,11 @@ CREATE TABLE technical_note_revision_sources (
   FOREIGN KEY (project_id, note_id, revision_no) REFERENCES technical_note_revisions (project_id, note_id, revision_no),
   FOREIGN KEY (project_id, source_id) REFERENCES sources (project_id, id)
 ) STRICT;
+
+--> statement-breakpoint
 CREATE INDEX technical_note_revision_sources_reverse ON technical_note_revision_sources (project_id, source_id, note_id, revision_no);
 
+--> statement-breakpoint
 -- SQL guards structural endpoint types; the content Schema checks each operation payload.
 CREATE TRIGGER business_relationship_endpoint_kinds BEFORE INSERT ON business_relationship_revisions
 WHEN NOT EXISTS (
@@ -257,6 +298,7 @@ WHEN NOT EXISTS (
 )
 BEGIN SELECT RAISE(ABORT, 'relationship endpoint kinds are invalid'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER design_diagram_scope_kind BEFORE INSERT ON design_diagram_revisions
 WHEN NEW.scope_kind = 'module' AND NOT EXISTS (
   SELECT 1 FROM business_entities WHERE project_id = NEW.project_id
@@ -264,6 +306,7 @@ WHEN NEW.scope_kind = 'module' AND NOT EXISTS (
 )
 BEGIN SELECT RAISE(ABORT, 'diagram scope must reference a module'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER diagram_entity_level BEFORE INSERT ON diagram_revision_entities
 WHEN NOT EXISTS (
   SELECT 1 FROM design_diagram_revisions d JOIN business_entities e ON e.project_id = d.project_id
@@ -275,167 +318,223 @@ WHEN NOT EXISTS (
 )
 BEGIN SELECT RAISE(ABORT, 'entity is missing or invalid for diagram level'); END;
 
+--> statement-breakpoint
 -- Relationship endpoints and note scopes can change without a diagram revision.
 -- Their complete candidate-snapshot checks belong to the shared content validator.
 
 CREATE TRIGGER business_entities_identity_immutable BEFORE UPDATE OF id, project_id, created_at, kind ON business_entities
 BEGIN SELECT RAISE(ABORT, 'identity is immutable'); END;
+
+--> statement-breakpoint
 CREATE TRIGGER business_entities_head_forward BEFORE UPDATE OF current_revision_no ON business_entities
 WHEN NEW.current_revision_no <= OLD.current_revision_no
 BEGIN SELECT RAISE(ABORT, 'head must move forward'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER business_relationships_identity_immutable BEFORE UPDATE OF id, project_id, created_at ON business_relationships
 BEGIN SELECT RAISE(ABORT, 'identity is immutable'); END;
+
+--> statement-breakpoint
 CREATE TRIGGER business_relationships_head_forward BEFORE UPDATE OF current_revision_no ON business_relationships
 WHEN NEW.current_revision_no <= OLD.current_revision_no
 BEGIN SELECT RAISE(ABORT, 'head must move forward'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER design_diagrams_identity_immutable BEFORE UPDATE OF id, project_id, created_at ON design_diagrams
 BEGIN SELECT RAISE(ABORT, 'identity is immutable'); END;
+
+--> statement-breakpoint
 CREATE TRIGGER design_diagrams_head_forward BEFORE UPDATE OF current_revision_no ON design_diagrams
 WHEN NEW.current_revision_no <= OLD.current_revision_no
 BEGIN SELECT RAISE(ABORT, 'head must move forward'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER technical_notes_identity_immutable BEFORE UPDATE OF id, project_id, created_at ON technical_notes
 BEGIN SELECT RAISE(ABORT, 'identity is immutable'); END;
+
+--> statement-breakpoint
 CREATE TRIGGER technical_notes_head_forward BEFORE UPDATE OF current_revision_no ON technical_notes
 WHEN NEW.current_revision_no <= OLD.current_revision_no
 BEGIN SELECT RAISE(ABORT, 'head must move forward'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER business_entity_revisions_no_update BEFORE UPDATE ON business_entity_revisions
 BEGIN SELECT RAISE(ABORT, 'business_entity_revisions is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER business_entity_revisions_no_delete BEFORE DELETE ON business_entity_revisions
 BEGIN SELECT RAISE(ABORT, 'business_entity_revisions is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER business_relationship_revisions_no_update BEFORE UPDATE ON business_relationship_revisions
 BEGIN SELECT RAISE(ABORT, 'business_relationship_revisions is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER business_relationship_revisions_no_delete BEFORE DELETE ON business_relationship_revisions
 BEGIN SELECT RAISE(ABORT, 'business_relationship_revisions is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER design_diagram_revisions_no_update BEFORE UPDATE ON design_diagram_revisions
 BEGIN SELECT RAISE(ABORT, 'design_diagram_revisions is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER design_diagram_revisions_no_delete BEFORE DELETE ON design_diagram_revisions
 BEGIN SELECT RAISE(ABORT, 'design_diagram_revisions is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER technical_note_revisions_no_update BEFORE UPDATE ON technical_note_revisions
 BEGIN SELECT RAISE(ABORT, 'technical_note_revisions is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER technical_note_revisions_no_delete BEFORE DELETE ON technical_note_revisions
 BEGIN SELECT RAISE(ABORT, 'technical_note_revisions is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER technical_note_revision_entities_no_update BEFORE UPDATE ON technical_note_revision_entities
 BEGIN SELECT RAISE(ABORT, 'technical_note_revision_entities is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER technical_note_revision_entities_no_delete BEFORE DELETE ON technical_note_revision_entities
 BEGIN SELECT RAISE(ABORT, 'technical_note_revision_entities is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER diagram_revision_entities_no_update BEFORE UPDATE ON diagram_revision_entities
 BEGIN SELECT RAISE(ABORT, 'diagram_revision_entities is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER diagram_revision_entities_no_delete BEFORE DELETE ON diagram_revision_entities
 BEGIN SELECT RAISE(ABORT, 'diagram_revision_entities is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER diagram_revision_relationships_no_update BEFORE UPDATE ON diagram_revision_relationships
 BEGIN SELECT RAISE(ABORT, 'diagram_revision_relationships is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER diagram_revision_relationships_no_delete BEFORE DELETE ON diagram_revision_relationships
 BEGIN SELECT RAISE(ABORT, 'diagram_revision_relationships is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER diagram_revision_notes_no_update BEFORE UPDATE ON diagram_revision_notes
 BEGIN SELECT RAISE(ABORT, 'diagram_revision_notes is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER diagram_revision_notes_no_delete BEFORE DELETE ON diagram_revision_notes
 BEGIN SELECT RAISE(ABORT, 'diagram_revision_notes is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER business_entity_revision_sources_no_update BEFORE UPDATE ON business_entity_revision_sources
 BEGIN SELECT RAISE(ABORT, 'business_entity_revision_sources is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER business_entity_revision_sources_no_delete BEFORE DELETE ON business_entity_revision_sources
 BEGIN SELECT RAISE(ABORT, 'business_entity_revision_sources is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER business_relationship_revision_sources_no_update BEFORE UPDATE ON business_relationship_revision_sources
 BEGIN SELECT RAISE(ABORT, 'business_relationship_revision_sources is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER business_relationship_revision_sources_no_delete BEFORE DELETE ON business_relationship_revision_sources
 BEGIN SELECT RAISE(ABORT, 'business_relationship_revision_sources is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER design_diagram_revision_sources_no_update BEFORE UPDATE ON design_diagram_revision_sources
 BEGIN SELECT RAISE(ABORT, 'design_diagram_revision_sources is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER design_diagram_revision_sources_no_delete BEFORE DELETE ON design_diagram_revision_sources
 BEGIN SELECT RAISE(ABORT, 'design_diagram_revision_sources is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER technical_note_revision_sources_no_update BEFORE UPDATE ON technical_note_revision_sources
 BEGIN SELECT RAISE(ABORT, 'technical_note_revision_sources is append-only'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER technical_note_revision_sources_no_delete BEFORE DELETE ON technical_note_revision_sources
 BEGIN SELECT RAISE(ABORT, 'technical_note_revision_sources is append-only'); END;
 
+--> statement-breakpoint
 CREATE INDEX business_entity_revisions_operation ON business_entity_revisions(project_id, operation_id);
+
+--> statement-breakpoint
 CREATE TRIGGER business_entity_revisions_operation_closed BEFORE INSERT ON business_entity_revisions
 WHEN EXISTS (SELECT 1 FROM write_operations WHERE project_id = NEW.project_id AND id = NEW.operation_id)
 BEGIN SELECT RAISE(ABORT, 'operation is closed'); END;
 
+--> statement-breakpoint
 CREATE INDEX business_relationship_revisions_operation ON business_relationship_revisions(project_id, operation_id);
+
+--> statement-breakpoint
 CREATE TRIGGER business_relationship_revisions_operation_closed BEFORE INSERT ON business_relationship_revisions
 WHEN EXISTS (SELECT 1 FROM write_operations WHERE project_id = NEW.project_id AND id = NEW.operation_id)
 BEGIN SELECT RAISE(ABORT, 'operation is closed'); END;
 
+--> statement-breakpoint
 CREATE INDEX design_diagram_revisions_operation ON design_diagram_revisions(project_id, operation_id);
+
+--> statement-breakpoint
 CREATE TRIGGER design_diagram_revisions_operation_closed BEFORE INSERT ON design_diagram_revisions
 WHEN EXISTS (SELECT 1 FROM write_operations WHERE project_id = NEW.project_id AND id = NEW.operation_id)
 BEGIN SELECT RAISE(ABORT, 'operation is closed'); END;
 
+--> statement-breakpoint
 CREATE INDEX technical_note_revisions_operation ON technical_note_revisions(project_id, operation_id);
+
+--> statement-breakpoint
 CREATE TRIGGER technical_note_revisions_operation_closed BEFORE INSERT ON technical_note_revisions
 WHEN EXISTS (SELECT 1 FROM write_operations WHERE project_id = NEW.project_id AND id = NEW.operation_id)
 BEGIN SELECT RAISE(ABORT, 'operation is closed'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER business_entity_revision_sources_revision_closed BEFORE INSERT ON business_entity_revision_sources
 WHEN EXISTS (SELECT 1 FROM business_entity_revisions r JOIN write_operations o
   ON o.project_id = r.project_id AND o.id = r.operation_id
   WHERE r.project_id = NEW.project_id AND r.entity_id = NEW.entity_id AND r.revision_no = NEW.revision_no)
 BEGIN SELECT RAISE(ABORT, 'revision is closed'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER business_relationship_revision_sources_revision_closed BEFORE INSERT ON business_relationship_revision_sources
 WHEN EXISTS (SELECT 1 FROM business_relationship_revisions r JOIN write_operations o
   ON o.project_id = r.project_id AND o.id = r.operation_id
   WHERE r.project_id = NEW.project_id AND r.relationship_id = NEW.relationship_id AND r.revision_no = NEW.revision_no)
 BEGIN SELECT RAISE(ABORT, 'revision is closed'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER design_diagram_revision_sources_revision_closed BEFORE INSERT ON design_diagram_revision_sources
 WHEN EXISTS (SELECT 1 FROM design_diagram_revisions r JOIN write_operations o
   ON o.project_id = r.project_id AND o.id = r.operation_id
   WHERE r.project_id = NEW.project_id AND r.diagram_id = NEW.diagram_id AND r.revision_no = NEW.revision_no)
 BEGIN SELECT RAISE(ABORT, 'revision is closed'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER technical_note_revision_sources_revision_closed BEFORE INSERT ON technical_note_revision_sources
 WHEN EXISTS (SELECT 1 FROM technical_note_revisions r JOIN write_operations o
   ON o.project_id = r.project_id AND o.id = r.operation_id
   WHERE r.project_id = NEW.project_id AND r.note_id = NEW.note_id AND r.revision_no = NEW.revision_no)
 BEGIN SELECT RAISE(ABORT, 'revision is closed'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER diagram_revision_entities_revision_closed BEFORE INSERT ON diagram_revision_entities
 WHEN EXISTS (SELECT 1 FROM design_diagram_revisions r JOIN write_operations o
   ON o.project_id = r.project_id AND o.id = r.operation_id
   WHERE r.project_id = NEW.project_id AND r.diagram_id = NEW.diagram_id AND r.revision_no = NEW.revision_no)
 BEGIN SELECT RAISE(ABORT, 'revision is closed'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER diagram_revision_relationships_revision_closed BEFORE INSERT ON diagram_revision_relationships
 WHEN EXISTS (SELECT 1 FROM design_diagram_revisions r JOIN write_operations o
   ON o.project_id = r.project_id AND o.id = r.operation_id
   WHERE r.project_id = NEW.project_id AND r.diagram_id = NEW.diagram_id AND r.revision_no = NEW.revision_no)
 BEGIN SELECT RAISE(ABORT, 'revision is closed'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER diagram_revision_notes_revision_closed BEFORE INSERT ON diagram_revision_notes
 WHEN EXISTS (SELECT 1 FROM design_diagram_revisions r JOIN write_operations o
   ON o.project_id = r.project_id AND o.id = r.operation_id
   WHERE r.project_id = NEW.project_id AND r.diagram_id = NEW.diagram_id AND r.revision_no = NEW.revision_no)
 BEGIN SELECT RAISE(ABORT, 'revision is closed'); END;
 
+--> statement-breakpoint
 CREATE TRIGGER technical_note_revision_entities_revision_closed BEFORE INSERT ON technical_note_revision_entities
 WHEN EXISTS (SELECT 1 FROM technical_note_revisions r JOIN write_operations o
   ON o.project_id = r.project_id AND o.id = r.operation_id
