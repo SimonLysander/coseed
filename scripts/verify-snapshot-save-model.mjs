@@ -35,7 +35,7 @@ CREATE TABLE project_revisions (
   name TEXT NOT NULL,
   PRIMARY KEY (project_id, revision_no),
   UNIQUE (project_id, operation_id),
-  FOREIGN KEY (project_id, operation_id) REFERENCES write_operations(project_id, id)
+  FOREIGN KEY (project_id, operation_id) REFERENCES write_operations(project_id, id) DEFERRABLE INITIALLY DEFERRED
 ) STRICT;
 CREATE TABLE requirements (
   project_id TEXT NOT NULL REFERENCES projects(id),
@@ -58,7 +58,7 @@ CREATE TABLE requirement_revisions (
   PRIMARY KEY (project_id, requirement_id, revision_no),
   UNIQUE (project_id, requirement_id, operation_id),
   FOREIGN KEY (project_id, requirement_id) REFERENCES requirements(project_id, id),
-  FOREIGN KEY (project_id, operation_id) REFERENCES write_operations(project_id, id)
+  FOREIGN KEY (project_id, operation_id) REFERENCES write_operations(project_id, id) DEFERRABLE INITIALLY DEFERRED
 ) STRICT;
 CREATE INDEX requirement_operations ON requirement_revisions(project_id, operation_id);
 CREATE TABLE progress_records (
@@ -83,7 +83,7 @@ CREATE TABLE progress_record_revisions (
   UNIQUE (project_id, record_id, operation_id),
   FOREIGN KEY (project_id, record_id) REFERENCES progress_records(project_id, id),
   FOREIGN KEY (project_id, requirement_id) REFERENCES requirements(project_id, id),
-  FOREIGN KEY (project_id, operation_id) REFERENCES write_operations(project_id, id)
+  FOREIGN KEY (project_id, operation_id) REFERENCES write_operations(project_id, id) DEFERRABLE INITIALLY DEFERRED
 ) STRICT;
 CREATE INDEX record_operations ON progress_record_revisions(project_id, operation_id);
 CREATE TABLE sources (
@@ -92,7 +92,7 @@ CREATE TABLE sources (
   captured_by_operation_id TEXT NOT NULL,
   raw_text TEXT NOT NULL,
   PRIMARY KEY (project_id, id),
-  FOREIGN KEY (project_id, captured_by_operation_id) REFERENCES write_operations(project_id, id)
+  FOREIGN KEY (project_id, captured_by_operation_id) REFERENCES write_operations(project_id, id) DEFERRABLE INITIALLY DEFERRED
 ) STRICT;
 CREATE TABLE project_revision_sources (
   project_id TEXT NOT NULL, revision_no INTEGER NOT NULL, source_id TEXT NOT NULL,
@@ -144,8 +144,8 @@ const revisionFamilies = [
 
 function addFixtureGuards() {
   const operationCondition = (column) => `EXISTS (
-    SELECT 1 FROM project_versions WHERE project_id = NEW.project_id
-      AND operation_id = NEW.${column})`;
+    SELECT 1 FROM write_operations WHERE project_id = NEW.project_id
+      AND id = NEW.${column})`;
   const conditions = new Map([
     ...revisionFamilies.map(([table]) => [table, operationCondition('operation_id')]),
     ['sources', operationCondition('captured_by_operation_id')],
@@ -159,8 +159,8 @@ function addFixtureGuards() {
   ]) {
     conditions.set(
       table,
-      `EXISTS (SELECT 1 FROM ${parent} r JOIN project_versions v
-        ON v.project_id = r.project_id AND v.operation_id = r.operation_id
+      `EXISTS (SELECT 1 FROM ${parent} r JOIN write_operations v
+        ON v.project_id = r.project_id AND v.id = r.operation_id
         WHERE r.project_id = NEW.project_id AND r.${id} = NEW.${id}
           AND r.revision_no = NEW.revision_no)`,
     );
@@ -187,18 +187,20 @@ function insertOperation(project, id, base, requestHash) {
   ).run(id, project, base, requestHash);
 }
 
-function seal(project, id, version) {
-  db.prepare('INSERT INTO project_versions VALUES (?, ?, ?)').run(project, version, id);
-  if (version > 0) {
+function finish(project, id, base, fingerprint) {
+  insertOperation(project, id, base, fingerprint);
+  const version = base === null ? 0 : base + 1;
+  if (version > 0)
     db.prepare('UPDATE projects SET current_content_version = ? WHERE id = ?').run(
       version,
       project,
     );
-  }
   assert.equal(
     head(project),
     db
-      .prepare('SELECT max(content_version) AS version FROM project_versions WHERE project_id = ?')
+      .prepare(
+        'SELECT max(result_content_version) AS version FROM write_operations WHERE project_id = ?',
+      )
       .get(project).version,
     'Save service must advance the project head before commit',
   );
@@ -207,9 +209,8 @@ function seal(project, id, version) {
 function receipt(project, id) {
   const op = db
     .prepare(
-      `SELECT o.id, o.base_content_version, v.content_version, o.saved_at
-    FROM write_operations o JOIN project_versions v
-      ON v.project_id = o.project_id AND v.operation_id = o.id
+      `SELECT o.id, o.base_content_version, o.result_content_version AS content_version, o.saved_at
+    FROM write_operations o
     WHERE o.project_id = ? AND o.id = ?`,
     )
     .get(project, id);
@@ -232,7 +233,6 @@ function createProject() {
   const source = randomUUID();
   db.transaction(() => {
     db.prepare('INSERT INTO projects VALUES (?, 1, 0, 1700000000000)').run(project);
-    insertOperation(project, operation, null, hash(`create ${project}`));
     db.prepare('INSERT INTO project_revisions VALUES (?, 1, ?, ?)').run(
       project,
       operation,
@@ -245,7 +245,7 @@ function createProject() {
       '  Explicitly fictional source.\r\nNo invented user history.',
     );
     db.prepare('INSERT INTO project_revision_sources VALUES (?, 1, ?)').run(project, source);
-    seal(project, operation, 0);
+    finish(project, operation, null, hash(`create ${project}`));
   }).immediate();
   return { project, source, operation };
 }
@@ -348,7 +348,6 @@ function save(project, { id, base, request }, change) {
         return receipt(project, id);
       }
       assert.equal(head(project), base, 'project version conflict');
-      insertOperation(project, id, base, fingerprint);
       change(id);
       const changed = revisionFamilies.reduce(
         (total, [table]) =>
@@ -360,7 +359,7 @@ function save(project, { id, base, request }, change) {
       );
       assert(changed > 0, 'empty save');
       verifyCurrentHeads(project);
-      seal(project, id, base + 1);
+      finish(project, id, base, fingerprint);
       return receipt(project, id);
     })
     .immediate();
@@ -369,7 +368,7 @@ function save(project, { id, base, request }, change) {
 function snapshot(project, version, family) {
   assert(
     db
-      .prepare('SELECT 1 FROM project_versions WHERE project_id = ? AND content_version = ?')
+      .prepare('SELECT 1 FROM write_operations WHERE project_id = ? AND result_content_version = ?')
       .get(project, version),
     'snapshot does not exist',
   );
@@ -378,11 +377,11 @@ function snapshot(project, version, family) {
   return db
     .prepare(
       `WITH ranked AS (
-    SELECT r.*, v.content_version,
-      row_number() OVER (PARTITION BY r.project_id, r.${key} ORDER BY v.content_version DESC) AS position
-    FROM ${table} r JOIN project_versions v
-      ON v.project_id = r.project_id AND v.operation_id = r.operation_id
-    WHERE r.project_id = ? AND v.content_version <= ?
+    SELECT r.*, v.result_content_version AS content_version,
+      row_number() OVER (PARTITION BY r.project_id, r.${key} ORDER BY v.result_content_version DESC) AS position
+    FROM ${table} r JOIN write_operations v
+      ON v.project_id = r.project_id AND v.id = r.operation_id
+    WHERE r.project_id = ? AND v.result_content_version <= ?
   ) SELECT * FROM ranked WHERE position = 1 AND is_deleted = 0 ORDER BY ${key}`,
     )
     .all(project, version);
@@ -494,7 +493,7 @@ try {
     assert.deepEqual(
       db
         .prepare(
-          'SELECT content_version FROM project_versions WHERE project_id = ? ORDER BY content_version',
+          'SELECT result_content_version AS content_version FROM write_operations WHERE project_id = ? ORDER BY result_content_version',
         )
         .all(p)
         .map((row) => row.content_version),
@@ -581,7 +580,6 @@ try {
     () => {
       for (const table of [
         'write_operations',
-        'project_versions',
         ...revisionFamilies.map(([name]) => name),
         'sources',
         'project_revision_sources',
@@ -626,10 +624,15 @@ try {
       );
     },
   );
-  verify('an operation without its matching version cannot commit', () => {
+  verify('a revision without its final operation cannot commit', () => {
     const opCount = count('write_operations');
     assert.throws(
-      () => db.transaction(() => insertOperation(p, randomUUID(), 3, hash('unsealed'))).immediate(),
+      () =>
+        db
+          .transaction(() =>
+            appendRecord(p, oldRecord, randomUUID(), first.source, req, 'Uncommitted fixture'),
+          )
+          .immediate(),
       /FOREIGN KEY/,
     );
     assert.equal(count('write_operations'), opCount);
@@ -644,9 +647,9 @@ try {
           db
             .transaction(() => {
               const op = randomUUID();
-              insertOperation(p, op, 3, hash('dangling object head'));
+
               db.prepare('INSERT INTO progress_records VALUES (?, ?, 99)').run(p, id);
-              seal(p, op, 4);
+              finish(p, op, 3, hash('dangling object head'));
             })
             .immediate(),
         /FOREIGN KEY/,
@@ -705,7 +708,7 @@ try {
   verify('head rollback is rejected; restoration cannot reset the project version', () => {
     assert.throws(
       () => db.prepare('UPDATE projects SET current_content_version = 2 WHERE id = ?').run(p),
-      /next sealed/,
+      /next saved/,
     );
     assert.equal(head(p), 5);
   });
@@ -716,7 +719,7 @@ try {
           .transaction(() => {
             const op = randomUUID();
             insertOperation(p, op, 5, hash('simulate forgotten head update'));
-            db.prepare('INSERT INTO project_versions VALUES (?, 6, ?)').run(p, op);
+
             assert.equal(head(p), 6, 'service final head check');
           })
           .immediate(),

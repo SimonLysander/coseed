@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "entities": [
     {
       "id": "requirements",
@@ -228,23 +228,9 @@
         "scope": {
           "kind": "project"
         },
-        "entityRefs": [
-          {
-            "id": "requirements",
-            "revisionNo": 1
-          },
-          {
-            "id": "overview",
-            "revisionNo": 1
-          }
-        ],
-        "relationshipRefs": [
-          {
-            "id": "requirements-use-overview",
-            "revisionNo": 1
-          }
-        ],
-        "noteRefs": []
+        "entityIds": ["requirements", "overview"],
+        "relationshipIds": ["requirements-use-overview"],
+        "noteIds": []
       }
     },
     {
@@ -254,62 +240,25 @@
         "title": "需求推进内部设计",
         "scope": {
           "kind": "module",
-          "moduleRef": {
-            "id": "requirements",
-            "revisionNo": 1
-          }
+          "moduleId": "requirements"
         },
-        "entityRefs": [
-          {
-            "id": "update-requirement",
-            "revisionNo": 1
-          },
-          {
-            "id": "maintain-records",
-            "revisionNo": 1
-          },
-          {
-            "id": "agent-review",
-            "revisionNo": 1
-          },
-          {
-            "id": "requirement-data",
-            "revisionNo": 1
-          },
-          {
-            "id": "record-data",
-            "revisionNo": 1
-          }
+        "entityIds": [
+          "update-requirement",
+          "maintain-records",
+          "agent-review",
+          "requirement-data",
+          "record-data"
         ],
-        "relationshipRefs": [
-          {
-            "id": "agent-updates-requirements",
-            "revisionNo": 1
-          },
-          {
-            "id": "update-reads-requirement",
-            "revisionNo": 1
-          },
-          {
-            "id": "update-writes-requirement",
-            "revisionNo": 1
-          },
-          {
-            "id": "update-maintains-records",
-            "revisionNo": 1
-          },
-          {
-            "id": "records-own-requirement",
-            "revisionNo": 1
-          }
+        "relationshipIds": [
+          "agent-updates-requirements",
+          "update-reads-requirement",
+          "update-writes-requirement",
+          "update-maintains-records",
+          "records-own-requirement"
         ],
-        "noteRefs": [
-          {
-            "id": "atomic-save",
-            "revisionNo": 1
-          }
-        ]
+        "noteIds": ["atomic-save"]
       }
     }
-  ]
+  ],
+  "projectVersion": 1
 }

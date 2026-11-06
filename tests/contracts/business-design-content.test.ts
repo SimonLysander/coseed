@@ -26,7 +26,7 @@ describe('business-design content proposal', () => {
     const internal = fixture.diagrams[1]!.content;
     expect(internal.scope).toEqual({
       kind: 'module',
-      moduleRef: { id: 'requirements', revisionNo: 1 },
+      moduleId: 'requirements',
     });
   });
   it('preserves TS source formatting and allows unlocated planned implementations', () => {
@@ -56,29 +56,47 @@ describe('business-design content proposal', () => {
   it('rejects duplicate snapshots and two appearances of one object in the same view', () => {
     rejects((value) => {
       value.entities.push(value.entities[0]!);
-    }, '对象版本重复');
+    }, '同一项目快照内对象重复');
     rejects((value) => {
-      value.diagrams[0]!.content.entityRefs.push({ id: 'requirements', revisionNo: 1 });
+      value.diagrams[0]!.content.entityIds.push('requirements');
     }, '同图中对象重复');
   });
-  it('resolves exact versions instead of silently substituting another snapshot', () => {
+  it('uses stable graph members and rejects missing objects or legacy pinned refs', () => {
     rejects((value) => {
-      value.diagrams[0]!.content.entityRefs[0]!.revisionNo = 2;
-    }, '不存在的对象版本');
+      value.diagrams[0]!.content.entityIds[0] = 'missing';
+    }, '不存在的对象');
     rejects((value) => {
-      value.diagrams[1]!.content.relationshipRefs[0]!.revisionNo = 2;
-    }, '不存在的关系版本');
+      value.diagrams[1]!.content.relationshipIds[0] = 'missing';
+    }, '不存在的关系');
     rejects((value) => {
-      value.diagrams[1]!.content.noteRefs[0]!.revisionNo = 2;
-    }, '不存在的说明版本');
+      value.diagrams[1]!.content.noteIds[0] = 'missing';
+    }, '不存在的说明');
+    rejects((value) => {
+      Object.assign(value.diagrams[0]!.content, {
+        entityRefs: [{ id: 'requirements', revisionNo: 1 }],
+      });
+    });
+  });
+  it('accepts a changed shared node without copying or revising the graph', () => {
+    const value = copy();
+    value.projectVersion = 2;
+    const node = value.entities.find((entry) => entry.id === 'update-requirement')!;
+    node.revisionNo = 2;
+    node.content.summary = '更新后的职责描述。';
+    const parsed = businessDesignBundleDraftSchema.parse(value);
+    expect(parsed.diagrams).toEqual(fixture.diagrams);
+    expect(fixture.entities.find((entry) => entry.id === node.id)!.revisionNo).toBe(1);
+    rejects((model) => {
+      model.entities.push({ ...model.entities[0]!, revisionNo: 2 });
+    }, '同一项目快照内对象重复');
   });
   it('keeps the module scope and object layers explicit', () => {
     rejects((value) => {
-      value.diagrams[0]!.content.entityRefs.push({ id: 'update-requirement', revisionNo: 1 });
+      value.diagrams[0]!.content.entityIds.push('update-requirement');
     }, '图的层次');
     rejects((value) => {
       const scope = value.diagrams[1]!.content.scope;
-      if (scope.kind === 'module') scope.moduleRef.id = 'requirement-data';
+      if (scope.kind === 'module') scope.moduleId = 'requirement-data';
     }, '模块范围无效');
   });
   it('rejects wrong endpoint kinds and relationships whose endpoints are not in the view', () => {
@@ -87,8 +105,8 @@ describe('business-design content proposal', () => {
       content.targetId = 'requirement-data';
     }, '两端对象种类不匹配');
     rejects((value) => {
-      value.diagrams[1]!.content.entityRefs = value.diagrams[1]!.content.entityRefs.filter(
-        (reference) => reference.id !== 'agent-review',
+      value.diagrams[1]!.content.entityIds = value.diagrams[1]!.content.entityIds.filter(
+        (entityId) => entityId !== 'agent-review',
       );
     }, '端点未包含');
   });
@@ -146,7 +164,7 @@ describe('business-design content proposal', () => {
         entityIds: ['update-requirement', 'requirement-data'],
       },
     });
-    value.diagrams[1]!.content.noteRefs.push({ id: 'second-note', revisionNo: 1 });
+    value.diagrams[1]!.content.noteIds.push('second-note');
     expect(businessDesignBundleDraftSchema.parse(value)).toEqual(value);
   });
   it('keeps events separate from direct calls and preserves event identifiers', () => {

@@ -6,7 +6,6 @@ const id = z
   .string()
   .min(1)
   .refine((value) => value.trim() === value, 'ID 不能包含首尾空白');
-const ref = z.strictObject({ id, revisionNo: z.number().int().positive() });
 const owner = z.discriminatedUnion('kind', [
   z.strictObject({ kind: z.literal('module'), id }),
   z.strictObject({ kind: z.literal('external_system'), id }),
@@ -89,11 +88,11 @@ const diagram = z.strictObject({
   title: text,
   scope: z.discriminatedUnion('kind', [
     z.strictObject({ kind: z.literal('project') }),
-    z.strictObject({ kind: z.literal('module'), moduleRef: ref }),
+    z.strictObject({ kind: z.literal('module'), moduleId: id }),
   ]),
-  entityRefs: z.array(ref).min(1),
-  relationshipRefs: z.array(ref),
-  noteRefs: z.array(ref),
+  entityIds: z.array(id).min(1),
+  relationshipIds: z.array(id),
+  noteIds: z.array(id),
 });
 
 export const businessEntityContentDraftSchema = entity;
@@ -103,12 +102,13 @@ export const designDiagramContentDraftSchema = diagram;
 
 const snapshot = <T extends z.ZodType>(content: T) =>
   z.strictObject({ id, revisionNo: z.number().int().positive(), content });
-const key = (value: { id: string; revisionNo: number }) =>
-  JSON.stringify([value.id, value.revisionNo]);
 
+// A bundle is one resolved project snapshot, never a collection of all revisions.
+// The database resolver must prove each selected row is the latest at projectVersion.
 export const businessDesignBundleDraftSchema = z
   .strictObject({
-    schemaVersion: z.literal(1),
+    schemaVersion: z.literal(2),
+    projectVersion: z.number().int().nonnegative(),
     entities: z.array(snapshot(entity)),
     relationships: z.array(snapshot(relationship)),
     notes: z.array(snapshot(note)),
@@ -117,14 +117,11 @@ export const businessDesignBundleDraftSchema = z
   .superRefine((model, context) => {
     const error = (path: (string | number)[], message: string) =>
       context.addIssue({ code: 'custom', path, message });
-    const index = <T extends { id: string; revisionNo: number }>(
-      values: T[],
-      collection: string,
-    ) => {
+    const index = <T extends { id: string }>(values: T[], collection: string) => {
       const map = new Map<string, T>();
       values.forEach((value, i) => {
-        if (map.has(key(value))) error([collection, i], '对象版本重复');
-        map.set(key(value), value);
+        if (map.has(value.id)) error([collection, i], '同一项目快照内对象重复');
+        map.set(value.id, value);
       });
       return map;
     };
@@ -132,13 +129,7 @@ export const businessDesignBundleDraftSchema = z
     const relationships = index(model.relationships, 'relationships');
     const notes = index(model.notes, 'notes');
     index(model.diagrams, 'diagrams');
-    const kinds = new Map<string, string>();
-    model.entities.forEach((value, i) => {
-      const previous = kinds.get(value.id);
-      if (previous && previous !== value.content.kind)
-        error(['entities', i], '同一对象身份的种类不一致');
-      kinds.set(value.id, value.content.kind);
-    });
+    const kinds = new Map(model.entities.map((value) => [value.id, value.content.kind]));
     model.entities.forEach((value, i) => {
       if (
         'owner' in value.content &&
@@ -185,13 +176,13 @@ export const businessDesignBundleDraftSchema = z
     model.diagrams.forEach((value, i) => {
       const view = value.content;
       const selected = new Set<string>();
-      view.entityRefs.forEach((reference, j) => {
-        if (selected.has(reference.id))
-          error(['diagrams', i, 'content', 'entityRefs', j], '同图中对象重复或混用了多个版本');
-        selected.add(reference.id);
-        const resolved = entities.get(key(reference));
+      view.entityIds.forEach((entityId, j) => {
+        if (selected.has(entityId))
+          error(['diagrams', i, 'content', 'entityIds', j], '同图中对象重复');
+        selected.add(entityId);
+        const resolved = entities.get(entityId);
         if (!resolved) {
-          error(['diagrams', i, 'content', 'entityRefs', j], '图引用了不存在的对象版本');
+          error(['diagrams', i, 'content', 'entityIds', j], '图引用了快照中不存在的对象');
           return;
         }
         const allowed =
@@ -199,43 +190,43 @@ export const businessDesignBundleDraftSchema = z
             ? ['module', 'external_system']
             : ['component', 'data_object'];
         if (!allowed.includes(resolved.content.kind))
-          error(['diagrams', i, 'content', 'entityRefs', j], '对象不符合当前图的层次');
+          error(['diagrams', i, 'content', 'entityIds', j], '对象不符合当前图的层次');
       });
       if (
         view.scope.kind === 'module' &&
-        entities.get(key(view.scope.moduleRef))?.content.kind !== 'module'
+        entities.get(view.scope.moduleId)?.content.kind !== 'module'
       )
         error(['diagrams', i, 'content', 'scope'], '内部图的模块范围无效');
       const selectedRelationships = new Set<string>();
-      view.relationshipRefs.forEach((reference, j) => {
-        if (selectedRelationships.has(reference.id))
-          error(['diagrams', i, 'content', 'relationshipRefs', j], '同图关系重复');
-        selectedRelationships.add(reference.id);
-        const resolved = relationships.get(key(reference));
+      view.relationshipIds.forEach((relationshipId, j) => {
+        if (selectedRelationships.has(relationshipId))
+          error(['diagrams', i, 'content', 'relationshipIds', j], '同图关系重复');
+        selectedRelationships.add(relationshipId);
+        const resolved = relationships.get(relationshipId);
         if (!resolved) {
-          error(['diagrams', i, 'content', 'relationshipRefs', j], '图引用了不存在的关系版本');
+          error(['diagrams', i, 'content', 'relationshipIds', j], '图引用了快照中不存在的关系');
           return;
         }
         const edge = resolved.content;
         if (!selected.has(edge.sourceId) || !selected.has(edge.targetId))
-          error(['diagrams', i, 'content', 'relationshipRefs', j], '关系端点未包含在本图');
+          error(['diagrams', i, 'content', 'relationshipIds', j], '关系端点未包含在本图');
         const isOverview =
           edge.kind === 'functional_dependency' || edge.kind === 'module_association';
         if (isOverview !== (view.scope.kind === 'project'))
-          error(['diagrams', i, 'content', 'relationshipRefs', j], '关系不符合当前图的层次');
+          error(['diagrams', i, 'content', 'relationshipIds', j], '关系不符合当前图的层次');
       });
       const selectedNotes = new Set<string>();
-      view.noteRefs.forEach((reference, j) => {
-        if (selectedNotes.has(reference.id))
-          error(['diagrams', i, 'content', 'noteRefs', j], '同图说明重复');
-        selectedNotes.add(reference.id);
-        const resolved = notes.get(key(reference));
+      view.noteIds.forEach((noteId, j) => {
+        if (selectedNotes.has(noteId))
+          error(['diagrams', i, 'content', 'noteIds', j], '同图说明重复');
+        selectedNotes.add(noteId);
+        const resolved = notes.get(noteId);
         if (!resolved) {
-          error(['diagrams', i, 'content', 'noteRefs', j], '图引用了不存在的说明版本');
+          error(['diagrams', i, 'content', 'noteIds', j], '图引用了快照中不存在的说明');
           return;
         }
         if (resolved.content.entityIds.some((entityId) => !selected.has(entityId)))
-          error(['diagrams', i, 'content', 'noteRefs', j], '说明范围超出了本图');
+          error(['diagrams', i, 'content', 'noteIds', j], '说明范围超出了本图');
       });
     });
   });
