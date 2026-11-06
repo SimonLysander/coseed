@@ -17,7 +17,7 @@ test('workbench shows real readiness and connection details', async ({ page }) =
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/');
   await expect(page.getByRole('heading', { name: '先从一个项目开始' })).toBeVisible();
-  await expect(page.getByRole('status')).toHaveText('本地服务已就绪');
+  await expect(page.getByText('本地服务已就绪', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: '服务连接' }).click();
   await expect(page.getByRole('dialog')).toContainText('数据库');
   await expect(page.getByRole('dialog')).toContainText('已就绪');
@@ -34,7 +34,9 @@ test('narrow reading layout does not overflow', async ({ page }) => {
   );
   await expect(page.getByRole('heading', { name: '先从一个项目开始' })).toBeVisible();
   await page.getByRole('button', { name: '打开主导航' }).click();
-  await expect(page.getByRole('dialog').getByRole('status')).toHaveText('本地服务已就绪');
+  await expect(page.getByRole('dialog').getByText('本地服务已就绪', { exact: true })).toHaveCount(
+    0,
+  );
   await page.getByRole('dialog').getByRole('button', { name: '服务连接' }).click();
   await expect(page.getByRole('dialog', { name: '本地服务' })).toContainText('数据库');
 });
@@ -45,20 +47,23 @@ test('failed connection can be retried', async ({ page }) => {
   await expect(page.getByRole('alert')).toBeVisible();
   await page.unroute('**/api/status');
   await page.getByRole('button', { name: '重新连接' }).click();
-  await expect(page.getByRole('status')).toHaveText('本地服务已就绪');
+  await expect(page.getByText('本地服务已就绪', { exact: true })).toHaveCount(0);
   await expect(page.getByRole('alert')).not.toBeVisible();
+  await page.getByRole('button', { name: '服务连接' }).click();
+  await expect(page.getByRole('dialog')).toContainText('已就绪');
 });
 
 test('workbench uses the shared system typography and pine-green modes', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'light' });
   await page.goto('/');
-  await expect(page.getByRole('status')).toHaveText('本地服务已就绪');
+  await expect(page.getByText('本地服务已就绪', { exact: true })).toHaveCount(0);
   await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
   await expect(page.getByRole('heading', { name: '先从一个项目开始' })).toHaveCSS(
     'font-size',
     '26px',
   );
   await expect(page.locator('.sidebar')).toHaveCSS('width', '208px');
+  await expect(page.locator('.sidebar .ant-menu-item-selected')).toHaveCSS('border-radius', '10px');
   expect(
     await page
       .locator('html')
@@ -69,6 +74,7 @@ test('workbench uses the shared system typography and pine-green modes', async (
   await chooseAppearance(page, 'dark');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.getByRole('button', { name: '服务连接' }).click();
+  await expect(page.locator('.ant-modal-container')).toHaveCSS('border-radius', '16px');
   await expect(page.locator('.ant-modal-container')).toHaveCSS(
     'background-color',
     'rgb(35, 35, 41)',

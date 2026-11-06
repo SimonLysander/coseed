@@ -35,7 +35,9 @@ export function createAntdTheme(mode: ColorMode, reducedMotion: boolean): ThemeC
       controlHeight: t.size.control,
       controlHeightSM: t.size.controlSmall,
       controlHeightLG: t.size.controlLarge,
-      borderRadius: 5,
+      borderRadius: Number.parseFloat(t.shape.controlRadius),
+      borderRadiusSM: Number.parseFloat(t.shape.smallRadius),
+      borderRadiusLG: Number.parseFloat(t.shape.paperRadius),
       motion: !reducedMotion,
       motionDurationFast: `${t.motion.durationMs.feedback}ms`,
       motionDurationMid: `${t.motion.durationMs.reveal}ms`,
@@ -48,6 +50,7 @@ export function createAntdTheme(mode: ColorMode, reducedMotion: boolean): ThemeC
         itemSelectedBg: t.color.accent.soft,
         itemSelectedColor: t.color.accent.solid,
         itemHeight: t.size.navItem,
+        itemBorderRadius: Number.parseFloat(t.shape.controlRadius),
       },
       Button: {
         colorPrimary: t.color.accent.solid,

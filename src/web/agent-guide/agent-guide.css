@@ -79,7 +79,7 @@
 .guide-section code {
   padding: 2px 4px;
   background: var(--ds-color-surface-hover);
-  border-radius: var(--ds-shape-controlRadius);
+  border-radius: var(--ds-shape-smallRadius);
   overflow-wrap: anywhere;
 }
 .guide-article .guide-endnote {

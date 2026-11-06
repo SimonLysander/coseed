@@ -30,7 +30,6 @@ export function App() {
   const [navigationOpen, setNavigationOpen] = useState(false);
   const [connectionOpen, setConnectionOpen] = useState(false);
   const { connection, retry } = useServiceStatus();
-  const ready = connection.state === 'ready';
 
   const sidebarContent = (
     <div className="sidebar-content">
@@ -107,16 +106,6 @@ export function App() {
         </Button>
         <div className="sidebar-utilities">
           <AppearanceToggle />
-          <span className={`connection connection-${connection.state}`} role="status">
-            <span className="connection-dot" />
-            <span className="connection-label">
-              {ready
-                ? '本地服务已就绪'
-                : connection.state === 'loading'
-                  ? '正在连接本地服务'
-                  : '本地服务连接失败'}
-            </span>
-          </span>
         </div>
         <span className="sidebar-note">项目认知工作台</span>
       </div>
