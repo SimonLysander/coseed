@@ -113,8 +113,8 @@ export default function AgentGuidePage() {
               从连接服务开始，让 Agent 读取项目资料、整理变化，再保存到 CoSeed。
             </p>
             <div className="guide-draft-note">
-              <span className="guide-draft-label">内容草稿</span>
-              <span>目前可阅读说明；项目资料读写工具尚未接入。</span>
+              <span className="guide-draft-label">当前进度</span>
+              <span>MCP 读写工具已接入，项目业务页面仍在开发。</span>
             </div>
             {copyState === 'copied' && (
               <span className="guide-copy-result" role="status">
@@ -137,7 +137,7 @@ export default function AgentGuidePage() {
             />
           ))}
           <p className="guide-endnote">
-            本版先确定阅读顺序，后续逐节补充工具用法和 Agent 操作规范。
+            具体内容规范通过 read_guide 按需读取；不同 Agent 的自动落盘仍需单独验证。
           </p>
         </article>
         <aside className="ds-toc guide-toc" aria-label="阅读目录">

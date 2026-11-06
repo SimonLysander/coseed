@@ -63,7 +63,7 @@ function transactionError(error: unknown): never {
       typeof code === 'string' &&
       (code.startsWith('SQLITE_BUSY') || code.startsWith('SQLITE_LOCKED'))
     )
-      throw new ContentError('STORAGE_BUSY', '数据库忙碌；本次未保存，请保留相同操作 ID 后重试。', {
+      throw new ContentError('STORAGE_BUSY', '数据库忙碌，本次未保存。', {
         cause: error,
       });
     if (typeof code === 'string' && code.startsWith('SQLITE_CONSTRAINT'))
@@ -203,7 +203,7 @@ export class ProjectContentService {
           ensure(
             repository.head(input.projectId) === input.baseVersion,
             'CONFLICT',
-            '项目已有更新，请先读取当前版本再整理修改。',
+            '读取基准与项目当前版本不一致。',
           );
           const pending = {
             id: input.operationId,
@@ -286,14 +286,46 @@ export class ProjectContentService {
     }
   }
 
-  listProjects() {
+  listProjects(options: { name?: string; afterId?: string; limit?: number } = {}) {
+    const settings = parse(
+      z.strictObject({
+        name: z.string().optional(),
+        afterId: identifier.optional(),
+        limit: z.number().int().min(1).max(101).optional(),
+      }),
+      options,
+    );
     return this.database.db.all<{
       id: string;
       name: string;
       version: number;
       createdAt: number;
     }>(sql`SELECT p.id, r.name, p.current_content_version AS version, p.created_at AS createdAt
-      FROM projects p JOIN project_revisions r ON r.project_id = p.id AND r.revision_no = p.current_revision_no ORDER BY p.created_at, p.id`);
+      FROM projects p JOIN project_revisions r ON r.project_id = p.id AND r.revision_no = p.current_revision_no
+      WHERE 1 = 1 ${settings.name === undefined ? sql`` : sql`AND instr(lower(r.name), lower(${settings.name})) > 0`}
+      ${settings.afterId === undefined ? sql`` : sql`AND p.id > ${settings.afterId}`}
+      ORDER BY p.id ${settings.limit === undefined ? sql`` : sql`LIMIT ${settings.limit}`}`);
+  }
+
+  readProject(projectId: string) {
+    parse(identifier, projectId);
+    return this.database.db.transaction((tx) => {
+      const repository = new SnapshotRepository(tx);
+      const version = repository.head(projectId);
+      const project = repository.readType('project', { projectId, version, id: projectId })[0]!;
+      const operation = tx.get<{ id: string }>(
+        sql`SELECT id FROM write_operations WHERE project_id = ${projectId} AND result_content_version = ${version}`,
+      )!;
+      return { projectId, version, project, operationId: operation.id };
+    });
+  }
+
+  findOperation(operationId: string): OperationReceipt | null {
+    parse(identifier, operationId);
+    return this.database.db.transaction((tx) => {
+      const row = operationRow(tx, operationId);
+      return row ? new SnapshotRepository(tx).operation(row.project_id, operationId) : null;
+    });
   }
 
   readSnapshot(projectId: string, version?: number) {

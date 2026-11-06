@@ -22,7 +22,7 @@ export default function ServiceConnectionDialog({
           <dt>数据库</dt>
           <dd>已就绪</dd>
           <dt>接入状态</dt>
-          <dd>MCP 传输已建立，项目读写工具尚未接入。</dd>
+          <dd>已提供项目读取、快照导出、保存和修订查询工具。</dd>
         </dl>
       ) : (
         <p>{connection.state === 'loading' ? '正在检查服务连接…' : connection.message}</p>

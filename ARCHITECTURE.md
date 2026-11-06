@@ -1,6 +1,6 @@
 # CoSeed 当前架构
 
-本文记录已运行实现。后续已确认方向见 [ADR 0003](docs/adr/0003-database-and-agent-cache.md)：数据库保存权威内容，Agent 经 MCP 拉取本地读取副本，正式修改通过 MCP 提交；没有要求本地连接器或资料 Git 仓库。数据库及内部保存／查询服务已实现；MCP 业务工具和本地文件副本尚未接入，现有本机服务不具备远程授权能力。
+本文记录已运行实现。后续已确认方向见 [ADR 0003](docs/adr/0003-database-and-agent-cache.md)：数据库保存权威内容，Agent 经 MCP 拉取本地读取副本，正式修改通过 MCP 提交；没有要求本地连接器或资料 Git 仓库。数据库及内部保存／查询服务已实现；九个 MCP 业务工具及固定版本文件读取已接入；客户端使用自身文件能力落盘，真实 Agent 宿主的自动落盘仍待验证，现有本机服务不具备远程授权能力。
 
 ## 交付与进程
 
@@ -15,11 +15,11 @@
 | src/cli                            | 解析启动参数、加载配置、启动和退出                                                            |
 | src/server/config                  | 合并配置、路径解析、Zod 校验，产出只读运行配置                                                |
 | src/server/database                | SQLite/Drizzle 生命周期、正式迁移和查询列映射                                                 |
-| src/server/modules/project-content | 项目及业务内容的原子保存、来源、修订和固定快照查询，尚无公开接口                              |
+| src/server/modules/project-content | 项目及业务内容的原子保存、来源、修订和固定快照查询，由 MCP 复用                               |
 | src/server/modules/system          | 真实服务状态检查                                                                              |
-| src/server/mcp                     | 官方 SDK 的无会话 Streamable HTTP 适配；目前支持初始化和 ping，无业务工具                     |
+| src/server/mcp                     | 官方 SDK 无会话 HTTP；工具、临时引用解析、按需规范、固定快照文件导出                          |
 | src/server/security                | 本机 Host 和同源 Origin 检查                                                                  |
-| src/contracts                      | 服务状态、业务内容 Schema 及内部保存／读取契约                                                |
+| src/contracts                      | 服务状态、内容 Schema、内部保存／读取及 MCP 输入输出契约                                      |
 | src/web                            | 无顶栏的左侧导航、空工作台和 Agent 接入说明阅读页，读取真实服务状态；说明页和连接弹窗按需加载 |
 | src/web/design-system              | 唯一的字体、布局、主题和动效 Token；统一 CSS、Ant Design、Motion 及明暗偏好                   |
 
@@ -33,7 +33,7 @@
 
 `POST /mcp` 由官方服务端 SDK 和 Node 传输处理，每次请求建立独立实例，使用 JSON 响应。`GET /mcp` 和 `DELETE /mcp` 返回 405；当前不提供 SSE 订阅或会话状态。未来需要这些能力时须重新设计生命周期。
 
-服务仅绑定回环地址，检查请求 Host 和存在的 Origin，不启用任意来源 CORS。当前请求体上限为 1 MiB。内部共同保存服务已保证数据项目归属、来源引用及修订原子性；MCP 和 Web 后续接入它，不复制规则。远程授权属于入口责任，尚未实现。
+服务仅绑定回环地址，检查请求 Host 和存在的 Origin，不启用任意来源 CORS。当前请求体上限为 1 MiB。内部共同保存服务已保证数据项目归属、来源引用及修订原子性；MCP 已接入它，Web 后续沿用，不复制规则。远程授权属于入口责任，尚未实现。
 
 ## 图形和性能
 
@@ -49,12 +49,22 @@ X6、React 节点适配包和 ELK 已安装，尚未迁入完整业务图，也�
 
 `#/agent-guide` 是正式前端的静态文档页，内容唯一来源为 `docs/operations/agent-integration.md`，由 Vite 按需打包导入；页面不复制维护另一份正文。`src/web/agent-guide/` 负责文档分节、Markdown 呈现、章节定位、右侧目录和复制全文。Markdown 禁用原始 HTML，仓库内的本地运行参考文档作为可打开的构建资源交付。
 
-桌面沿用全局阅读宽度和右侧目录，窄屏把目录入口放在文章标题旁；支持章节直达、刷新定位、滚动高亮和明暗模式。正文标明草稿及业务工具未接入，显示说明不代表 MCP 项目读写或本地副本拉取已实现。业务内容保存已在内部服务实现，页面未接入。
+桌面沿用全局阅读宽度和右侧目录，窄屏把目录入口放在文章标题旁；支持章节直达、刷新定位、滚动高亮和明暗模式。正文说明 MCP 工具和业务页面的实际边界。人类说明页与 read_guide 的按需业务规范用途不同；页面没有复制全套工具 Schema。业务页面尚未接入。
 
 ## 项目内容保存
 
-`ProjectContentModule` 导出 `ProjectContentService`，内部按 persistence 和 validation 职责组织。逻辑输入与可信入口提供的写入上下文分开；目前没有新增 HTTP 路由或 MCP 工具。数据库是内容、来源和历史的唯一权威，不读写业务仓库 Git。
+`ProjectContentModule` 导出 `ProjectContentService`，内部按 persistence 和 validation 职责组织。逻辑输入与可信入口提供的写入上下文分开；MCP 通过该服务读写，不另建业务 REST 路由。数据库是内容、来源和历史的唯一权威，不读写业务仓库 Git。
 
 一个成功操作承载一个项目版本。来源、完整修订、关联和当前对象指针同事务写入，完整校验后最后插入操作封存，再推进项目指针。失败整批回滚；重试先查原操作；旧基准拒绝覆盖。历史不可修改，恢复追加新修订。
 
 快照在一致读事务内按同一项目版本批量解析所有对象和图成员，共享节点变化不复制图成员修订；旧图依旧解析旧项目版本。需求关联当前对象，推进依据固定具体修订，历史图引用固定项目版本。详细字段和测试入口见 [存储实现](docs/database/storage-implementation.md)。
+
+## MCP 读写和文件副本
+
+`McpModule` 保持官方 SDK 的无会话 HTTP 生命周期。`McpToolsService` 注册九个工具，`src/contracts/mcp.ts` 复用内容 Schema；`read_guide` 仅转换所读主题的 Schema。`api:generate` / `api:check` 用临时实例和官方 MCP 客户端生成／核对 `docs/api/mcp-tools.json`，不维护第二套工具清单。
+
+`save_changes` 一次保存，没有强制准备步骤。调用者提供稳定 requestKey 和 `$临时名称`，入口按命名空间计算操作／新增对象 ID，只解析有类型的引用字段；来源原文、正文和 TS 保持原样。共同服务负责事务、版本冲突、规范请求幂等及修订历史。执行者固定记录为未认证的本机 MCP Agent，不信任请求伪造的入口字段。
+
+导出固定项目版本，补齐当前内容所引用的历史修订、状态依据、历史整图及来源。文件为 UTF-8 规范 JSON，以 SHA-256 生成安全路径和完整性摘要，清单分页、文件按字节分块。使用 lru-cache 限制缓存项数、内容字节和 TTL；首次构建仍读取完整项目及必要历史，尚未验证超大项目峰值内存和吞吐。实例身份写入数据目录 instance.json，备份迁移需保留；损坏时启动失败。
+
+官方客户端测试验证 HTTP 工具读写、固定历史、下载校验和重启重试；不等于已验证实际 Agent 的模型判断、规范遵循和自动落盘。协议细节见 [MCP 规范](docs/requirements/mcp-tools-design.md)。

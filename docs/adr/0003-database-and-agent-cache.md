@@ -1,6 +1,6 @@
 # ADR 0003：数据库保存资料，Agent 拉取本地读取副本
 
-状态：**方向已确认，业务链路尚未实现。** 2026-11-06，用户明确决定先不使用 Git 管理 CoSeed 资料。本文替代 [ADR 0002](0002-agent-workspace-sync.md) 的服务端 Git 存储方向；保留 Agent 使用自身 MCP 客户端直接连接 CoSeed 的决定。
+状态：**数据库和 MCP 业务工具已实现；Agent 宿主自动落盘及业务页面仍待接入。** 2026-11-06，用户明确决定先不使用 Git 管理 CoSeed 资料。本文替代 [ADR 0002](0002-agent-workspace-sync.md) 的服务端 Git 存储方向；保留 Agent 使用自身 MCP 客户端直接连接 CoSeed 的决定。
 
 ## 决定
 

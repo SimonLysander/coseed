@@ -1,17 +1,27 @@
-import { Controller, Delete, Get, Header, HttpCode, Logger, Post, Req, Res } from '@nestjs/common';
-import { McpServer } from '@modelcontextprotocol/server';
+import {
+  Controller,
+  Delete,
+  Get,
+  Header,
+  HttpCode,
+  Inject,
+  Logger,
+  Post,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { NodeStreamableHTTPServerTransport } from '@modelcontextprotocol/node';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { packageVersion } from '../package-info.js';
+import { McpToolsService } from './tools.service.js';
 
 @Controller('mcp')
 export class McpController {
   private readonly logger = new Logger(McpController.name);
+  constructor(@Inject(McpToolsService) private readonly tools: McpToolsService) {}
 
   @Post()
   async handle(@Req() request: FastifyRequest, @Res() reply: FastifyReply): Promise<void> {
-    // Startup scaffolding exposes the standard handshake, with no pretend business tools.
-    const server = new McpServer({ name: 'coseed', version: packageVersion });
+    const server = this.tools.createServer();
     const transport = new NodeStreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
       enableJsonResponse: true,

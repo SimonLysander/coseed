@@ -34,7 +34,7 @@ export function planChanges(
     ensure(
       (before?.revisionNo ?? null) === change.expectedRevision,
       'CONFLICT',
-      '对象修订已变化，请先读取当前版本。',
+      '对象预期修订与当前版本不一致。',
     );
     if (change.action !== 'upsert') ensure(before, 'NOT_FOUND', '待移除或恢复的对象不存在。');
     if (change.action === 'remove') ensure(!before!.isDeleted, 'NO_CHANGES', '对象已经移除。');
@@ -54,11 +54,7 @@ export function planChanges(
     const body = change.action === 'upsert' ? change.content : (restored ?? before)!.content;
     const content = normalizeContent(change.objectType, body);
     if (change.objectType === 'entity' && before)
-      ensure(
-        before.content.kind === content.kind,
-        'INVALID_INPUT',
-        '对象种类不可改变；请创建新的对象。',
-      );
+      ensure(before.content.kind === content.kind, 'INVALID_INPUT', '对象种类不能原地改变。');
     const after: StoredRevision = {
       objectType: change.objectType,
       id: change.id,

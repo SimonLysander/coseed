@@ -35,7 +35,7 @@ export function validateEvidence(plan: PlannedRevision): void {
   const keys = new Set<string>();
   for (const citation of citations) {
     const key = json([citation.sourceId, citation.side, citation.path]);
-    ensure(!keys.has(key), 'INVALID_INPUT', '来源引用重复，请合并同一位置的说明。');
+    ensure(!keys.has(key), 'INVALID_INPUT', '同一来源和内容位置的引用重复。');
     keys.add(key);
     ensure(
       (citation.side === 'before' ? beforePaths : afterPaths).has(citation.path),

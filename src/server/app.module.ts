@@ -2,7 +2,7 @@ import { Module, type DynamicModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module.js';
 import { ProjectContentModule } from './modules/project-content/project-content.module.js';
-import { McpController } from './mcp/mcp.controller.js';
+import { McpModule } from './mcp/mcp.module.js';
 import { StatusController } from './modules/system/status.controller.js';
 import type { RuntimeConfig } from './config/schema.js';
 
@@ -19,8 +19,9 @@ export class AppModule {
         }),
         DatabaseModule,
         ProjectContentModule,
+        McpModule,
       ],
-      controllers: [StatusController, McpController],
+      controllers: [StatusController],
     };
   }
 }

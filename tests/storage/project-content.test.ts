@@ -184,7 +184,7 @@ describe('actual project-content storage service', () => {
     expect(service.save(input, { ...context, actorLabel: 'Retry client' })).toEqual(receipt);
     expect(() => service.save({ ...input, noteMd: 'Different request' }, context)).toThrow(/不同/);
     expect(() => service.save({ ...input, operationId: randomUUID() }, context)).toThrow(
-      /已有更新/,
+      expect.objectContaining({ code: 'CONFLICT' }),
     );
     expect(service.readSnapshot(projectId).version).toBe(1);
   });

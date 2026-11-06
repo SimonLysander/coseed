@@ -1,6 +1,6 @@
 # 数据库存储实现
 
-这是当前运行实现。Agent 的 MCP 工具和文件副本仍属于下一阶段，不存在绕过校验的公开数据库写入接口。
+这是当前运行实现。MCP 已通过共同服务读写，固定版本文件读取已实现；业务页面尚未接入，不存在绕过校验的公开数据库写入接口。
 
 ## 权威定义
 
@@ -21,14 +21,14 @@ SQL 迁移是 DDL 权威。Drizzle 查询映射只描述列，不重复维护全
 
 ## 内部服务如何调用
 
-`ProjectContentService` 是共同业务边界，Web、MCP 后续复用它。它目前不注册新的 HTTP 路由或 MCP 工具。
+`ProjectContentService` 是共同业务边界，MCP 已复用它，Web 后续沿用。业务模块本身不注册协议入口；MCP 适配见 [工具规范](../requirements/mcp-tools-design.md)。
 
 - `createProject(input, context)`：保存实际创建请求及项目资料，结果为项目版本 0；不生成假综述或需求。
 - `save(input, context)`：一批对象修改、来源和可选回顾归属共同提交，返回一份成功操作回执。
 - `readSnapshot(projectId, version?)`：读取当前或指定的完整项目内容；图成员按同一版本解析。
 - `readRevision(...)`、`readHistory(...)`：定位具体修订，或按修订号倒序分页浏览历史。
 - `readSources(...)`、`getOperation(...)`：读取固定版本可见的原始来源和既有保存回执。
-- `listProjects()`：供后续项目入口使用。
+- `listProjects(options)`：名称子串筛选、按稳定 ID 分页；`readProject` 仅读项目资料及当前版本，避免元数据读取加载整张图。
 
 这些是进程内调用，不是远程工具清单。`context` 由可信入口独立提供，保存实际入口、执行者类型、显示名和辅助定位。显示名不构成认证；远程授权仍待实现。服务保证数据项目归属，不能代替入口权限。
 

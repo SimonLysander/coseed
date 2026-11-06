@@ -5,6 +5,7 @@ import { mkdtemp, mkdir, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
+import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
 
 const directory = await mkdtemp(join(tmpdir(), 'coseed-package-'));
 let child;
@@ -136,6 +137,60 @@ try {
   });
   assert.equal(mcp.status, 200);
   assert.equal((await mcp.json()).result.serverInfo.name, 'coseed');
+  const client = new Client({ name: 'coseed-package-tools', version: '0.0.0' });
+  try {
+    await client.connect(new StreamableHTTPClientTransport(new URL(`${base}/mcp`)));
+    assert.equal((await client.listTools()).tools.length, 9);
+    const call = async (name, args) => {
+      const result = await client.callTool({ name, arguments: args });
+      assert(!result.isError, JSON.stringify(result));
+      return result.structuredContent.data;
+    };
+    const created = await call('create_project', {
+      requestKey: 'package-mcp-create',
+      name: 'Fictional MCP package fixture',
+    });
+    const request = {
+      projectId: created.receipt.projectId,
+      requestKey: 'package-mcp-save',
+      baseVersion: 0,
+      sources: [
+        { id: '$material', kind: 'document', rawText: 'Fictional package verification only.' },
+      ],
+      changes: [
+        {
+          action: 'upsert',
+          objectType: 'requirement',
+          id: '$requirement',
+          expectedRevision: null,
+          content: {
+            title: 'Package tool verification',
+            markdown: 'Fictional fixture only.',
+            status: 'designing',
+          },
+          citations: [
+            {
+              sourceId: '$material',
+              side: 'after',
+              path: '',
+              explanationMd: 'This material supports the fictional fixture.',
+            },
+          ],
+        },
+      ],
+    };
+    const saved = await call('save_changes', request);
+    assert.equal(saved.receipt.version, 1);
+    assert.deepEqual(await call('save_changes', request), saved);
+    assert.equal(
+      (await call('export_snapshot', { projectId: created.receipt.projectId, version: 1 }))
+        .totalFiles,
+      4,
+    );
+    assert((await call('read_guide', { topic: 'usage' })).markdown.includes('save_changes'));
+  } finally {
+    await client.close();
+  }
   assert((await stat(join(dataDir, 'coseed.sqlite'))).isFile());
   const storage = spawnSync(
     process.execPath,
@@ -191,6 +246,7 @@ try {
           'SQLite',
           'Web asset',
           'MCP initialize',
+          'MCP discovery/create/save/retry/export/guide',
           'formal migrations and project-content save/history',
         ],
       },
