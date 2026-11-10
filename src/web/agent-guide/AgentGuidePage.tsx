@@ -3,7 +3,13 @@ import { Link } from 'react-router';
 import { Button, Dropdown } from 'antd';
 import { CopyIcon } from '@animateicons/react/lucide/copy-icon';
 import { foundations } from '../design-system/tokens.js';
-import { guideHref, guideSections, guideText, guideTitle } from './guide-content.js';
+import {
+  guideHref,
+  guideSections,
+  guideText,
+  guideTitle,
+  guideIntroductionHtml,
+} from './guide-content.js';
 import '../reading/reading.css';
 import './agent-guide.css';
 
@@ -111,9 +117,10 @@ export default function AgentGuidePage() {
                 </Button>
               </div>
             </div>
-            <p className="guide-lead">
-              理解任务、连接项目、整理内容、保存核对。人和 Agent 共用这一篇指南。
-            </p>
+            <div
+              className="reading-markdown guide-lead"
+              dangerouslySetInnerHTML={{ __html: guideIntroductionHtml }}
+            />
             <Link to="/writing-guide/overview">核对历史约定及出处</Link>
             {copyState === 'copied' && (
               <span className="guide-copy-result" role="status">
@@ -135,10 +142,6 @@ export default function AgentGuidePage() {
               dangerouslySetInnerHTML={{ __html: html }}
             />
           ))}
-          <p className="guide-endnote">
-            MCP 的 usage 返回本文全文，其他主题提取相应章节；实际 Agent
-            的规范遵循和自动落盘仍需单独验证。
-          </p>
         </article>
         <aside className="ds-toc guide-toc" aria-label="阅读目录">
           <p>本页目录</p>

@@ -20,6 +20,16 @@ markdown.renderer.rules.link_open = (tokens, index, options, environment, render
 
 const tokens = markdown.parse(source, {});
 export const guideTitle = tokens.find((token, index) => tokens[index - 1]?.tag === 'h1')!.content;
+const introductionStart =
+  tokens.findIndex((token) => token.type === 'heading_close' && token.tag === 'h1') + 1;
+const introductionEnd = tokens.findIndex(
+  (token) => token.type === 'heading_open' && token.tag === 'h2',
+);
+export const guideIntroductionHtml = markdown.renderer.render(
+  tokens.slice(introductionStart, introductionEnd),
+  markdown.options,
+  {},
+);
 
 export type GuideSection = { id: string; title: string; headingId: string; html: string };
 const sections: GuideSection[] = [];
