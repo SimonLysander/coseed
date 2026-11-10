@@ -3,7 +3,7 @@ import { Anchor, Button, Collapse, Dropdown, Menu, Segmented, Table } from 'antd
 import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router';
 import { Markdown } from '../reading/Markdown.js';
 import { foundations } from '../design-system/tokens.js';
-import { writingTopics, writingPath, type Agreement } from './content.js';
+import { writingTopics, writingPath, writingBasis, type Agreement } from './content.js';
 import './writing-guide.css';
 
 function Evidence({
@@ -19,8 +19,8 @@ function Evidence({
       {'file' in agreement.source && <code>{agreement.source.file}</code>}
       <p>
         {agreement.source.kind === 'conversation'
-          ? '以下保留用户原话；原话中的提问、修正和口语不作为规范正文。'
-          : '以下保留文档摘录，不将文档记录等同于已逐条找回用户原话。'}
+          ? '以下保留可见用户原话；原话中的提问、修正和口语不作为规范正文。'
+          : '以下保留文档记录，原始确认尚待核对；不将文档提案自动认定为用户定论。'}
       </p>
       {showExcerpt && (
         <blockquote>
@@ -146,7 +146,16 @@ export default function WritingGuidePage() {
                         items={[
                           {
                             key: 'evidence',
-                            label: '核对出处',
+                            label: (
+                              <span className="writing-evidence-label">
+                                <span>核对出处</span>
+                                <span className="writing-basis">
+                                  {writingBasis(
+                                    reading.agreementIds.map((id) => agreements.get(id)!),
+                                  )}
+                                </span>
+                              </span>
+                            ),
                             children: reading.agreementIds.map((id) => (
                               <Evidence key={id} agreement={agreements.get(id)!} />
                             )),
@@ -154,6 +163,34 @@ export default function WritingGuidePage() {
                         ]}
                       />
                     </section>
+                  ))}
+                  {section.examples.map((example) => (
+                    <aside
+                      key={example.title}
+                      className="writing-example"
+                      role="note"
+                      aria-label={`虚构写法示例：${example.title}`}
+                    >
+                      <p className="writing-example-label">写法示例 · 虚构预约项目</p>
+                      <h3>{example.title}</h3>
+                      <p className="writing-example-note">
+                        仅演示已有约定的写法，不代表当前项目事实，也不增加强制规则。
+                      </p>
+                      <Markdown text={example.markdown} />
+                      <Collapse
+                        ghost
+                        size="small"
+                        items={[
+                          {
+                            key: 'basis',
+                            label: '示例依据',
+                            children: example.agreementIds.map((id) => (
+                              <Evidence key={id} agreement={agreements.get(id)!} />
+                            )),
+                          },
+                        ]}
+                      />
+                    </aside>
                   ))}
                 </section>
               ))
