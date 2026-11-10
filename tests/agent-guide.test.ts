@@ -2,10 +2,8 @@ import { readFileSync } from 'node:fs';
 import MarkdownIt from 'markdown-it';
 import { describe, expect, it } from 'vitest';
 import { readGuide } from '../src/server/mcp/guides.js';
-import catalog from '../docs/requirements/authoring-review/catalog.json' with { type: 'json' };
 
 const document = readFileSync('docs/operations/agent-integration.md', 'utf8');
-const rendered = new MarkdownIt().render(document);
 
 describe('one human and agent guide', () => {
   it('returns the source document verbatim, keeping topic schemas available', () => {
@@ -22,7 +20,7 @@ describe('one human and agent guide', () => {
       expect(guide.markdown).toContain(`## ${title}`);
       // Paragraphs are literal source excerpts, not separately rewritten prompts.
       for (const paragraph of guide.markdown.split('\n\n')) expect(document).toContain(paragraph);
-      expect(guide.markdown).toContain('你帮助开发者维护对项目的理解');
+      expect(guide.markdown).toContain('Agent 的任务是结合用户目标');
     }
     expect(readGuide('overview').schemas).toHaveProperty('overview');
     expect(readGuide('requirements').schemas).toHaveProperty('record');
@@ -30,19 +28,26 @@ describe('one human and agent guide', () => {
     expect(readGuide('sources').schemas).toHaveProperty('citation');
   });
 
-  it('retains the archived authoring obligations and illustrations without importing raw chat', () => {
-    for (const topic of catalog.topics.filter((topic) => topic.id !== 'common')) {
-      for (const section of topic.sections.filter((section) => section.id !== 'retrospective')) {
-        for (const reading of section.readings)
-          expect(rendered).toContain(new MarkdownIt().render(reading.markdown));
-        for (const example of section.examples)
-          expect(rendered).toContain(new MarkdownIt().render(example.markdown));
-      }
-    }
-    expect(document).toContain('由用户明确发起阶段回顾');
-    expect(document).toContain('人工更正遇到冲突时保留现有内容');
+  it('retains the substantive obligations while allowing editorial revisions', () => {
+    for (const obligation of [
+      '由用户明确发起阶段回顾',
+      '有且只有一个主需求',
+      '无法核实时填 `null`',
+      '引用其具体修订并说明变化',
+      '六种状态均可回退、恢复和跳转',
+      '一张图的所有节点必须正交完备',
+      '完成审查后再补连线',
+      '至少一端为本项目模块',
+      '关联字段及两端数量',
+      '返回信息写在原调用线上',
+      '未知数量填 `null`',
+      '不同说明范围允许交叉',
+      'Hover 详情、点击展开或第三层代码页面',
+      '人工更正与后续整理发生冲突时，保留现有内容',
+      '本版待核对',
+    ])
+      expect(document).toContain(obligation);
     expect(document).not.toContain('不对，我觉得整个这里其实是');
-    expect(document).toContain('本版待核对');
   });
 
   it('publishes the document in the installable package and keeps navigation mappings explicit', () => {

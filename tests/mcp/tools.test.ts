@@ -173,7 +173,7 @@ describe('real MCP business tools over the official HTTP client', () => {
     const guide = await data('read_guide', { topic: 'usage' });
     expect(guide.markdown).toBe(await readFile('docs/operations/agent-integration.md', 'utf8'));
     expect(guide.guideVersion).toBe(2);
-    expect(guide.markdown).toContain('不需要准备步骤');
+    expect(guide.markdown).toContain('保存采用直接提交方式');
     const requirements = await data('read_guide', { topic: 'requirements' });
     expect(requirements.schemas.requirement.properties.status.enum).toContain(
       'ready_for_implementation',

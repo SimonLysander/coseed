@@ -64,6 +64,9 @@
 .guide-section p {
   color: var(--ds-color-text-secondary);
 }
+.guide-section > :where(table, blockquote, pre) {
+  margin-block: calc(var(--ds-space-5) * 1px);
+}
 .guide-article .guide-endnote {
   margin-top: calc(var(--ds-space-9) * 1px);
   color: var(--ds-color-text-muted);
