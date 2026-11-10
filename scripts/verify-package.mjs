@@ -188,6 +188,43 @@ try {
       4,
     );
     assert((await call('read_guide', { topic: 'usage' })).markdown.includes('save_changes'));
+    await call('save_changes', {
+      projectId: created.receipt.projectId,
+      requestKey: 'package-overview',
+      baseVersion: 1,
+      sources: [
+        { id: '$material', kind: 'document', rawText: 'Fictional overview verification material.' },
+      ],
+      changes: [
+        {
+          action: 'upsert',
+          objectType: 'overview',
+          id: created.receipt.projectId,
+          expectedRevision: null,
+          content: {
+            product: { markdown: 'Fictional installed-package overview.' },
+            concepts: { entries: [], relations: [] },
+            examples: { introductionMd: null, actors: [], useCases: [], sections: [] },
+          },
+          citations: [
+            { sourceId: '$material', side: 'after', path: '', explanationMd: 'Fixture only.' },
+          ],
+        },
+      ],
+    });
+    const overview = await (
+      await fetch(`${base}/api/projects/${created.receipt.projectId}/overview`)
+    ).json();
+    assert.equal(overview.project.version, 2);
+    assert.equal(
+      overview.overview.content.product.markdown,
+      'Fictional installed-package overview.',
+    );
+    const worker = packed.files.find((entry) =>
+      /^dist\/web\/assets\/elk-worker.*\.js$/.test(entry.path),
+    );
+    assert(worker);
+    assert.equal((await fetch(`${base}/${worker.path.replace('dist/web/', '')}`)).status, 200);
   } finally {
     await client.close();
   }
@@ -247,6 +284,7 @@ try {
           'Web asset',
           'MCP initialize',
           'MCP discovery/create/save/retry/export/guide',
+          'HTTP project overview and bundled ELK worker asset',
           'formal migrations and project-content save/history',
         ],
       },

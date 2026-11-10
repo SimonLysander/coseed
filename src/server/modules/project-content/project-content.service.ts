@@ -336,6 +336,21 @@ export class ProjectContentService {
     );
   }
 
+  readOverview(projectId: string, version?: number) {
+    parse(identifier, projectId);
+    if (version !== undefined) parse(number, version);
+    return this.database.db.transaction((tx) => {
+      const repository = new SnapshotRepository(tx);
+      const at = version ?? repository.head(projectId);
+      repository.requireVersion(projectId, at);
+      const project = repository.readType('project', { projectId, version: at, id: projectId })[0];
+      ensure(project, 'STORAGE_CORRUPT', '项目资料缺失。');
+      const overview =
+        repository.readType('overview', { projectId, version: at, id: projectId })[0] ?? null;
+      return { projectId, version: at, project, overview };
+    });
+  }
+
   readRevision(
     projectId: string,
     type: ObjectType,

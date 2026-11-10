@@ -2,6 +2,651 @@
   "openapi": "3.1.0",
   "info": { "title": "CoSeed local HTTP API", "version": "0.1.0" },
   "paths": {
+    "/api/projects": {
+      "get": {
+        "operationId": "listProjects",
+        "summary": "按稳定 ID 分页发现本机项目，不隐式选择项目",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": { "description": "名称子串筛选", "type": "string", "maxLength": 200 }
+          },
+          {
+            "name": "afterId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "description": "上一页 nextAfterId；按稳定 ID 排序的实时发现列表",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "default": 30, "type": "integer", "minimum": 1, "maximum": 100 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "项目列表和下一页位置；Cache-Control: no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                          "name": { "type": "string" },
+                          "version": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "createdAt": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": ["id", "name", "version", "createdAt"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "nextAfterId": {
+                      "anyOf": [
+                        { "type": "string", "minLength": 1, "maxLength": 512 },
+                        { "type": "null" }
+                      ]
+                    }
+                  },
+                  "required": ["items", "nextAfterId"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "查询字段不合法",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": { "description": "本机 Host / Origin 约束拒绝请求" }
+        }
+      },
+      "post": {
+        "operationId": "createProject",
+        "summary": "创建版本为 0 的空项目；同操作标识同内容重试返回原结果",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "operationId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                    "description": "浏览器为一次创建生成的稳定操作标识；重试复用同一标识和原始内容。"
+                  },
+                  "name": { "type": "string" },
+                  "repositoryLocator": {
+                    "default": null,
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "propertyNames": { "type": "string" },
+                        "additionalProperties": { "$ref": "#/$defs/__schema0" }
+                      },
+                      { "type": "null" }
+                    ]
+                  }
+                },
+                "required": ["operationId", "name", "repositoryLocator"],
+                "additionalProperties": false,
+                "$defs": {
+                  "__schema0": {
+                    "anyOf": [
+                      { "type": "string" },
+                      { "type": "number" },
+                      { "type": "boolean" },
+                      { "type": "null" },
+                      { "type": "array", "items": { "$ref": "#/$defs/__schema0" } },
+                      {
+                        "type": "object",
+                        "propertyNames": { "type": "string" },
+                        "additionalProperties": { "$ref": "#/$defs/__schema0" }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "创建回执；无自动生成的综述或需求",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "projectId": { "type": "string", "minLength": 1, "maxLength": 512 },
+                    "operationId": { "type": "string", "minLength": 1, "maxLength": 512 },
+                    "version": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                    "savedAt": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+                  },
+                  "required": ["projectId", "operationId", "version", "savedAt"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入字段不合法，不接受伪造入口信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": { "description": "本机 Host / Origin 约束拒绝请求" },
+          "409": {
+            "description": "操作标识已用于其他内容",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "413": { "description": "请求超过 1 MiB" },
+          "503": {
+            "description": "存储忙碌",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}": {
+      "get": {
+        "operationId": "getProject",
+        "summary": "读取项目基本资料及当前版本，不加载所有业务内容",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "项目资料；Cache-Control: no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "project": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string" },
+                        "repositoryLocator": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "propertyNames": { "type": "string" },
+                              "additionalProperties": { "$ref": "#/$defs/__schema0" }
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                        "version": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                        "createdAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": ["name", "repositoryLocator", "id", "version", "createdAt"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["project"],
+                  "additionalProperties": false,
+                  "$defs": {
+                    "__schema0": {
+                      "anyOf": [
+                        { "type": "string" },
+                        { "type": "number" },
+                        { "type": "boolean" },
+                        { "type": "null" },
+                        { "type": "array", "items": { "$ref": "#/$defs/__schema0" } },
+                        {
+                          "type": "object",
+                          "propertyNames": { "type": "string" },
+                          "additionalProperties": { "$ref": "#/$defs/__schema0" }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "项目不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/overview": {
+      "get": {
+        "operationId": "getProjectOverview",
+        "summary": "在同一项目版本读取项目名称和综述，空项目返回 overview=null",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "description": "可选固定项目版本；省略则在一致读事务取得当前版本",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "综述读取视图；Cache-Control: no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "project": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string" },
+                        "repositoryLocator": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "propertyNames": { "type": "string" },
+                              "additionalProperties": { "$ref": "#/$defs/__schema0" }
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                        "version": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                        "createdAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": ["name", "repositoryLocator", "id", "version", "createdAt"],
+                      "additionalProperties": false
+                    },
+                    "overview": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "revisionNo": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            "savedAt": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            "content": {
+                              "type": "object",
+                              "properties": {
+                                "product": {
+                                  "type": "object",
+                                  "properties": { "markdown": { "type": "string" } },
+                                  "required": ["markdown"],
+                                  "additionalProperties": false
+                                },
+                                "concepts": {
+                                  "type": "object",
+                                  "properties": {
+                                    "entries": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": { "type": "string", "minLength": 1 },
+                                          "name": { "type": "string" },
+                                          "descriptionMd": { "type": "string" }
+                                        },
+                                        "required": ["id", "name", "descriptionMd"],
+                                        "additionalProperties": false
+                                      }
+                                    },
+                                    "relations": {
+                                      "type": "array",
+                                      "items": {
+                                        "oneOf": [
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "id": { "type": "string", "minLength": 1 },
+                                              "kind": { "type": "string", "const": "kind-of" },
+                                              "source": { "type": "string", "minLength": 1 },
+                                              "target": { "type": "string", "minLength": 1 }
+                                            },
+                                            "required": ["id", "kind", "source", "target"],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "id": { "type": "string", "minLength": 1 },
+                                              "kind": { "type": "string", "const": "composition" },
+                                              "source": { "type": "string", "minLength": 1 },
+                                              "target": { "type": "string", "minLength": 1 }
+                                            },
+                                            "required": ["id", "kind", "source", "target"],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "id": { "type": "string", "minLength": 1 },
+                                              "kind": { "type": "string", "const": "association" },
+                                              "source": { "type": "string", "minLength": 1 },
+                                              "target": { "type": "string", "minLength": 1 },
+                                              "label": { "type": "string" }
+                                            },
+                                            "required": ["id", "kind", "source", "target", "label"],
+                                            "additionalProperties": false
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "required": ["entries", "relations"],
+                                  "additionalProperties": false
+                                },
+                                "examples": {
+                                  "type": "object",
+                                  "properties": {
+                                    "introductionMd": { "type": ["string", "null"] },
+                                    "actors": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": { "type": "string", "minLength": 1 },
+                                          "name": { "type": "string" }
+                                        },
+                                        "required": ["id", "name"],
+                                        "additionalProperties": false
+                                      }
+                                    },
+                                    "useCases": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": { "type": "string", "minLength": 1 },
+                                          "name": { "type": "string" },
+                                          "actorIds": {
+                                            "minItems": 1,
+                                            "type": "array",
+                                            "items": { "type": "string", "minLength": 1 }
+                                          }
+                                        },
+                                        "required": ["id", "name", "actorIds"],
+                                        "additionalProperties": false
+                                      }
+                                    },
+                                    "sections": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": { "type": "string", "minLength": 1 },
+                                          "title": { "type": "string" },
+                                          "diagram": {
+                                            "type": "object",
+                                            "properties": {
+                                              "id": { "type": "string", "minLength": 1 },
+                                              "useCaseIds": {
+                                                "minItems": 1,
+                                                "type": "array",
+                                                "items": { "type": "string", "minLength": 1 }
+                                              }
+                                            },
+                                            "required": ["id", "useCaseIds"],
+                                            "additionalProperties": false
+                                          },
+                                          "markdown": { "type": "string" }
+                                        },
+                                        "required": ["id", "title", "diagram", "markdown"],
+                                        "additionalProperties": false
+                                      }
+                                    }
+                                  },
+                                  "required": ["introductionMd", "actors", "useCases", "sections"],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "required": ["product", "concepts", "examples"],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": ["revisionNo", "savedAt", "content"],
+                          "additionalProperties": false
+                        },
+                        { "type": "null" }
+                      ]
+                    }
+                  },
+                  "required": ["project", "overview"],
+                  "additionalProperties": false,
+                  "$defs": {
+                    "__schema0": {
+                      "anyOf": [
+                        { "type": "string" },
+                        { "type": "number" },
+                        { "type": "boolean" },
+                        { "type": "null" },
+                        { "type": "array", "items": { "$ref": "#/$defs/__schema0" } },
+                        {
+                          "type": "object",
+                          "propertyNames": { "type": "string" },
+                          "additionalProperties": { "$ref": "#/$defs/__schema0" }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "版本字段不合法",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "项目或指定版本不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/status": {
       "get": {
         "operationId": "getServiceStatus",
