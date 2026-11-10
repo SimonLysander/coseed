@@ -1,0 +1,201 @@
+.business-page {
+  min-width: 0;
+  padding: calc(var(--ds-layout-pagePadding) * 1px);
+}
+.business-heading {
+  display: grid;
+  gap: calc(var(--ds-space-4) * 1px);
+  margin-bottom: calc(var(--ds-space-6) * 1px);
+}
+.business-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: calc(var(--ds-space-5) * 1px);
+}
+.business-title-row h1 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.business-breadcrumb {
+  display: flex;
+  gap: calc(var(--ds-space-4) * 1px);
+  align-items: center;
+  font-size: calc(var(--ds-type-caption-size) * 1px);
+  color: var(--ds-color-text-muted);
+}
+.business-meta {
+  color: var(--ds-color-text-muted);
+  font-size: calc(var(--ds-type-caption-size) * 1px);
+  line-height: calc(var(--ds-type-caption-lineHeight) * 1px);
+  margin: 0;
+}
+.business-index {
+  margin-inline: auto;
+  width: 100%;
+}
+.business-index .ant-list {
+  margin-block: calc(var(--ds-space-8) * 1px);
+}
+.business-index .ant-list a {
+  display: grid;
+  gap: calc(var(--ds-space-4) * 1px);
+}
+.business-empty {
+  padding-block: calc(var(--ds-space-10) * 1px);
+}
+.business-figure {
+  position: relative;
+  margin: 0;
+  min-width: 0;
+  border: calc(var(--ds-shape-stroke) * 1px) solid var(--ds-color-border-subtle);
+  border-radius: var(--ds-shape-paperRadius);
+}
+.business-canvas-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--ds-space-4) * 1px);
+  padding: calc(var(--ds-space-5) * 1px);
+  border-bottom: calc(var(--ds-shape-stroke) * 1px) solid var(--ds-color-border-subtle);
+  font-size: calc(var(--ds-type-caption-size) * 1px);
+  color: var(--ds-color-text-muted);
+}
+.business-canvas-tools .ant-space {
+  flex-wrap: wrap;
+}
+.business-scale {
+  min-width: calc(var(--ds-size-controlLarge) * 1px);
+  display: inline-block;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.business-canvas {
+  width: 100%;
+  height: max(
+    calc(var(--ds-graph-canvasMinHeight) * 1px),
+    calc(100dvh - var(--ds-graph-canvasViewportOffset) * 1px)
+  );
+  touch-action: pan-y;
+  overflow: hidden;
+  border-radius: 0 0 var(--ds-shape-paperRadius) var(--ds-shape-paperRadius);
+}
+.business-canvas-loading {
+  position: absolute;
+  inset: calc(var(--ds-space-11) * 1px) calc(var(--ds-space-6) * 1px);
+  background: var(--ds-color-surface-page);
+  pointer-events: none;
+}
+.business-measurement {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.business-card,
+.business-note,
+.business-edge-label {
+  width: 100%;
+  box-sizing: border-box;
+}
+.business-card {
+  min-height: 100%;
+  padding: calc(var(--ds-graph-nodePadding) * 1px);
+  border: calc(var(--ds-shape-stroke) * 1px) solid var(--ds-color-graph-processing-border);
+  border-radius: var(--ds-shape-controlRadius);
+  background: var(--ds-color-graph-processing-background);
+  color: var(--ds-color-text-primary);
+}
+.business-card-data {
+  background: var(--ds-color-graph-data-background);
+  border-color: var(--ds-color-graph-data-border);
+}
+.business-card-external {
+  background: var(--ds-color-graph-external-background);
+  border-color: var(--ds-color-graph-external-border);
+}
+.business-card h3,
+.business-note h3 {
+  margin: 0 0 calc(var(--ds-space-4) * 1px);
+  font-size: calc(var(--ds-type-nodeTitle-size) * 1px);
+  line-height: calc(var(--ds-type-nodeTitle-lineHeight) * 1px);
+  font-weight: var(--ds-type-nodeTitle-weight);
+  overflow-wrap: anywhere;
+}
+.business-card p,
+.business-note .reading-markdown {
+  margin: 0;
+  font-size: calc(var(--ds-type-nodeDescription-size) * 1px);
+  line-height: calc(var(--ds-type-nodeDescription-lineHeight) * 1px);
+  overflow-wrap: anywhere;
+}
+.business-card pre {
+  margin: calc(var(--ds-space-5) * 1px) 0 0;
+  padding-top: calc(var(--ds-space-4) * 1px);
+  border-top: calc(var(--ds-shape-stroke) * 1px) solid var(--ds-color-border-subtle);
+  font-family: var(--ds-font-code);
+  font-size: calc(var(--ds-type-code-size) * 1px);
+  line-height: calc(var(--ds-type-code-lineHeight) * 1px);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  tab-size: 2;
+}
+.business-card .ant-btn {
+  padding-inline: 0;
+  margin-top: calc(var(--ds-space-4) * 1px);
+}
+.business-card-note {
+  margin-top: calc(var(--ds-space-5) * 1px);
+  padding-top: calc(var(--ds-space-4) * 1px);
+  border-top: calc(var(--ds-shape-stroke) * 1px) dashed var(--ds-color-graph-note-border);
+}
+.business-card-note h4 {
+  margin: 0 0 calc(var(--ds-space-4) * 1px);
+  font-size: calc(var(--ds-type-label-size) * 1px);
+}
+.business-note {
+  padding: calc(var(--ds-graph-nodePadding) * 1px);
+  border: calc(var(--ds-shape-stroke) * 1px) dashed var(--ds-color-graph-note-border);
+  border-radius: var(--ds-shape-controlRadius);
+  background: var(--ds-color-graph-note-background);
+}
+.business-note h3 {
+  display: flex;
+  gap: calc(var(--ds-space-4) * 1px);
+  align-items: flex-start;
+}
+.business-scope-marker {
+  display: inline-flex;
+  flex: none;
+  width: calc(var(--ds-type-label-lineHeight) * 1px);
+  height: calc(var(--ds-type-label-lineHeight) * 1px);
+  justify-content: center;
+  border: calc(var(--ds-shape-stroke) * 1px) solid var(--ds-color-graph-note-border);
+  border-radius: 50%;
+  font-size: calc(var(--ds-type-caption-size) * 1px);
+}
+.business-edge-label {
+  padding: calc(var(--ds-graph-edgeLabelPadding) * 1px);
+  background: var(--ds-color-graph-labelBackground);
+  color: var(--ds-color-text-primary);
+  font-size: calc(var(--ds-type-edgeLabel-size) * 1px);
+  line-height: calc(var(--ds-type-edgeLabel-lineHeight) * 1px);
+  overflow-wrap: anywhere;
+}
+.business-edge-operation {
+  margin-top: calc(var(--ds-space-2) * 1px);
+  color: var(--ds-color-text-secondary);
+}
+.business-edge-notation {
+  color: var(--ds-color-text-muted);
+  font-size: calc(var(--ds-type-caption-size) * 1px);
+  margin-right: calc(var(--ds-space-2) * 1px);
+}
+@media (max-width: 1023px) {
+  .business-page {
+    padding: calc(var(--ds-layout-mobilePagePadding) * 1px);
+  }
+}

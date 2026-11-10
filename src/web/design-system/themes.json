@@ -65,7 +65,12 @@
           },
           "edge": "#6B6B77",
           "labelBackground": "#FFFFFF",
-          "groupBackground": "#FFFFFF"
+          "groupBackground": "#FFFFFF",
+          "note": {
+            "background": "#F5F2F8",
+            "border": "#9683A6"
+          },
+          "event": "#877493"
         },
         "code": {
           "type": "#446485",
@@ -149,7 +154,12 @@
           },
           "edge": "#B0B0BD",
           "labelBackground": "#232329",
-          "groupBackground": "#121212"
+          "groupBackground": "#121212",
+          "note": {
+            "background": "#2C2733",
+            "border": "#A99BBA"
+          },
+          "event": "#AB9ABD"
         },
         "code": {
           "type": "#A8C4E2",

@@ -3195,6 +3195,980 @@
         }
       }
     },
+    "/api/projects/{projectId}/business": {
+      "get": {
+        "operationId": "listBusinessDiagrams",
+        "summary": "读取同一版本的图纸清单，不加载全部项目内容；仅有一张全景时提供默认入口",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "description": "可选固定项目版本；省略则在一致读事务取得当前版本",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "图纸元数据及一致项目版本；Cache-Control: no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "project": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string" },
+                        "repositoryLocator": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "propertyNames": { "type": "string" },
+                              "additionalProperties": { "$ref": "#/$defs/__schema0" }
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                        "version": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                        "createdAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": ["name", "repositoryLocator", "id", "version", "createdAt"],
+                      "additionalProperties": false
+                    },
+                    "diagrams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                          "revisionNo": {
+                            "type": "integer",
+                            "exclusiveMinimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "savedAt": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "title": { "type": "string" },
+                          "scope": {
+                            "oneOf": [
+                              {
+                                "type": "object",
+                                "properties": { "kind": { "type": "string", "const": "project" } },
+                                "required": ["kind"],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": { "type": "string", "const": "module" },
+                                  "moduleId": { "type": "string", "minLength": 1 }
+                                },
+                                "required": ["kind", "moduleId"],
+                                "additionalProperties": false
+                              }
+                            ]
+                          },
+                          "scopeName": { "type": "string" }
+                        },
+                        "required": ["id", "revisionNo", "savedAt", "title", "scope", "scopeName"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "landingDiagramId": {
+                      "anyOf": [
+                        { "type": "string", "minLength": 1, "maxLength": 512 },
+                        { "type": "null" }
+                      ],
+                      "description": "仅在恰好一张项目全景图时提供，不按名称猜测默认图"
+                    }
+                  },
+                  "required": ["project", "diagrams", "landingDiagramId"],
+                  "additionalProperties": false,
+                  "$defs": {
+                    "__schema0": {
+                      "anyOf": [
+                        { "type": "string" },
+                        { "type": "number" },
+                        { "type": "boolean" },
+                        { "type": "null" },
+                        { "type": "array", "items": { "$ref": "#/$defs/__schema0" } },
+                        {
+                          "type": "object",
+                          "propertyNames": { "type": "string" },
+                          "additionalProperties": { "$ref": "#/$defs/__schema0" }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "查询字段不合法",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "项目或版本不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/business/diagrams/{diagramId}": {
+      "get": {
+        "operationId": "getBusinessDiagram",
+        "summary": "按固定项目版本解析一张图的共享节点、关系、说明、归属及核心目录，不返回来源全文",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "diagramId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "description": "可选固定项目版本；省略则在一致读事务取得当前版本",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "单图及归属闭包；Cache-Control: no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "project": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string" },
+                        "repositoryLocator": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "propertyNames": { "type": "string" },
+                              "additionalProperties": { "$ref": "#/$defs/__schema0" }
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                        "version": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                        "createdAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": ["name", "repositoryLocator", "id", "version", "createdAt"],
+                      "additionalProperties": false
+                    },
+                    "diagram": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                        "revisionNo": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "savedAt": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                        "title": { "type": "string" },
+                        "scope": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": { "kind": { "type": "string", "const": "project" } },
+                              "required": ["kind"],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "kind": { "type": "string", "const": "module" },
+                                "moduleId": { "type": "string", "minLength": 1 }
+                              },
+                              "required": ["kind", "moduleId"],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "scopeName": { "type": "string" }
+                      },
+                      "required": ["id", "revisionNo", "savedAt", "title", "scope", "scopeName"],
+                      "additionalProperties": false
+                    },
+                    "bundle": {
+                      "type": "object",
+                      "properties": {
+                        "schemaVersion": { "type": "number", "const": 2 },
+                        "projectVersion": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "entities": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": { "type": "string", "minLength": 1 },
+                              "revisionNo": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "content": {
+                                "oneOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": { "type": "string", "const": "module" },
+                                      "name": { "type": "string" },
+                                      "summary": { "type": "string" },
+                                      "role": { "type": "string", "enum": ["core", "support"] }
+                                    },
+                                    "required": ["kind", "name", "summary", "role"],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": { "type": "string", "const": "external_system" },
+                                      "name": { "type": "string" },
+                                      "summary": { "type": "string" }
+                                    },
+                                    "required": ["kind", "name", "summary"],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": { "type": "string", "const": "component" },
+                                      "name": { "type": "string" },
+                                      "summary": { "type": "string" },
+                                      "owner": {
+                                        "oneOf": [
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": { "type": "string", "const": "module" },
+                                              "id": { "type": "string", "minLength": 1 }
+                                            },
+                                            "required": ["kind", "id"],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "const": "external_system"
+                                              },
+                                              "id": { "type": "string", "minLength": 1 }
+                                            },
+                                            "required": ["kind", "id"],
+                                            "additionalProperties": false
+                                          }
+                                        ]
+                                      },
+                                      "primarySourceId": {
+                                        "anyOf": [
+                                          { "type": "string", "minLength": 1 },
+                                          { "type": "null" }
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "kind",
+                                      "name",
+                                      "summary",
+                                      "owner",
+                                      "primarySourceId"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": { "type": "string", "const": "data_object" },
+                                      "name": { "type": "string" },
+                                      "summary": { "type": "string" },
+                                      "owner": {
+                                        "oneOf": [
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": { "type": "string", "const": "module" },
+                                              "id": { "type": "string", "minLength": 1 }
+                                            },
+                                            "required": ["kind", "id"],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "const": "external_system"
+                                              },
+                                              "id": { "type": "string", "minLength": 1 }
+                                            },
+                                            "required": ["kind", "id"],
+                                            "additionalProperties": false
+                                          }
+                                        ]
+                                      },
+                                      "primarySourceId": {
+                                        "anyOf": [
+                                          { "type": "string", "minLength": 1 },
+                                          { "type": "null" }
+                                        ]
+                                      },
+                                      "typeSourceId": {
+                                        "anyOf": [
+                                          { "type": "string", "minLength": 1 },
+                                          { "type": "null" }
+                                        ]
+                                      },
+                                      "typeName": { "type": "string" },
+                                      "typeScript": { "type": "string" }
+                                    },
+                                    "required": [
+                                      "kind",
+                                      "name",
+                                      "summary",
+                                      "owner",
+                                      "primarySourceId",
+                                      "typeSourceId",
+                                      "typeName",
+                                      "typeScript"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                ]
+                              }
+                            },
+                            "required": ["id", "revisionNo", "content"],
+                            "additionalProperties": false
+                          }
+                        },
+                        "relationships": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": { "type": "string", "minLength": 1 },
+                              "revisionNo": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "content": {
+                                "oneOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": {
+                                        "type": "string",
+                                        "const": "functional_dependency"
+                                      },
+                                      "sourceId": { "type": "string", "minLength": 1 },
+                                      "targetId": { "type": "string", "minLength": 1 },
+                                      "summary": { "type": "string" }
+                                    },
+                                    "required": ["kind", "sourceId", "targetId", "summary"],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": { "type": "string", "const": "module_association" },
+                                      "sourceId": { "type": "string", "minLength": 1 },
+                                      "targetId": { "type": "string", "minLength": 1 },
+                                      "summary": { "type": "string" }
+                                    },
+                                    "required": ["kind", "sourceId", "targetId", "summary"],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": { "type": "string", "const": "call" },
+                                      "sourceId": { "type": "string", "minLength": 1 },
+                                      "targetId": { "type": "string", "minLength": 1 },
+                                      "summary": { "type": "string" },
+                                      "operations": {
+                                        "minItems": 1,
+                                        "type": "array",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "name": { "type": "string" },
+                                            "interfaceSignature": { "type": ["string", "null"] },
+                                            "input": { "type": "string" },
+                                            "returns": {
+                                              "anyOf": [
+                                                {
+                                                  "oneOf": [
+                                                    {
+                                                      "type": "object",
+                                                      "properties": {
+                                                        "kind": {
+                                                          "type": "string",
+                                                          "const": "data"
+                                                        },
+                                                        "summary": { "type": "string" }
+                                                      },
+                                                      "required": ["kind", "summary"],
+                                                      "additionalProperties": false
+                                                    },
+                                                    {
+                                                      "type": "object",
+                                                      "properties": {
+                                                        "kind": {
+                                                          "type": "string",
+                                                          "const": "none"
+                                                        }
+                                                      },
+                                                      "required": ["kind"],
+                                                      "additionalProperties": false
+                                                    }
+                                                  ]
+                                                },
+                                                { "type": "null" }
+                                              ]
+                                            }
+                                          },
+                                          "required": [
+                                            "name",
+                                            "interfaceSignature",
+                                            "input",
+                                            "returns"
+                                          ],
+                                          "additionalProperties": false
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "kind",
+                                      "sourceId",
+                                      "targetId",
+                                      "summary",
+                                      "operations"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": { "type": "string", "const": "read" },
+                                      "sourceId": { "type": "string", "minLength": 1 },
+                                      "targetId": { "type": "string", "minLength": 1 },
+                                      "summary": { "type": "string" },
+                                      "operations": {
+                                        "minItems": 1,
+                                        "type": "array",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "name": { "type": "string" },
+                                            "selector": { "type": "string" },
+                                            "result": { "type": "string" }
+                                          },
+                                          "required": ["name", "selector", "result"],
+                                          "additionalProperties": false
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "kind",
+                                      "sourceId",
+                                      "targetId",
+                                      "summary",
+                                      "operations"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": { "type": "string", "const": "write" },
+                                      "sourceId": { "type": "string", "minLength": 1 },
+                                      "targetId": { "type": "string", "minLength": 1 },
+                                      "summary": { "type": "string" },
+                                      "operations": {
+                                        "minItems": 1,
+                                        "type": "array",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "name": { "type": "string" },
+                                            "selector": { "type": "string" },
+                                            "changes": { "type": "string" }
+                                          },
+                                          "required": ["name", "selector", "changes"],
+                                          "additionalProperties": false
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "kind",
+                                      "sourceId",
+                                      "targetId",
+                                      "summary",
+                                      "operations"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": { "type": "string", "const": "object_association" },
+                                      "sourceId": { "type": "string", "minLength": 1 },
+                                      "targetId": { "type": "string", "minLength": 1 },
+                                      "summary": { "type": "string" },
+                                      "associationKey": { "type": ["string", "null"] },
+                                      "sourceMultiplicity": {
+                                        "anyOf": [
+                                          {
+                                            "type": "string",
+                                            "pattern": "^(?:\\*|\\d+|\\d+\\.\\.(?:\\d+|\\*))$"
+                                          },
+                                          { "type": "null" }
+                                        ]
+                                      },
+                                      "targetMultiplicity": {
+                                        "anyOf": [
+                                          {
+                                            "type": "string",
+                                            "pattern": "^(?:\\*|\\d+|\\d+\\.\\.(?:\\d+|\\*))$"
+                                          },
+                                          { "type": "null" }
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "kind",
+                                      "sourceId",
+                                      "targetId",
+                                      "summary",
+                                      "associationKey",
+                                      "sourceMultiplicity",
+                                      "targetMultiplicity"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": { "type": "string", "const": "event" },
+                                      "sourceId": { "type": "string", "minLength": 1 },
+                                      "targetId": { "type": "string", "minLength": 1 },
+                                      "summary": { "type": "string" },
+                                      "events": {
+                                        "minItems": 1,
+                                        "type": "array",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "name": { "type": "string" },
+                                            "eventName": { "type": "string" },
+                                            "payload": { "type": "string" }
+                                          },
+                                          "required": ["name", "eventName", "payload"],
+                                          "additionalProperties": false
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "kind",
+                                      "sourceId",
+                                      "targetId",
+                                      "summary",
+                                      "events"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                ]
+                              }
+                            },
+                            "required": ["id", "revisionNo", "content"],
+                            "additionalProperties": false
+                          }
+                        },
+                        "notes": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": { "type": "string", "minLength": 1 },
+                              "revisionNo": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "content": {
+                                "type": "object",
+                                "properties": {
+                                  "title": { "type": "string" },
+                                  "problemMd": { "type": "string" },
+                                  "entityIds": {
+                                    "minItems": 1,
+                                    "type": "array",
+                                    "items": { "type": "string", "minLength": 1 }
+                                  }
+                                },
+                                "required": ["title", "problemMd", "entityIds"],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": ["id", "revisionNo", "content"],
+                            "additionalProperties": false
+                          }
+                        },
+                        "diagrams": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": { "type": "string", "minLength": 1 },
+                              "revisionNo": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "content": {
+                                "type": "object",
+                                "properties": {
+                                  "title": { "type": "string" },
+                                  "scope": {
+                                    "oneOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": { "type": "string", "const": "project" }
+                                        },
+                                        "required": ["kind"],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": { "type": "string", "const": "module" },
+                                          "moduleId": { "type": "string", "minLength": 1 }
+                                        },
+                                        "required": ["kind", "moduleId"],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  },
+                                  "entityIds": {
+                                    "minItems": 1,
+                                    "type": "array",
+                                    "items": { "type": "string", "minLength": 1 }
+                                  },
+                                  "relationshipIds": {
+                                    "type": "array",
+                                    "items": { "type": "string", "minLength": 1 }
+                                  },
+                                  "noteIds": {
+                                    "type": "array",
+                                    "items": { "type": "string", "minLength": 1 }
+                                  }
+                                },
+                                "required": [
+                                  "title",
+                                  "scope",
+                                  "entityIds",
+                                  "relationshipIds",
+                                  "noteIds"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": ["id", "revisionNo", "content"],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "schemaVersion",
+                        "projectVersion",
+                        "entities",
+                        "relationships",
+                        "notes",
+                        "diagrams"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "sourcePaths": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                          "path": { "type": "string", "minLength": 1 }
+                        },
+                        "required": ["id", "path"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "moduleDiagrams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                          "revisionNo": {
+                            "type": "integer",
+                            "exclusiveMinimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "savedAt": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "title": { "type": "string" },
+                          "scope": {
+                            "oneOf": [
+                              {
+                                "type": "object",
+                                "properties": { "kind": { "type": "string", "const": "project" } },
+                                "required": ["kind"],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": { "type": "string", "const": "module" },
+                                  "moduleId": { "type": "string", "minLength": 1 }
+                                },
+                                "required": ["kind", "moduleId"],
+                                "additionalProperties": false
+                              }
+                            ]
+                          },
+                          "scopeName": { "type": "string" }
+                        },
+                        "required": ["id", "revisionNo", "savedAt", "title", "scope", "scopeName"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "projectDiagrams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                          "revisionNo": {
+                            "type": "integer",
+                            "exclusiveMinimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "savedAt": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "title": { "type": "string" },
+                          "scope": {
+                            "oneOf": [
+                              {
+                                "type": "object",
+                                "properties": { "kind": { "type": "string", "const": "project" } },
+                                "required": ["kind"],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": { "type": "string", "const": "module" },
+                                  "moduleId": { "type": "string", "minLength": 1 }
+                                },
+                                "required": ["kind", "moduleId"],
+                                "additionalProperties": false
+                              }
+                            ]
+                          },
+                          "scopeName": { "type": "string" }
+                        },
+                        "required": ["id", "revisionNo", "savedAt", "title", "scope", "scopeName"],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "project",
+                    "diagram",
+                    "bundle",
+                    "sourcePaths",
+                    "moduleDiagrams",
+                    "projectDiagrams"
+                  ],
+                  "additionalProperties": false,
+                  "$defs": {
+                    "__schema0": {
+                      "anyOf": [
+                        { "type": "string" },
+                        { "type": "number" },
+                        { "type": "boolean" },
+                        { "type": "null" },
+                        { "type": "array", "items": { "$ref": "#/$defs/__schema0" } },
+                        {
+                          "type": "object",
+                          "propertyNames": { "type": "string" },
+                          "additionalProperties": { "$ref": "#/$defs/__schema0" }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "查询字段不合法",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "图已移除、不属于该项目或版本不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/status": {
       "get": {
         "operationId": "getServiceStatus",

@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import { Alert, Button, Drawer, Menu } from 'antd';
 import { matchPath, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
+import { businessPath } from '../business/queries.js';
 import { requirementsPath } from '../requirements/queries.js';
 import { ProjectWelcome } from '../projects/ProjectWelcome.js';
 import { ProjectPicker } from '../projects/ProjectPicker.js';
@@ -26,6 +27,7 @@ import { useServiceStatus } from './use-service-status.js';
 const AgentGuidePage = lazy(() => import('../agent-guide/AgentGuidePage.js'));
 const OverviewPage = lazy(() => import('../overview/OverviewPage.js'));
 const RequirementsPage = lazy(() => import('../requirements/RequirementsPage.js'));
+const BusinessPage = lazy(() => import('../business/BusinessPage.js'));
 
 export function App() {
   const location = useLocation();
@@ -36,7 +38,9 @@ export function App() {
   const activeSection =
     route?.params.section === 'requirements' || location.pathname === '/requirements'
       ? 'requirements'
-      : 'overview';
+      : route?.params.section === 'business' || location.pathname === '/business'
+        ? 'business'
+        : 'overview';
   const [selectedId, setSelectedId] = useState(readSelectedProject);
   const projectId = routeId ?? selectedId;
   const project = useQuery({ ...projectQuery(projectId ?? ''), enabled: Boolean(projectId) });
@@ -54,7 +58,13 @@ export function App() {
     setPickerOpen(false);
     setCreateOpen(false);
     setNavigationOpen(false);
-    navigate(activeSection === 'requirements' ? requirementsPath(id) : projectPath(id));
+    navigate(
+      activeSection === 'requirements'
+        ? requirementsPath(id)
+        : activeSection === 'business'
+          ? businessPath(id)
+          : projectPath(id),
+    );
     window.scrollTo(0, 0);
   };
   const openPicker = () => {
@@ -107,7 +117,9 @@ export function App() {
               projectId
                 ? key === 'requirements'
                   ? requirementsPath(projectId)
-                  : projectPath(projectId)
+                  : key === 'business'
+                    ? businessPath(projectId)
+                    : projectPath(projectId)
                 : `/${key}`,
             );
             setNavigationOpen(false);
@@ -130,7 +142,6 @@ export function App() {
               className: 'ds-nav-item',
               icon: <GitBranchIcon className="ds-icon" size={foundations.size.navIcon} />,
               label: '业务设计',
-              disabled: true,
             },
           ]}
         />
@@ -202,6 +213,24 @@ export function App() {
               element={
                 projectId ? (
                   <Navigate replace to={requirementsPath(projectId)} />
+                ) : (
+                  <ProjectWelcome onSelect={openPicker} onCreate={() => openCreate()} />
+                )
+              }
+            />
+            <Route
+              path="/projects/:projectId/business"
+              element={<BusinessPage onSelect={openPicker} />}
+            />
+            <Route
+              path="/projects/:projectId/business/diagrams/:diagramId"
+              element={<BusinessPage onSelect={openPicker} />}
+            />
+            <Route
+              path="/business"
+              element={
+                projectId ? (
+                  <Navigate replace to={businessPath(projectId)} />
                 ) : (
                   <ProjectWelcome onSelect={openPicker} onCreate={() => openCreate()} />
                 )

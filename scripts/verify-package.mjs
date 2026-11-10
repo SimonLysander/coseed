@@ -283,6 +283,70 @@ try {
       )
     ).json();
     assert.equal(revision.sources[0].rawText, 'Fictional installed-package progress material.');
+    const businessSaved = await call('save_changes', {
+      projectId: created.receipt.projectId,
+      requestKey: 'package-business',
+      baseVersion: 3,
+      sources: [
+        {
+          id: '$material',
+          kind: 'document',
+          rawText: 'Fictional installed-package business diagram material.',
+        },
+      ],
+      changes: [
+        {
+          objectType: 'entity',
+          id: '$module',
+          content: {
+            kind: 'module',
+            name: 'Installed module',
+            summary: 'Fictional business module only.',
+            role: 'core',
+          },
+        },
+        {
+          objectType: 'diagram',
+          id: '$diagram',
+          content: {
+            title: 'Installed diagram',
+            scope: { kind: 'project' },
+            entityIds: ['$module'],
+            relationshipIds: [],
+            noteIds: [],
+          },
+        },
+      ].map((change) => ({
+        ...change,
+        action: 'upsert',
+        expectedRevision: null,
+        citations: [
+          {
+            sourceId: '$material',
+            side: 'after',
+            path: '',
+            explanationMd: 'Fictional verification supports content.',
+          },
+        ],
+      })),
+    });
+    const diagramId = businessSaved.allocations.find((item) => item.localRef === '$diagram').id;
+    const graph = await (
+      await fetch(
+        `${base}/api/projects/${created.receipt.projectId}/business/diagrams/${diagramId}?version=4`,
+      )
+    ).json();
+    assert.equal(graph.project.version, 4);
+    assert.equal(graph.bundle.entities[0].content.name, 'Installed module');
+    const beforeGraph = await (
+      await fetch(`${base}/api/projects/${created.receipt.projectId}/business?version=3`)
+    ).json();
+    assert.equal(beforeGraph.diagrams.length, 0);
+    const canvasAsset = packed.files.find((entry) =>
+      /^dist\/web\/assets\/BusinessCanvas-.*\.js$/.test(entry.path),
+    );
+    assert(canvasAsset);
+    assert.equal((await fetch(`${base}/${canvasAsset.path.replace('dist/web/', '')}`)).status, 200);
     const worker = packed.files.find((entry) =>
       /^dist\/web\/assets\/elk-worker.*\.js$/.test(entry.path),
     );
@@ -350,6 +414,7 @@ try {
           'HTTP project overview and bundled ELK worker asset',
           'HTTP requirement timeline/revisions/sources over MCP writes',
           'formal migrations and project-content save/history',
+          'HTTP versioned business diagrams over MCP writes and bundled canvas',
         ],
       },
       null,

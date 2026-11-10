@@ -36,6 +36,7 @@ export async function saveRequirementFixture(
   baseVersion: number,
   changes: unknown[],
   note = '虚构测试回顾',
+  materials?: unknown[],
 ) {
   const client = new Client({ name: 'fictional-requirements-fixture', version: '0.0.0' });
   try {
@@ -46,7 +47,7 @@ export async function saveRequirementFixture(
         projectId,
         requestKey: `fixture-${randomUUID()}`,
         baseVersion,
-        sources: [
+        sources: materials ?? [
           {
             id: '$material',
             kind: 'document',

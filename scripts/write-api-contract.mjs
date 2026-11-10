@@ -30,6 +30,11 @@ import {
   revisionParamSchema,
 } from '../dist/contracts/requirements-http.js';
 
+import {
+  businessIndexResponseSchema,
+  businessDiagramResponseSchema,
+} from '../dist/contracts/business-http.js';
+
 const body = (schema) => ({ 'application/json': { schema: z.toJSONSchema(schema) } });
 const errorResponse = (description) => ({ description, content: body(projectHttpErrorSchema) });
 const projectId = {
@@ -226,6 +231,45 @@ const contract = {
           },
           400: errorResponse('缺少项目版本或修订号无效'),
           404: errorResponse('对象、修订或项目版本不存在'),
+        },
+      },
+    },
+    '/api/projects/{projectId}/business': {
+      get: {
+        operationId: 'listBusinessDiagrams',
+        summary: '读取同一版本的图纸清单，不加载全部项目内容；仅有一张全景时提供默认入口',
+        parameters: [projectId, ...queryParameters(overviewQuerySchema)],
+        responses: {
+          200: {
+            description: '图纸元数据及一致项目版本；Cache-Control: no-store',
+            content: body(businessIndexResponseSchema),
+          },
+          400: errorResponse('查询字段不合法'),
+          404: errorResponse('项目或版本不存在'),
+        },
+      },
+    },
+    '/api/projects/{projectId}/business/diagrams/{diagramId}': {
+      get: {
+        operationId: 'getBusinessDiagram',
+        summary: '按固定项目版本解析一张图的共享节点、关系、说明、归属及核心目录，不返回来源全文',
+        parameters: [
+          projectId,
+          {
+            name: 'diagramId',
+            in: 'path',
+            required: true,
+            schema: z.toJSONSchema(projectIdSchema),
+          },
+          ...queryParameters(overviewQuerySchema),
+        ],
+        responses: {
+          200: {
+            description: '单图及归属闭包；Cache-Control: no-store',
+            content: body(businessDiagramResponseSchema),
+          },
+          400: errorResponse('查询字段不合法'),
+          404: errorResponse('图已移除、不属于该项目或版本不存在'),
         },
       },
     },

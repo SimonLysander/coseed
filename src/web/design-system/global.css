@@ -15,7 +15,7 @@
 * {
   box-sizing: border-box;
 }
-body {
+html > body {
   margin: 0;
   min-width: 320px;
 }

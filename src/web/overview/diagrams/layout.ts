@@ -1,26 +1,8 @@
-import ELK, { type ELK as ElkEngine, type ElkNode } from 'elkjs/lib/elk-api.js';
-import ElkWorker from 'elkjs/lib/elk-worker.min.js?worker';
+import type { ElkNode } from 'elkjs/lib/elk-api.js';
+export { acquireLayout } from '../../diagrams/elk-engine.js';
 import { Dom } from '@antv/x6';
 import { foundations } from '../../design-system/tokens.js';
 import type { DiagramModel } from './model.js';
-
-let engine: ElkEngine | null = null;
-let consumers = 0;
-export function acquireLayout() {
-  engine ??= new ELK({ workerFactory: () => new ElkWorker() });
-  const current = engine;
-  consumers++;
-  return {
-    engine: current,
-    release: () => {
-      consumers--;
-      if (consumers === 0) {
-        current.terminateWorker();
-        engine = null;
-      }
-    },
-  };
-}
 
 export function layoutInput(model: DiagramModel): { input: ElkNode; labels: Map<string, string> } {
   const labels = new Map<string, string>();
