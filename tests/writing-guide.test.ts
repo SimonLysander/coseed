@@ -18,6 +18,18 @@ describe('authoring review provenance', () => {
         }
     expect(new Set(ids).size).toBe(ids.length);
   });
+  it('connects every reading paragraph to existing evidence without mixing source quotes into its text', () => {
+    for (const topic of catalog.topics)
+      for (const section of topic.sections) {
+        const ids = new Set(section.agreements.map((agreement) => agreement.id));
+        const covered = new Set(section.readings.flatMap((reading) => reading.agreementIds));
+        expect([...covered].sort()).toEqual([...ids].sort());
+        for (const reading of section.readings) {
+          expect(reading.markdown.trim().length).toBeGreaterThan(0);
+          expect(reading.markdown).not.toContain('不对，我觉得');
+        }
+      }
+  });
   it('leaves incomplete reconstruction explicit and does not replace runtime MCP guidance', () => {
     expect(catalog.status).toBe('review');
     expect(catalog.topics.every((topic) => topic.questions.length > 0)).toBe(true);

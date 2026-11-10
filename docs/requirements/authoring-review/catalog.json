@@ -5,7 +5,7 @@
     {
       "id": "overview",
       "title": "项目综述",
-      "introduction": "产品是什么、核心概念、使用示例。以下先保留原话和文档记录，不新增写作模板。",
+      "introduction": "按产品表述、核心概念、使用示例组织综述，帮助初次阅读者理解项目当前的需求和业务。",
       "sections": [
         {
           "id": "product",
@@ -39,6 +39,18 @@
                 "file": "docs/database/overview-content-design.md",
                 "label": "仓库文档记录"
               }
+            }
+          ],
+          "readings": [
+            {
+              "title": "写清项目当前要做什么",
+              "markdown": "产品表述应连贯说明整个项目当前的需求和业务认识，让初次阅读的人理解产品是什么、要解决什么问题。需求变化影响整体认识时，同步修订综述。",
+              "agreementIds": ["overview-purpose", "overview-current"]
+            },
+            {
+              "title": "采用自然 Markdown",
+              "markdown": "保留自然段落和必要的小标题，不把历史讨论按时间拼成产品说明。",
+              "agreementIds": ["overview-product", "overview-current"]
             }
           ]
         },
@@ -75,6 +87,23 @@
                 "file": "docs/requirements/product.md",
                 "label": "仓库文档记录"
               }
+            }
+          ],
+          "readings": [
+            {
+              "title": "只收录理解业务所需的概念",
+              "markdown": "解释核心概念的业务含义。概念词条、概念关系、示例和用例图归在综述内；概念不等同于数据库表，用例不等同于内部函数调用。",
+              "agreementIds": ["concept-definition"]
+            },
+            {
+              "title": "分清概念关系",
+              "markdown": "- **种属**：子类“是一种”父类。\n- **组成**：整体“包含”部分。\n- **业务关联**：用具体业务关系名称说明两者的联系。",
+              "agreementIds": ["concept-relation"]
+            },
+            {
+              "title": "缩进只表达种属",
+              "markdown": "词条缩进只表示种属关系，不用缩进表达组成或一般业务关联。此约定与当前页面平铺展示的差异，保留在本页“待核对”。",
+              "agreementIds": ["concept-hierarchy"]
             }
           ]
         },
@@ -140,6 +169,33 @@
                 "label": "仓库文档记录"
               }
             }
+          ],
+          "readings": [
+            {
+              "title": "先交代背景，再展开使用过程",
+              "markdown": "开篇说明参与者、当前情况、共同前提，以及整组示例要说明什么。某节独有的前提放在该节正文里。",
+              "agreementIds": ["examples-background"]
+            },
+            {
+              "title": "按自然段落推进",
+              "markdown": "采用自由 Markdown 串起使用过程，可以有小标题，不强制使用 1→2 的步骤模板。",
+              "agreementIds": ["examples-natural"]
+            },
+            {
+              "title": "每节配对应的图和正文",
+              "markdown": "每个小标题下依次放对应的用例图、该节例子正文。图应解释这一节的描述，不再保留覆盖全部功能的总用例图。",
+              "agreementIds": ["examples-local-diagram", "examples-remove-overview"]
+            },
+            {
+              "title": "角色和用例表达用户目标",
+              "markdown": "角色在系统边界外，用例在边界内；参与连线表示角色参与某个用例，不表示执行先后。同一角色可参与多个用例，同一用例也可用于多个示例小节。",
+              "agreementIds": ["examples-use-case"]
+            },
+            {
+              "title": "材料不足时保留缺口",
+              "markdown": "产品表述不能为空。未掌握的概念和示例可以明确留空，不编造内容。有示例小节时，必须提供开篇背景；结构合法不等于内容已经完整。",
+              "agreementIds": ["examples-no-missing"]
+            }
           ]
         }
       ],
@@ -152,7 +208,7 @@
     {
       "id": "requirements",
       "title": "需求推进",
-      "introduction": "需求描述当前目标，记录保存结论或结果；回顾负责根据明确范围补齐。",
+      "introduction": "需求说明当前目标，推进记录保存有意义的结论或结果，阶段回顾根据明确范围补齐变化。",
       "sections": [
         {
           "id": "requirement",
@@ -187,6 +243,23 @@
                 "file": "docs/database/requirements-design.md",
                 "label": "仓库文档记录"
               }
+            }
+          ],
+          "readings": [
+            {
+              "title": "一个需求对应一个独立目标",
+              "markdown": "写清为谁解决什么问题、做到哪里，以及怎样判断结果。一个需求可以反复讨论、影响多个模块并积累多条推进记录，不随聊天轮次重新建立。",
+              "agreementIds": ["requirement-goal"]
+            },
+            {
+              "title": "按目标划定需求边界",
+              "markdown": "共享同一用户目标、主要范围和完成标准的内容，继续归入原需求。只有可以独立推进和验收、推进与否可单独决定的另一个目标，才新建需求；不因换聊天、日期或版本而拆分。",
+              "agreementIds": ["requirement-boundary"]
+            },
+            {
+              "title": "保持已确定的管理范围",
+              "markdown": "不预加优先级、负责人、估时、迭代、百分比进度或依赖审批等尚无确认使用需求的字段。",
+              "agreementIds": ["requirement-no-fields"]
             }
           ]
         },
@@ -243,6 +316,23 @@
                 "label": "仓库文档记录"
               }
             }
+          ],
+          "readings": [
+            {
+              "title": "一条记录说明一项结论或结果",
+              "markdown": "用自由 Markdown 详实、凝练地描述结论或结果，以及理解它所必需的原因、约束和影响；无关结果拆开。不强制固定句式或小标题，通常约 100～200 字。",
+              "agreementIds": ["record-no-template", "record-one-result", "record-length"]
+            },
+            {
+              "title": "分清新进展和更正",
+              "markdown": "后来形成新决定或取得新结果，新增记录，并在需要时引用旧记录的具体版本。摘要误记、遗漏、时间或归类写错，修订原记录，保留身份、前后版本和依据。修改需求当前正文形成需求新版本，不把改错别字伪装成新进展。",
+              "agreementIds": ["record-new-or-revise"]
+            },
+            {
+              "title": "分清事件时间和保存时间",
+              "markdown": "实际发生时间说明结论何时形成；首次收录时间及每次修订的保存时间由系统分别保留。不能用后来保存的时间改写过去的发生时间。",
+              "agreementIds": ["record-time"]
+            }
           ]
         },
         {
@@ -289,6 +379,18 @@
                 "label": "仓库文档记录"
               }
             }
+          ],
+          "readings": [
+            {
+              "title": "按真实阶段选择状态",
+              "markdown": "| 状态 | 含义 |\n| --- | --- |\n| 设计中 | 必要的需求理解、UI／交互或技术方案仍在形成 |\n| 方案已定 | 必要设计已足以支撑实现 |\n| 待验收 | 已有完整实现，尚未核对约定要求 |\n| 已完成 | 已核对并满足完成标准 |\n| 暂缓 | 当前决定暂时停止推进 |\n| 取消 | 当前决定不再做这项需求 |\n\n没有不可逆终态；状态不能仅凭工具调用、Agent 报告写完代码或回顾保存成功自动推断。",
+              "agreementIds": ["state-labels", "state-facts"]
+            },
+            {
+              "title": "状态变化必须有依据",
+              "markdown": "真实状态变化关联支撑它的推进记录及当时的具体修订，并说明变化原因。后续更正记录不改写旧依据。初次建立需求、纠正误记状态可以直接引用原始来源，不为满足关联而编造业务进展。",
+              "agreementIds": ["state-records", "state-initial"]
+            }
           ]
         },
         {
@@ -324,6 +426,18 @@
                 "label": "仓库文档记录"
               }
             }
+          ],
+          "readings": [
+            {
+              "title": "由用户明确发起阶段回顾",
+              "markdown": "核对用户指定范围内的讨论、仓库变化和验证结果，补齐或修正受影响的内容。一次回顾可以涉及多个需求，同一需求也可被多次推进。",
+              "agreementIds": ["retrospective-trigger", "retrospective-scope"]
+            },
+            {
+              "title": "保留结论，不堆积过程",
+              "markdown": "回顾不等同于产品版本或需求。只有值得保留的结论或结果才形成推进记录，不逐条记录工具调用，也不为时间线显得完整而记录所有交互。",
+              "agreementIds": ["retrospective-not-logs"]
+            }
           ]
         }
       ],
@@ -335,7 +449,7 @@
     {
       "id": "design",
       "title": "业务设计",
-      "introduction": "先划分职责及对象，再确定它们之间的关系。正文保留范围、节点、连线和技术说明的既有语义。",
+      "introduction": "先明确观察范围和节点，再表达关系；技术说明依附于准确的节点或成员范围。",
       "sections": [
         {
           "id": "scope",
@@ -370,6 +484,18 @@
                 "file": "docs/database/business-design.md",
                 "label": "仓库文档记录"
               }
+            }
+          ],
+          "readings": [
+            {
+              "title": "全景看业务职责及依赖",
+              "markdown": "以整个项目为观察范围，主要展示同层级业务模块和必要的外部系统。依赖表示履行职责需要谁的能力；无向关联表示业务联系。不要把依赖方向解释为输入输出或执行顺序。",
+              "agreementIds": ["design-project"]
+            },
+            {
+              "title": "内部看一个模块如何实现职责",
+              "markdown": "以选定业务模块为边界，展示处理组件和数据对象。本模块所属对象在边界内，其他模块或外部系统所属对象在边界外。目录表示代码归属，技术说明表示成员范围，两者分别表达。",
+              "agreementIds": ["design-internal", "design-ownership"]
             }
           ]
         },
@@ -425,6 +551,28 @@
                 "label": "仓库文档记录"
               }
             }
+          ],
+          "readings": [
+            {
+              "title": "先划分节点，再确定关系",
+              "markdown": "先确定整张图的节点，检查正交完备，再补连线。不能只因引用合法、图能画出，就认定业务职责已经完整。",
+              "agreementIds": ["design-nodes-first", "design-complete"]
+            },
+            {
+              "title": "按对象的实际含义选择节点类型",
+              "markdown": "- **业务模块**：一组业务职责及其边界。\n- **处理组件**：承担具体处理职责的实现部分。\n- **数据对象**：具有业务含义及核心字段结构的对象。\n- **外部系统**：在当前项目系统之外参与协作的系统。",
+              "agreementIds": ["design-node-types"]
+            },
+            {
+              "title": "直接写清名称、职责和核心字段",
+              "markdown": "处理组件展示名称和凝练详实的职责。数据对象展示名称、业务含义、核心 TS 类型及行内注释。不要改成类、方法、CRUD 或“负责操作”清单。",
+              "agreementIds": ["design-description"]
+            },
+            {
+              "title": "目录按唯一核心实现位置归组",
+              "markdown": "一个节点只取最核心的真实实现来源。目录标题有 `modules/` 时从该段开始，否则保留真实仓库相对目录；标题单行显示，不在节点内重复写路径。没有来源不编造目录。",
+              "agreementIds": ["design-directory"]
+            }
           ]
         },
         {
@@ -471,6 +619,23 @@
                 "label": "仓库文档记录"
               }
             }
+          ],
+          "readings": [
+            {
+              "title": "按两端对象和实际关系选线",
+              "markdown": "| 关系 | 两端及含义 |\n| --- | --- |\n| 功能依赖 | 模块依赖另一个模块或外部系统的能力 |\n| 模块关联 | 模块或外部系统之间的业务联系，无方向 |\n| 调用 | 处理组件调用另一个处理组件 |\n| 读取 | 处理组件读取数据对象 |\n| 写入 | 处理组件修改数据对象 |\n| 对象关联 | 数据对象之间的业务联系及数量约束 |\n| 事件 | 发布组件向订阅组件传递事件 |",
+              "agreementIds": ["design-relations"]
+            },
+            {
+              "title": "业务说明和语义操作一起保留",
+              "markdown": "业务说明让人理解关系的用途，语义操作凝练说明接口作用、核心参数和结果：\n\n- 调用：`动作（核心输入）：返回含义`\n- 读取：`读取动作（查询依据）：读取内容`\n- 写入：`动作（定位依据；修改内容）`\n- 事件：`事件（核心载荷）`\n\n返回数据不另画反向调用线；对象关联不套用函数语法。",
+              "agreementIds": ["design-signatures"]
+            },
+            {
+              "title": "准确表达数量和未知情况",
+              "markdown": "已知数量分别绑定真实端点，不因布局换向而交换，并用业务文字交代数量的含义。未知数量用 `null` 表示，不猜测 `1` 或 `0..*`。只有明确没有返回时才写“无返回”；未知返回写“返回待确认”。不由事件关系推断异步可靠性。",
+              "agreementIds": ["design-unknown", "design-multiplicity"]
+            }
           ]
         },
         {
@@ -506,6 +671,18 @@
                 "label": "本次会话可见的用户原话；未取得平台消息编号"
               }
             }
+          ],
+          "readings": [
+            {
+              "title": "写技术策略及其解决的问题",
+              "markdown": "以实际技术名称为标题，例如状态机、事务边界或策略模式。说明采用什么机制、怎样解决具体问题，将设计理由融入其中；不另列范围或模板化的“为什么”，也不要求凑齐技术分类。",
+              "agreementIds": ["design-note-content"]
+            },
+            {
+              "title": "精确标明真实成员",
+              "markdown": "说明可对应单个节点或一组节点，允许不同说明范围交叉。精确标出各自成员，不误圈无关节点，不复制节点或改变目录归属。",
+              "agreementIds": ["design-note-members", "design-crossing"]
+            }
           ]
         },
         {
@@ -532,6 +709,18 @@
                 "label": "仓库文档记录"
               }
             }
+          ],
+          "readings": [
+            {
+              "title": "基础内容直接展示",
+              "markdown": "节点直接展示名称、职责和必要的数据结构；不依赖 Hover 或点击展开才能阅读。当前不增加第三层代码页面。",
+              "agreementIds": ["design-static"]
+            },
+            {
+              "title": "控制信息量，不截断含义",
+              "markdown": "不强制列方法和 CRUD；数据对象保留核心 TS 字段。处理组件说明约 40～70 字属于阅读建议，不作为硬性字数限制。",
+              "agreementIds": ["design-data-no-method"]
+            }
           ]
         }
       ],
@@ -544,7 +733,7 @@
     {
       "id": "common",
       "title": "共同约定",
-      "introduction": "所有内容的来源、修订和缺口表达。保留原始材料，不用新解释覆盖历史。",
+      "introduction": "所有内容均保留可核对的来源和修订历史。缺少依据的细节保持待核对。",
       "sections": [
         {
           "id": "evidence",
@@ -580,6 +769,18 @@
                 "label": "仓库文档记录"
               }
             }
+          ],
+          "readings": [
+            {
+              "title": "结论保留可核对的来源",
+              "markdown": "保存实际取得的原始对话片段、代码、差异或验证结果，记录可核对的位置，并说明材料支持什么结论。摘要或 Agent 判断不能冒充原始证据。",
+              "agreementIds": ["source-definition"]
+            },
+            {
+              "title": "按材料能证明的内容表述",
+              "markdown": "对话支持用户意图，代码支持实现事实，测试支持已验证行为。缺少聊天原文时，不补造原话或平台消息编号；代码和验证依据应能识别对应版本及对象。",
+              "agreementIds": ["source-evidence-types", "source-not-invent"]
+            }
           ]
         },
         {
@@ -606,6 +807,18 @@
                 "label": "仓库文档记录"
               }
             }
+          ],
+          "readings": [
+            {
+              "title": "修正同一内容时保留身份和历史",
+              "markdown": "保留修改前后内容、操作者、时间和来源。后来真实发生的新进展应新增记录，不覆盖当时成立的决定。此要求覆盖综述、需求、记录和设计等可维护内容。",
+              "agreementIds": ["revision-identity"]
+            },
+            {
+              "title": "人工更正不能被后续整理静默覆盖",
+              "markdown": "发生冲突时保留现有内容并明确指出冲突，根据实际来源核对后再处理。",
+              "agreementIds": ["revision-human"]
+            }
           ]
         },
         {
@@ -620,6 +833,13 @@
                 "kind": "conversation",
                 "label": "本次会话可见的用户原话；未取得平台消息编号"
               }
+            }
+          ],
+          "readings": [
+            {
+              "title": "整理表达不能改变既有约定",
+              "markdown": "整理规范时保留已确认约定及原始依据。缺少原话或存在冲突的内容，明确列为待核对，不根据当前实现或新的建议补成已确认规则。",
+              "agreementIds": ["preserve-user-agreements"]
             }
           ]
         }

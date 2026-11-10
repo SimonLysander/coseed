@@ -10,18 +10,28 @@ test('human writing review is readable, navigable and honest about provenance', 
   await page.getByRole('link', { name: '阅读内容编写规范（审阅稿）', exact: true }).click();
   await expect(page.getByRole('heading', { name: '内容编写规范', exact: true })).toBeVisible();
   await expect(page.getByText('审阅稿', { exact: true })).toBeVisible();
-  await expect(page.locator('.writing-article')).toContainText('产品是什么、核心概念、使用示例');
-  await page.getByText('核对用户原话出处', { exact: true }).first().click();
+  await expect(page.locator('.writing-article')).toContainText(
+    '按产品表述、核心概念、使用示例组织综述',
+  );
+  await expect(page.locator('.writing-article')).not.toContainText('不对，我觉得整个这里其实是');
+  await expect(
+    page.getByText('不对，我觉得整个这里其实是 整个需求？你说的都是形式，', { exact: true }),
+  ).toHaveCount(0);
+  await page.getByText('核对出处', { exact: true }).first().click();
   await expect(
     page.getByText('本次会话可见的用户原话；未取得平台消息编号', { exact: true }).first(),
   ).toBeVisible();
+  await expect(
+    page.getByText('不对，我觉得整个这里其实是 整个需求？你说的都是形式，', { exact: true }),
+  ).toBeVisible();
+  await page.getByText('核对出处', { exact: true }).first().click();
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.screenshot({ path: info.outputPath('writing-overview-light.png'), fullPage: true });
   await page
     .getByRole('navigation', { name: '规范主题' })
     .getByRole('menuitem', { name: '业务设计', exact: true })
     .click();
-  await expect(page.locator('.writing-article')).toContainText('一张图的节点都必须正交完备');
+  await expect(page.locator('.writing-article')).toContainText('先确定整张图的节点，检查正交完备');
   await page
     .getByRole('complementary', { name: '规范章节目录' })
     .getByRole('link', { name: '连线内容', exact: true })
@@ -38,7 +48,7 @@ test('human writing review is readable, navigable and honest about provenance', 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.locator('.writing-mobile-topics').click();
   await page.getByRole('menuitem', { name: '需求推进', exact: true }).last().click();
-  await expect(page.locator('.writing-article')).toContainText('记录按结论划分');
+  await expect(page.locator('.writing-article')).toContainText('一条记录说明一项结论或结果');
   await page.locator('.writing-mobile-toc').click();
   await page.getByRole('menuitem', { name: '待核对', exact: true }).last().click();
   await expect(page.locator('.writing-questions')).toBeInViewport();

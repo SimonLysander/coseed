@@ -6,16 +6,28 @@ import { foundations } from '../design-system/tokens.js';
 import { writingTopics, writingPath, type Agreement } from './content.js';
 import './writing-guide.css';
 
-function Evidence({ agreement }: { agreement: Agreement }) {
+function Evidence({
+  agreement,
+  showExcerpt = true,
+}: {
+  agreement: Agreement;
+  showExcerpt?: boolean;
+}) {
   return (
     <div className="writing-evidence">
       <p>{agreement.source.label}</p>
       {'file' in agreement.source && <code>{agreement.source.file}</code>}
       <p>
         {agreement.source.kind === 'conversation'
-          ? '清单保留原始摘录；页面按 Markdown 排版，条目标题仅用于定位。'
-          : '正文直接摘录该文档，不将现有文档记录等同于已逐条找回用户原话。'}
+          ? '以下保留用户原话；原话中的提问、修正和口语不作为规范正文。'
+          : '以下保留文档摘录，不将文档记录等同于已逐条找回用户原话。'}
       </p>
+      {showExcerpt && (
+        <blockquote>
+          <Markdown text={agreement.excerpt} />
+        </blockquote>
+      )}
+      {showExcerpt && 'editorialNote' in agreement && <p>核对说明：{agreement.editorialNote}</p>}
     </div>
   );
 }
@@ -34,6 +46,11 @@ export default function WritingGuidePage() {
     return () => cancelAnimationFrame(frame);
   }, [location.pathname, mode]);
   if (!topic) return <Navigate replace to={writingPath()} />;
+  const agreements = new Map(
+    topic.sections
+      .flatMap((section) => section.agreements)
+      .map((agreement) => [agreement.id, agreement]),
+  );
   const sections = topic.sections.map((section) => ({
     key: section.id,
     title: section.title,
@@ -113,28 +130,26 @@ export default function WritingGuidePage() {
                   className="writing-section"
                 >
                   <h2>{section.title}</h2>
-                  {section.agreements.map((agreement) => (
+                  {section.readings.map((reading) => (
                     <section
-                      key={agreement.id}
+                      key={reading.title}
                       className="writing-agreement"
-                      data-agreement-id={agreement.id}
+                      data-source-agreements={reading.agreementIds.join(' ')}
                     >
-                      <h3>{agreement.title}</h3>
-                      <Markdown text={agreement.excerpt} />
-                      {'editorialNote' in agreement && (
-                        <p className="writing-replacement">核对说明：{agreement.editorialNote}</p>
-                      )}
+                      <h3>{reading.title}</h3>
+                      <div className="writing-reading">
+                        <Markdown text={reading.markdown} />
+                      </div>
                       <Collapse
                         ghost
                         size="small"
                         items={[
                           {
                             key: 'evidence',
-                            label:
-                              agreement.source.kind === 'conversation'
-                                ? '核对用户原话出处'
-                                : '核对文档出处',
-                            children: <Evidence agreement={agreement} />,
+                            label: '核对出处',
+                            children: reading.agreementIds.map((id) => (
+                              <Evidence key={id} agreement={agreements.get(id)!} />
+                            )),
                           },
                         ]}
                       />
@@ -166,7 +181,7 @@ export default function WritingGuidePage() {
                     width: 200,
                     render: (_, agreement) => (
                       <>
-                        <Evidence agreement={agreement} />
+                        <Evidence agreement={agreement} showExcerpt={false} />
                         {'editorialNote' in agreement && (
                           <p className="writing-replacement">核对说明：{agreement.editorialNote}</p>
                         )}
