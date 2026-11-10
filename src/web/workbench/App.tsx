@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import { Alert, Button, Drawer, Menu } from 'antd';
 import { matchPath, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
+import { requirementsPath } from '../requirements/queries.js';
 import { ProjectWelcome } from '../projects/ProjectWelcome.js';
 import { ProjectPicker } from '../projects/ProjectPicker.js';
 import { useProjectCreation } from '../projects/use-project-creation.js';
@@ -24,12 +25,18 @@ import { useServiceStatus } from './use-service-status.js';
 
 const AgentGuidePage = lazy(() => import('../agent-guide/AgentGuidePage.js'));
 const OverviewPage = lazy(() => import('../overview/OverviewPage.js'));
+const RequirementsPage = lazy(() => import('../requirements/RequirementsPage.js'));
 
 export function App() {
   const location = useLocation();
   const navigate = useNavigate();
   const guideOpen = location.pathname.startsWith('/agent-guide');
-  const routeId = matchPath('/projects/:projectId/overview/*', location.pathname)?.params.projectId;
+  const route = matchPath('/projects/:projectId/:section/*', location.pathname);
+  const routeId = route?.params.projectId;
+  const activeSection =
+    route?.params.section === 'requirements' || location.pathname === '/requirements'
+      ? 'requirements'
+      : 'overview';
   const [selectedId, setSelectedId] = useState(readSelectedProject);
   const projectId = routeId ?? selectedId;
   const project = useQuery({ ...projectQuery(projectId ?? ''), enabled: Boolean(projectId) });
@@ -47,7 +54,7 @@ export function App() {
     setPickerOpen(false);
     setCreateOpen(false);
     setNavigationOpen(false);
-    navigate(projectPath(id));
+    navigate(activeSection === 'requirements' ? requirementsPath(id) : projectPath(id));
     window.scrollTo(0, 0);
   };
   const openPicker = () => {
@@ -94,9 +101,15 @@ export function App() {
       <nav aria-label="主导航">
         <Menu
           mode="inline"
-          selectedKeys={guideOpen ? [] : ['overview']}
+          selectedKeys={guideOpen ? [] : [activeSection]}
           onClick={({ key }) => {
-            navigate(key === 'overview' && projectId ? projectPath(projectId) : `/${key}`);
+            navigate(
+              projectId
+                ? key === 'requirements'
+                  ? requirementsPath(projectId)
+                  : projectPath(projectId)
+                : `/${key}`,
+            );
             setNavigationOpen(false);
           }}
           items={[
@@ -111,7 +124,6 @@ export function App() {
               className: 'ds-nav-item',
               icon: <HistoryIcon className="ds-icon" size={foundations.size.navIcon} />,
               label: '需求推进',
-              disabled: true,
             },
             {
               key: 'business',
@@ -180,6 +192,20 @@ export function App() {
             <Route
               path="/projects/:projectId/overview/*"
               element={<OverviewPage onSelect={openPicker} />}
+            />
+            <Route
+              path="/projects/:projectId/requirements/:requirementId?"
+              element={<RequirementsPage onSelect={openPicker} />}
+            />
+            <Route
+              path="/requirements"
+              element={
+                projectId ? (
+                  <Navigate replace to={requirementsPath(projectId)} />
+                ) : (
+                  <ProjectWelcome onSelect={openPicker} onCreate={() => openCreate()} />
+                )
+              }
             />
             <Route
               path="/overview"
