@@ -17,6 +17,7 @@ CoSeed 是通过 Web 和客户端无关的 MCP 提供入口的项目认知工作
 - 项目快照和共同保存模型：[docs/database/snapshot-save-model.md](docs/database/snapshot-save-model.md)；SQL 以 `migrations/` 为权威，由 Drizzle 顺序执行；查询列映射不用于自动覆盖 DDL。
 - 配置、启动和排错：[docs/operations/local-development.md](docs/operations/local-development.md)
 - Agent 接入与使用：[简版指南草稿](docs/operations/agent-integration.md)，人类阅读版；Agent 通过 MCP read_guide 读取按需规范
+- 内容编写规范审阅：[首批约定清单及页面边界](docs/requirements/authoring-review/README.md)，`#/writing-guide/overview` 供人核对，未替换 MCP 运行指南；文档摘录和可见用户原话分别标识，缺口不补成规则。
 - MCP 工具及提示词：[工具和提示词规范](docs/requirements/mcp-tools-design.md)，九个工具、一次直接保存、临时引用与幂等、快照文件协议；[直接保存决策](docs/adr/0005-direct-mcp-save.md)；实际发现契约见 docs/api/mcp-tools.json
 - 项目入口与综述阅读：[已实现行为与边界](docs/requirements/project-workbench.md)、[客户端选型](docs/adr/0006-project-reading-client.md)，HTTP 创建／读取复用共同服务，React Router 管理项目链接，TanStack Query 管理业务请求。
 - 需求推进阅读：[页面及排序约定](docs/requirements/requirements-reading.md)、[固定版本读取决策](docs/adr/0007-requirements-reading.md)，既有需求及记录只读接入，不新建另一套保存或状态规则。

@@ -1,0 +1,633 @@
+{
+  "version": 1,
+  "status": "review",
+  "topics": [
+    {
+      "id": "overview",
+      "title": "项目综述",
+      "introduction": "产品是什么、核心概念、使用示例。以下先保留原话和文档记录，不新增写作模板。",
+      "sections": [
+        {
+          "id": "product",
+          "title": "产品表述",
+          "agreements": [
+            {
+              "id": "overview-purpose",
+              "title": "描述整个项目的需求",
+              "excerpt": "不对，我觉得整个这里其实是 整个需求？你说的都是形式，",
+              "source": {
+                "kind": "conversation",
+                "label": "本次会话可见的用户原话；未取得平台消息编号"
+              }
+            },
+            {
+              "id": "overview-current",
+              "title": "当前整体认识",
+              "excerpt": "项目当前整体需求和业务认识的连贯表述，包括产品是什么、核心概念和使用示例。它帮助新读者理解项目当前要做什么，不是把所有历史讨论按时间拼接起来。需求变化影响整体认识时，应同步修订综述。",
+              "source": {
+                "kind": "document",
+                "file": "docs/requirements/product.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "overview-product",
+              "title": "产品表述采用 Markdown",
+              "excerpt": "产品 Markdown 保留原始段落格式。",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/overview-content-design.md",
+                "label": "仓库文档记录"
+              }
+            }
+          ]
+        },
+        {
+          "id": "concepts",
+          "title": "核心概念",
+          "agreements": [
+            {
+              "id": "concept-definition",
+              "title": "词条与解释",
+              "excerpt": "核心概念词条、概念关系、使用示例及其用例图属于综述的内部内容，不在第一版中各自建立独立管理中心。概念不是数据库表，用例也不是内部函数调用。",
+              "source": {
+                "kind": "document",
+                "file": "docs/requirements/product.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "concept-relation",
+              "title": "概念关系的三种含义",
+              "excerpt": "| kind        | source → target 的含义    | 展示                                             |\n| ----------- | ------------------------- | ------------------------------------------------ |\n| kind-of     | 子类 → 父类               | 标签由类型生成“是一种”；只用这一关系推导词条缩进 |\n| composition | 整体 → 部分               | 标签由类型生成“包含”，不产生种属缩进             |\n| association | 按 label 表达具体业务关系 | 例如综述 → 来源：“以其为依据”                    |\n\n",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/overview-content-design.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "concept-hierarchy",
+              "title": "缩进的含义",
+              "excerpt": "- 核心概念使用关系图和词条；种属、组成、业务关联有明确含义，词条缩进只表示种属。\n",
+              "source": {
+                "kind": "document",
+                "file": "docs/requirements/product.md",
+                "label": "仓库文档记录"
+              }
+            }
+          ]
+        },
+        {
+          "id": "examples",
+          "title": "使用示例",
+          "agreements": [
+            {
+              "id": "examples-natural",
+              "title": "自然段推进",
+              "excerpt": "这个例子没必要用 1 -> 2 啥的。。就是自由 md 文本 ，一个个自然段落推进就好了；可以有小标题",
+              "source": {
+                "kind": "conversation",
+                "label": "本次会话可见的用户原话；未取得平台消息编号"
+              }
+            },
+            {
+              "id": "examples-local-diagram",
+              "title": "每节图文对应",
+              "excerpt": "你直接改吧，每个小标题下面一张对应的用例图，再接这一节的例子正文\n\n\n大图也留着我看看",
+              "source": {
+                "kind": "conversation",
+                "label": "本次会话可见的用户原话；未取得平台消息编号"
+              },
+              "editorialNote": "其中保留大图的要求，已由下一条原话明确取消；每节图文对应仍保留。"
+            },
+            {
+              "id": "examples-remove-overview",
+              "title": "后续明确取消大图",
+              "excerpt": "可以；干掉大图吧；",
+              "source": {
+                "kind": "conversation",
+                "label": "本次会话可见的用户原话；未取得平台消息编号"
+              }
+            },
+            {
+              "id": "examples-background",
+              "title": "开篇交代背景",
+              "excerpt": "- 使用示例开头先用自然 Markdown 说明参与者、当前情况与共同前提，以及整组例子要说明什么；每个小标题下放对应的用例图，再接本节正文。某一节独有的前提写在该节正文中。\n",
+              "source": {
+                "kind": "document",
+                "file": "docs/requirements/product.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "examples-use-case",
+              "title": "角色、用例与边界",
+              "excerpt": "本版沿用原型已经使用的“角色参与用例”关系。参与关系由 useCases.actorIds 表达，同一角色可参与多个用例，同一用例可被多个小节选用。系统边界和系统名称由项目上下文提供，角色在边界外，用例在边界内；连线不表示执行先后。",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/overview-content-design.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "examples-no-missing",
+              "title": "材料不足可以明确留空",
+              "excerpt": "草案允许明确留空的 concepts 与 examples 集合，避免尚未掌握材料时编造内容；尚无示例小节时，introductionMd 可明确为 null，也可先填写已有的背景说明。有示例小节时必须提供非空白的开篇背景说明。产品表述不能为空。结构合法不代表综述已经完整。是否具备所有必要概念和示例，属于后续内容质量与写入规范，不在此增加未确认的“草稿／发布”流程。\n\n",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/overview-content-design.md",
+                "label": "仓库文档记录"
+              }
+            }
+          ]
+        }
+      ],
+      "questions": [
+        "产品表述最后确定的具体句式，在当前可见材料中未完整还原；本版不补写成固定模板。",
+        "核心概念的选词粒度和解释长度，仍需核对更早讨论；当前字段定义不能代替写作标准。",
+        "词条缩进在产品文档中有约定，当前正式页面按词条数组平铺。两者的差异保留待核对，不以实现结果自动替代约定。"
+      ]
+    },
+    {
+      "id": "requirements",
+      "title": "需求推进",
+      "introduction": "需求描述当前目标，记录保存结论或结果；回顾负责根据明确范围补齐。",
+      "sections": [
+        {
+          "id": "requirement",
+          "title": "需求",
+          "agreements": [
+            {
+              "id": "requirement-goal",
+              "title": "一个独立目标",
+              "excerpt": "一个相对独立、可以讨论范围和判断完成情况的用户目标。需求需要说明为谁解决什么问题、做到哪里、怎样判断结果。它可以被多次讨论，影响多个业务模块，并拥有多条推进记录，不随聊天轮次重新建立。",
+              "source": {
+                "kind": "document",
+                "file": "docs/requirements/product.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "requirement-boundary",
+              "title": "什么时候新建需求",
+              "excerpt": "满足同一个用户目标、共享主要范围和完成标准的讨论，持续归入同一需求。新增细节、修改展示形式、补充约束，不自动建立新需求。\n\n当目标可以独立使用和验收、推进与否可以单独决定时，才建立另一个需求。仅因换了聊天、过了一下午或改了一次版本，不拆需求。\n\n",
+              "source": {
+                "kind": "document",
+                "file": "docs/requirements/product.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "requirement-no-fields",
+              "title": "已明确不预加的管理字段",
+              "excerpt": "不提前增加优先级、负责人、估时、迭代、百分比进度、依赖审批等项目管理字段；目前没有已确认的使用需求。",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/requirements-design.md",
+                "label": "仓库文档记录"
+              }
+            }
+          ]
+        },
+        {
+          "id": "records",
+          "title": "推进记录",
+          "agreements": [
+            {
+              "id": "record-no-template",
+              "title": "自由 Markdown",
+              "excerpt": "没必要做模版；一段 Md 描述就好了，字数多少你确定；描述清楚详实凝练就好\n\n\n我关心的是 这一条的属性都有什么？",
+              "source": {
+                "kind": "conversation",
+                "label": "本次会话可见的用户原话；未取得平台消息编号"
+              }
+            },
+            {
+              "id": "record-one-result",
+              "title": "记录按结论划分",
+              "excerpt": "一条记录表达一项可以独立理解的结论或结果。为理解同一结论所必需的原因、约束和影响可以写在一起；无关结果拆开。",
+              "source": {
+                "kind": "document",
+                "file": "docs/requirements/product.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "record-new-or-revise",
+              "title": "新增和修订的边界",
+              "excerpt": "- 后来改了主意或取得新结果：新增记录。旧记录继续反映当时成立的结论，新记录引用旧记录的具体版本并解释变化。\n- 摘要误记、遗漏、时间或需求归类写错：修订同一记录，保留记录 ID、前后版本和依据，不制造新的业务进展。\n- 改写需求当前正文：形成需求的新版本；仅改错别字不必增加一条推进记录，但仍保留修订历史。\n- 同一结果涉及多个独立需求：分别记录各需求自己的结论，可以引用同一来源和同一保存操作，不把它们硬塞进一个需求。\n\n",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/requirements-design.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "record-length",
+              "title": "记录的长度建议",
+              "excerpt": "围绕一个需求形成的一条有意义的结论或结果，例如澄清范围、确定方案、改变决定、完成并验证一部分能力。正文采用自由 Markdown，通常约 100～200 字，详实凝练；不强制句式或固定小标题。",
+              "source": {
+                "kind": "document",
+                "file": "docs/requirements/product.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "record-time",
+              "title": "发生时间和保存时间",
+              "excerpt": "实际发生时间回答“当时什么时候形成这个结论”，首次记录时间回答“什么时候被收录进 CoSeed”。每份版本都有自己的系统保存时间：首版的保存时间对应首次收录，此后每版的保存时间对应一次修订。\n\n",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/requirements-design.md",
+                "label": "仓库文档记录"
+              }
+            }
+          ]
+        },
+        {
+          "id": "status",
+          "title": "需求状态",
+          "agreements": [
+            {
+              "id": "state-labels",
+              "title": "六种状态及含义",
+              "excerpt": "| 显示文案 | 结构中的值               | 含义                                                                 |\n| -------- | ------------------------ | -------------------------------------------------------------------- |\n| 设计中   | designing                | 需求理解、UI／交互和技术方案等必要设计仍在形成                       |\n| 方案已定 | ready_for_implementation | 本需求所需的设计已足以支撑实现；不要求每项需求都有 UI 或独立架构文档 |\n| 待验收   | pending_acceptance       | 已有完整实现结果，尚未核对是否满足约定要求                           |\n| 已完成   | completed                | 已核对并满足约定的完成标准                                           |\n| 暂缓     | on_hold                  | 当前决定暂时停止推进                                                 |\n| 取消     | cancelled                | 当前决定不再做这项需求                                               |\n\n",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/requirements-design.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "state-facts",
+              "title": "状态依据",
+              "excerpt": "状态是整个需求当前已经达到的阶段。方案已定可以覆盖其后尚未确认完整实现的设计调整和实现过程，具体活动由推进记录表达。状态不从工具调用、Agent 报告写完代码或一次回顾成功自动推断，也不设置默认值代替有依据的判断。",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/requirements-design.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "state-records",
+              "title": "关联当时的推进记录",
+              "excerpt": "每次真实业务状态变化还要关联支撑它的一条或多条推进记录，并固定到具体记录版本，说明为何从原状态改为新状态。新增记录不自动推断状态；需要改变状态时，相关记录、状态版本及依据一起保存。记录属于同一项目并与该需求有关，关联与语义都要核对。后来修订记录不能悄悄替换旧状态变化的依据。",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/requirements-design.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "state-initial",
+              "title": "初始状态和纠错",
+              "excerpt": "首次建立需求可直接关联原始来源；纠正误记状态也可引用更正依据，不必为了满足关联要求伪造新的业务进展。状态依据作为需求版本的关联保存，不混进正文或额外复制记录内容。",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/requirements-design.md",
+                "label": "仓库文档记录"
+              }
+            }
+          ]
+        },
+        {
+          "id": "retrospective",
+          "title": "阶段回顾",
+          "agreements": [
+            {
+              "id": "retrospective-trigger",
+              "title": "由用户发起回顾补齐",
+              "excerpt": "我觉得不太对，主要是一次回顾补齐，我觉得在过程中不确定性的给 codex 效果不行",
+              "source": {
+                "kind": "conversation",
+                "label": "本次会话可见的用户原话；未取得平台消息编号"
+              }
+            },
+            {
+              "id": "retrospective-scope",
+              "title": "一次回顾的范围",
+              "excerpt": "用户明确发起的一次整理工作，对指定来源范围内的讨论和仓库变化进行核对，补齐或修正需求、推进记录及当前综述和设计。一次回顾可以涉及多个需求；同一需求可以出现在多次回顾中。",
+              "source": {
+                "kind": "document",
+                "file": "docs/requirements/product.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "retrospective-not-logs",
+              "title": "只保存有意义的结论",
+              "excerpt": "回顾不是一次产品版本，也不是需求本身。只有结论或结果值得保留时，才形成推进记录，不为让时间线显得完整而记录所有交互。",
+              "source": {
+                "kind": "document",
+                "file": "docs/requirements/product.md",
+                "label": "仓库文档记录"
+              }
+            }
+          ]
+        }
+      ],
+      "questions": [
+        "需求正文没有已确认的强制字数，不把推进记录的 100～200 字建议套到需求正文。",
+        "回顾的失败草稿、自动运行状态和分批执行流程尚未确定；本版不将其补为产品规则。"
+      ]
+    },
+    {
+      "id": "design",
+      "title": "业务设计",
+      "introduction": "先划分职责及对象，再确定它们之间的关系。正文保留范围、节点、连线和技术说明的既有语义。",
+      "sections": [
+        {
+          "id": "scope",
+          "title": "观察范围",
+          "agreements": [
+            {
+              "id": "design-project",
+              "title": "业务全景表达什么",
+              "excerpt": "观察范围是整个项目。图内主要是同层级业务职责模块，必要时引用外部系统；依赖线表达履行职责需要谁的能力，无向关联线表达具体业务联系。它不把操作步骤、技术设施和数据结构混成同层模块，也不把依赖方向当输入输出顺序。",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/business-design.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "design-internal",
+              "title": "进入模块后表达什么",
+              "excerpt": "scope 明确引用一个业务模块的稳定 ID，具体描述按所读项目快照解析。图的基础节点是处理组件与数据对象；本模块的对象放在边界内，其余对象放在边界外。目录是代码归属形成的区域，技术说明范围是语义成员集合，两者分别建模。",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/business-design.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "design-ownership",
+              "title": "边界内外由归属决定",
+              "excerpt": "处理组件和数据对象的 owner 明确引用本项目业务模块或外部系统。**“在边界内／外”由当前图的观察范围和对象归属计算，不是对象自身永久写死的 external 标记。** 属于另一个业务模块的组件，在本模块内部图中是外部协作者；进入其所属模块后则是内部对象。",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/business-design.md",
+                "label": "仓库文档记录"
+              }
+            }
+          ]
+        },
+        {
+          "id": "nodes",
+          "title": "节点划分",
+          "agreements": [
+            {
+              "id": "design-nodes-first",
+              "title": "先确定节点，再连线",
+              "excerpt": "你应该先设计整张图的 节点 然后确保正交完备，后续连线",
+              "source": {
+                "kind": "conversation",
+                "label": "本次会话可见的用户原话；未取得平台消息编号"
+              }
+            },
+            {
+              "id": "design-complete",
+              "title": "保留完整要求",
+              "excerpt": "一张图的节点都必须正交完备",
+              "source": {
+                "kind": "conversation",
+                "label": "本次会话可见的用户原话；未取得平台消息编号"
+              }
+            },
+            {
+              "id": "design-node-types",
+              "title": "已记录的四种实体",
+              "excerpt": "| kind            | 对象     | 内容                                                                          |\n| --------------- | -------- | ----------------------------------------------------------------------------- |\n| module          | 业务模块 | 名称、职责摘要、核心／支撑角色                                                |\n| component       | 处理组件 | 名称、较详实凝练的职责摘要、唯一归属、可用时的核心实现来源                    |\n| data_object     | 数据对象 | 名称、简短含义、唯一归属、TS 类型名和带行内注释的核心结构、实现及字段定义来源 |\n| external_system | 外部系统 | 名称、说明；作为外部部件的归属范围或全景中的外部参与系统                      |\n\n",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/business-design.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "design-description",
+              "title": "名称、职责和数据字段",
+              "excerpt": "- 内部：处理组件显示名称和职责；数据对象再显示 TS 类型与行内注释，不列类、方法、CRUD 或负责操作。\n",
+              "source": {
+                "kind": "document",
+                "file": "docs/requirements/business-reading.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "design-directory",
+              "title": "唯一核心目录",
+              "excerpt": "- 实现路径取唯一核心来源；按真实目录树形成区域，压缩只有一个目录子级的中间层。路径有 `modules/` 时从该段开始，否则保留真实仓库相对目录。路径只显示在区域标题且不换行；没有来源不编造目录。\n",
+              "source": {
+                "kind": "document",
+                "file": "docs/requirements/business-reading.md",
+                "label": "仓库文档记录"
+              }
+            }
+          ]
+        },
+        {
+          "id": "relations",
+          "title": "连线内容",
+          "agreements": [
+            {
+              "id": "design-relations",
+              "title": "关系类型与两端",
+              "excerpt": "| kind                  | 两端                                     | 保存与直接显示的含义                                           |\n| --------------------- | ---------------------------------------- | -------------------------------------------------------------- |\n| functional_dependency | 模块／外部系统之间，至少一端为本项目模块 | 依赖什么业务能力；箭头由依赖方指向提供方                       |\n| module_association    | 模块／外部系统之间，至少一端为本项目模块 | 具体业务联系，无箭头                                           |\n| call                  | 组件 → 组件                              | 业务说明；逐项动作、核心输入、返回含义；已知时保留实际接口签名 |\n| read                  | 组件 → 数据对象                          | 业务说明；读取动作、查询依据、读取内容                         |\n| write                 | 组件 → 数据对象                          | 业务说明；写入动作、定位依据、修改内容                         |\n| object_association    | 数据对象之间                             | 业务说明、关联字段和两端数量，无箭头                           |\n| event                 | 发布组件 → 订阅组件                      | 业务说明；逐项事件名称、事件标识与核心载荷                     |\n\n",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/business-design.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "design-signatures",
+              "title": "语义操作格式",
+              "excerpt": "调用显示“动作（核心输入）：返回含义”，读取显示“读取动作（查询依据）：读取内容”，写入显示“动作（定位依据；修改内容）”，事件显示“事件（核心载荷）”。完整业务说明仍保留；返回数据不另画一条反向调用。图借用 UML 基本关系，不声称实现完整 UML 元模型。",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/business-design.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "design-unknown",
+              "title": "返回和数量的未知情况",
+              "excerpt": "调用结果明确为 none 才显示「无返回」，NULL 显示「返回待确认」。未知数量不补写；已确认的数量绑定源端／目标端，不因布局换向而交换。返回不增加反向调用线，事件不推断异步可靠性。此处借用 UML 基本关系，不是完整 UML 编辑器。",
+              "source": {
+                "kind": "document",
+                "file": "docs/requirements/business-reading.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "design-multiplicity",
+              "title": "数量绑定真实端点",
+              "excerpt": "固定箭头、线型和 UML 标记从 kind 生成，不重复保存 kind、stereotype、umlRelation 三套可能相互矛盾的含义。两端数量分别绑定真实端点，布局改变不会交换它们；数量说明历史数量还是同一时点约束，仍需业务文字和来源交代。",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/business-design.md",
+                "label": "仓库文档记录"
+              }
+            }
+          ]
+        },
+        {
+          "id": "notes",
+          "title": "技术说明",
+          "agreements": [
+            {
+              "id": "design-note-content",
+              "title": "技术名称和解决的问题",
+              "excerpt": "内容为 title、problemMd、entityIds。技术名称可以是状态机、事务边界、策略模式等；problemMd 解释解决什么问题并融入选择理由，不增加模板化的“为什么”区，也不要求凑齐一套技术主题分类。",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/business-design.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "design-note-members",
+              "title": "一个节点或一组成员",
+              "excerpt": "entityIds 可以只有一个对象，也可以覆盖一组对象。不能把设计范围直接存成矩形坐标或作为所有对象的 parent；多个说明的语义范围可能重叠。呈现层必须准确表达成员，不能为画一个矩形把无关节点圈进去，或通过复制节点改变目录归属。",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/business-design.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "design-crossing",
+              "title": "交叉范围的明确选择",
+              "excerpt": "支持交叉：分别精确标出各自成员，不误圈无关节点（推荐）",
+              "source": {
+                "kind": "conversation",
+                "label": "本次会话可见的用户原话；未取得平台消息编号"
+              }
+            }
+          ]
+        },
+        {
+          "id": "presentation",
+          "title": "直接展示的内容",
+          "agreements": [
+            {
+              "id": "design-static",
+              "title": "无 Hover、无第三层",
+              "excerpt": "节点直接展示名称、职责或数据结构；两层均沿用无 Hover 的方向，内部节点暂不激活或展开。是否下钻由明确图引用决定，不自动生成不存在的下一层；本提案不增加第三层代码页面。",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/business-design.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "design-data-no-method",
+              "title": "字段有用，不强制方法清单",
+              "excerpt": "处理组件不强制展示方法、类、CRUD 或规则清单；数据对象直接展示核心 TS 字段。40～70 字等阅读建议属于写作与测量规范，不设置成结构校验的硬字数门槛。Schema 不执行 TS 文本，也不能证明摘录就是代码事实。",
+              "source": {
+                "kind": "document",
+                "file": "docs/database/business-design.md",
+                "label": "仓库文档记录"
+              }
+            }
+          ]
+        }
+      ],
+      "questions": [
+        "“正交完备”的要求已明确；实际审查方法尚未形成可证明业务完整性的自动规则，不能用引用合法代替。",
+        "处理组件说明 40～70 字属于现有文档记录的阅读建议，不升级成强制字数限制。",
+        "技术主题没有已确认的强制分类清单；本版不补造一套模式枚举。"
+      ]
+    },
+    {
+      "id": "common",
+      "title": "共同约定",
+      "introduction": "所有内容的来源、修订和缺口表达。保留原始材料，不用新解释覆盖历史。",
+      "sections": [
+        {
+          "id": "evidence",
+          "title": "事实和来源",
+          "agreements": [
+            {
+              "id": "source-definition",
+              "title": "保留可定位的原始材料",
+              "excerpt": "支撑内容的原始材料，例如用户明确表达的对话片段、代码位置、提交差异和验证结果。来源应能定位到对应材料，并说明材料支持什么结论。仅有摘要或 Agent 的判断，不等于已保存原始证据。",
+              "source": {
+                "kind": "document",
+                "file": "docs/requirements/product.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "source-evidence-types",
+              "title": "不同材料支持不同结论",
+              "excerpt": "对话可以支持用户意图，代码可以支持实现事实，测试可以支持已验证行为；三者不能互相冒充。",
+              "source": {
+                "kind": "document",
+                "file": "docs/requirements/product.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "source-not-invent",
+              "title": "没有原话时如何处理",
+              "excerpt": "对话来源需要保留支撑结论的原始片段，并记录可用的会话及消息定位信息。尚未获得平台稳定标识时，可以使用本地保存的原始材料标识和片段位置，但不能伪造平台消息编号。代码依据应能识别相应版本和位置，验证依据应保留实际结果及其验证对象，避免以后只看到已变化的文件或过期结果。",
+              "source": {
+                "kind": "document",
+                "file": "docs/requirements/product.md",
+                "label": "仓库文档记录"
+              }
+            }
+          ]
+        },
+        {
+          "id": "revision",
+          "title": "修订",
+          "agreements": [
+            {
+              "id": "revision-identity",
+              "title": "同一内容保留身份和历史",
+              "excerpt": "对同一条内容所作的修改及其历史。修正描述、补充遗漏或纠正误记时，应保留原记录身份，同时留下修改前后内容、修改者、修改时间和具体来源。该规则覆盖综述、概念、需求、推进记录、设计和技术方案，不只覆盖推进记录。后来真正发生的新进展，应新增推进记录，不覆盖过去当时成立的结论。",
+              "source": {
+                "kind": "document",
+                "file": "docs/requirements/product.md",
+                "label": "仓库文档记录"
+              }
+            },
+            {
+              "id": "revision-human",
+              "title": "后来的整理不能覆盖人工更正",
+              "excerpt": "- 用户手动修正过内容，后到的回顾不能静默覆盖；发生冲突时保留现有内容并明确指出冲突。\n\n",
+              "source": {
+                "kind": "document",
+                "file": "docs/requirements/product.md",
+                "label": "仓库文档记录"
+              }
+            }
+          ]
+        },
+        {
+          "id": "unknown",
+          "title": "未完成的核对",
+          "agreements": [
+            {
+              "id": "preserve-user-agreements",
+              "title": "本次整理的边界",
+              "excerpt": "我记得我们之前讨论过很久很久，你不得篡改任何；\n\n然后你设计一下怎么做呢？",
+              "source": {
+                "kind": "conversation",
+                "label": "本次会话可见的用户原话；未取得平台消息编号"
+              }
+            }
+          ]
+        }
+      ],
+      "questions": [
+        "历史完整对话及此前助手回复尚未逐条还原。文档记录与可见用户原话分别标识，不将文档中的每句话都声称为用户原话。",
+        "本页面仅是审阅稿；当前 MCP read_guide 仍使用原有简版，没有被本版替换。"
+      ]
+    }
+  ]
+}

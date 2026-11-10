@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router';
 import { Button, Dropdown } from 'antd';
 import { CopyIcon } from '@animateicons/react/lucide/copy-icon';
 import { foundations } from '../design-system/tokens.js';
@@ -116,6 +117,7 @@ export default function AgentGuidePage() {
               <span className="guide-draft-label">当前进度</span>
               <span>项目选择、综述和需求推进已接入，业务设计页面仍在开发。</span>
             </div>
+            <Link to="/writing-guide/overview">阅读内容编写规范（审阅稿）</Link>
             {copyState === 'copied' && (
               <span className="guide-copy-result" role="status">
                 已复制接入说明全文
