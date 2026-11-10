@@ -5,6 +5,8 @@ import { PlusIcon } from '@animateicons/react/lucide/plus-icon';
 import { CheckIcon } from '@animateicons/react/lucide/check-icon';
 import { foundations } from '../design-system/tokens.js';
 import { listProjects } from './queries.js';
+import { CreateProjectForm } from './CreateProjectForm.js';
+import type { ProjectCreation } from './use-project-creation.js';
 
 export function ProjectPicker({
   open,
@@ -13,20 +15,26 @@ export function ProjectPicker({
   onOpenChange,
   onSelect,
   onCreate,
+  creating,
+  creation,
+  onCancelCreate,
 }: {
   open: boolean;
   selectedId: string | null;
   selectedName: string | null;
   onOpenChange: (open: boolean) => void;
   onSelect: (id: string) => void;
-  onCreate: () => void;
+  onCreate: (name: string) => void;
+  creating: boolean;
+  creation: ProjectCreation;
+  onCancelCreate: () => void;
 }) {
   const [name, setName] = useState('');
   const select = useRef<RefSelectProps>(null);
   useEffect(() => {
-    if (open) select.current?.focus();
-    else setName('');
-  }, [open]);
+    if (!open) setName('');
+    else if (!creating) select.current?.focus();
+  }, [open, creating]);
   const query = useInfiniteQuery({
     queryKey: ['project-list', name.trim()],
     queryFn: ({ pageParam, signal }) => listProjects(name.trim(), pageParam, signal),
@@ -45,7 +53,7 @@ export function ProjectPicker({
       labelRender={() => selectedName ?? '当前项目'}
       open={open}
       onOpenChange={onOpenChange}
-      showSearch={{ searchValue: name, onSearch: setName, filterOption: false }}
+      showSearch={creating ? false : { searchValue: name, onSearch: setName, filterOption: false }}
       loading={query.isFetching && open}
       defaultActiveFirstOption={false}
       placement="bottomLeft"
@@ -115,14 +123,19 @@ export function ProjectPicker({
               </Button>
             </div>
           )}
-          <div className="project-picker-create" onMouseDown={(event) => event.preventDefault()}>
-            <Button
-              type="text"
-              icon={<PlusIcon className="ds-icon" size={foundations.size.icon} />}
-              onClick={onCreate}
-            >
-              创建项目
-            </Button>
+          <div className="project-picker-create">
+            {creating ? (
+              <CreateProjectForm creation={creation} onCancel={onCancelCreate} />
+            ) : (
+              <Button
+                onMouseDown={(event) => event.preventDefault()}
+                type="text"
+                icon={<PlusIcon className="ds-icon" size={foundations.size.icon} />}
+                onClick={() => onCreate(name.trim())}
+              >
+                创建项目
+              </Button>
+            )}
           </div>
         </section>
       )}

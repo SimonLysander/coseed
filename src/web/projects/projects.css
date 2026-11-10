@@ -26,10 +26,18 @@
 .project-welcome-actions {
   margin-top: calc(var(--ds-space-8) * 1px);
 }
-.project-dialog-description {
-  color: var(--ds-color-text-secondary);
-  line-height: calc(var(--ds-type-ui-lineHeight) * 1px);
-  margin-bottom: calc(var(--ds-space-8) * 1px);
+.project-create-form .ant-form-item {
+  min-width: 0;
+  margin-bottom: 0;
+}
+.project-create-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: start;
+  gap: calc(var(--ds-space-2) * 1px);
+}
+.project-create-form .ant-alert {
+  margin-top: calc(var(--ds-space-5) * 1px);
 }
 .project-picker-create {
   border-top: calc(var(--ds-shape-stroke) * 1px) solid var(--ds-color-border-subtle);

@@ -19,7 +19,7 @@ test('creates a project in the UI and restores its selection without loading a g
   await page.getByRole('button', { name: '创建项目', exact: true }).click();
   await page.getByRole('textbox', { name: '项目名称' }).fill(title);
   await page
-    .getByRole('dialog', { name: '创建项目', exact: true })
+    .getByRole('region', { name: '创建项目', exact: true })
     .getByRole('button', { name: '创建项目', exact: true })
     .click();
   await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible();
@@ -34,7 +34,7 @@ test('creates a project in the UI and restores its selection without loading a g
   expect(list.items).toHaveLength(1);
 });
 
-test('a lost creation response retries the original operation even after closing the dialog', async ({
+test('a lost creation response retries the original operation even after closing the inline form', async ({
   page,
   request,
 }) => {
@@ -53,10 +53,10 @@ test('a lost creation response retries the original operation even after closing
   await page.goto('/');
   await page.getByRole('button', { name: '创建项目', exact: true }).click();
   await page.getByRole('textbox', { name: '项目名称' }).fill(title);
-  const dialog = page.getByRole('dialog', { name: '创建项目', exact: true });
+  const dialog = page.getByRole('region', { name: '创建项目', exact: true });
   await dialog.getByRole('button', { name: '创建项目', exact: true }).click();
   await expect(dialog).toContainText('创建结果未确认');
-  await dialog.getByRole('button', { name: '关闭', exact: true }).click();
+  await dialog.getByRole('button', { name: '取消', exact: true }).click();
   await page.reload();
   await page.getByRole('button', { name: '创建项目', exact: true }).click();
   await dialog.getByRole('button', { name: '重试创建', exact: true }).click();
@@ -288,9 +288,22 @@ test('project selection searches in its trigger, supports keyboard selection and
   await chooseAppearance(page, 'dark');
   await trigger.click();
   await page.screenshot({ path: testInfo.outputPath('project-picker-dark.png'), fullPage: true });
+  await trigger.fill(title);
   await card.getByRole('button', { name: '创建项目', exact: true }).click();
-  await expect(card).not.toBeVisible();
-  await expect(page.getByRole('dialog', { name: '创建项目', exact: true })).toBeVisible();
+  await expect(card).toBeVisible();
+  await expect(card.getByRole('option', { name: new RegExp(title) })).toBeVisible();
+  await expect(page.getByRole('region', { name: '创建项目', exact: true })).toBeVisible();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByRole('textbox', { name: '项目名称' })).toHaveValue(title);
+  await expect(page.getByRole('textbox', { name: '项目名称' })).toBeFocused();
+  await page.screenshot({
+    path: testInfo.outputPath('project-inline-create-dark.png'),
+    fullPage: true,
+    animations: 'disabled',
+  });
+  await page.getByRole('textbox', { name: '项目名称' }).press('Escape');
+  await expect(page.getByRole('region', { name: '创建项目', exact: true })).not.toBeVisible();
+  await expect(card).toBeVisible();
 });
 
 test('project select remains searchable in the tablet rail and switches inside the mobile drawer', async ({
@@ -330,4 +343,43 @@ test('project select remains searchable in the tablet rail and switches inside t
   await expect(page).toHaveURL(new RegExp(`/projects/${b.projectId}/overview$`));
   await expect(navigation).not.toBeVisible();
   await expect(card).not.toBeVisible();
+});
+
+test('creates inline on mobile, validates empty names, and keeps the current project after cancellation', async ({
+  page,
+  request,
+}, testInfo) => {
+  const current = await createFixture(request, name('行内创建前'));
+  const next = name('手机行内创建');
+  await page.setViewportSize({ width: 320, height: 720 });
+  await page.goto(`/#/projects/${current.projectId}/overview`);
+  await page.getByRole('button', { name: '打开主导航' }).click();
+  const navigation = page.getByRole('dialog', { name: 'CoSeed', exact: true });
+  await navigation.getByRole('combobox').click();
+  const picker = page.getByRole('region', { name: '选择项目', exact: true });
+  await picker.getByRole('button', { name: '创建项目', exact: true }).click();
+  const form = page.getByRole('region', { name: '创建项目', exact: true });
+  const input = form.getByRole('textbox', { name: '项目名称' });
+  await input.fill('   ');
+  await input.press('Enter');
+  await expect(form).toContainText('请填写项目名称');
+  await form.getByRole('button', { name: '取消', exact: true }).click();
+  await expect(form).not.toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`/projects/${current.projectId}/overview$`));
+  await picker.getByRole('button', { name: '创建项目', exact: true }).click();
+  await input.fill(next);
+  await expect(input).toBeFocused();
+  await form.getByRole('button', { name: '创建项目', exact: true }).click({ trial: true });
+  await page.screenshot({
+    path: testInfo.outputPath('project-inline-create-mobile.png'),
+    fullPage: true,
+    animations: 'disabled',
+  });
+  await input.press('Enter');
+  await expect(page.getByRole('heading', { name: next, exact: true })).toBeVisible();
+  await expect(navigation).not.toBeVisible();
+  await expect(picker).not.toBeVisible();
+  expect(
+    (await (await request.get(`/api/projects?name=${encodeURIComponent(next)}`)).json()).items,
+  ).toHaveLength(1);
 });

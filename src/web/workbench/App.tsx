@@ -4,7 +4,7 @@ import { matchPath, Navigate, Route, Routes, useLocation, useNavigate } from 're
 import { useQuery } from '@tanstack/react-query';
 import { ProjectWelcome } from '../projects/ProjectWelcome.js';
 import { ProjectPicker } from '../projects/ProjectPicker.js';
-import { CreateProjectDialog } from '../projects/CreateProjectDialog.js';
+import { useProjectCreation } from '../projects/use-project-creation.js';
 import {
   projectQuery,
   projectPath,
@@ -54,10 +54,18 @@ export function App() {
     setNavigationOpen(window.innerWidth < foundations.layout.breakpoint.tablet);
     setPickerOpen(true);
   };
-  const openCreate = () => {
-    setPickerOpen(false);
-    setNavigationOpen(false);
+  const creation = useProjectCreation(selectProject);
+  const openCreate = (name = '') => {
+    creation.begin(name);
+    openPicker();
     setCreateOpen(true);
+  };
+  const cancelCreate = () => {
+    if (creation.cancel()) setCreateOpen(false);
+  };
+  const changePickerOpen = (open: boolean) => {
+    setPickerOpen(open);
+    if (!open) setCreateOpen(false);
   };
   const [navigationOpen, setNavigationOpen] = useState(false);
   const { connection, retry } = useServiceStatus();
@@ -76,7 +84,10 @@ export function App() {
         open={pickerOpen && navigationOpen === inDrawer}
         selectedId={projectId}
         selectedName={project.data?.project.name ?? null}
-        onOpenChange={setPickerOpen}
+        onOpenChange={changePickerOpen}
+        creating={createOpen && navigationOpen === inDrawer}
+        creation={creation}
+        onCancelCreate={cancelCreate}
         onSelect={selectProject}
         onCreate={openCreate}
       />
@@ -176,7 +187,7 @@ export function App() {
                 projectId ? (
                   <Navigate replace to={projectPath(projectId)} />
                 ) : (
-                  <ProjectWelcome onSelect={openPicker} onCreate={openCreate} />
+                  <ProjectWelcome onSelect={openPicker} onCreate={() => openCreate()} />
                 )
               }
             />
@@ -201,11 +212,6 @@ export function App() {
       >
         {sidebarContent(true)}
       </Drawer>
-      <CreateProjectDialog
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        onCreated={selectProject}
-      />
     </div>
   );
 }
