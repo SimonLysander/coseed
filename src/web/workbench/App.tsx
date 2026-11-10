@@ -24,7 +24,6 @@ import { SproutIcon } from '@animateicons/react/lucide/sprout-icon';
 import { FileTextIcon } from '@animateicons/react/lucide/file-text-icon';
 import { useServiceStatus } from './use-service-status.js';
 
-const WritingGuidePage = lazy(() => import('../writing-guide/WritingGuidePage.js'));
 const AgentGuidePage = lazy(() => import('../agent-guide/AgentGuidePage.js'));
 const OverviewPage = lazy(() => import('../overview/OverviewPage.js'));
 const RequirementsPage = lazy(() => import('../requirements/RequirementsPage.js'));
@@ -33,8 +32,7 @@ const BusinessPage = lazy(() => import('../business/BusinessPage.js'));
 export function App() {
   const location = useLocation();
   const navigate = useNavigate();
-  const guideOpen =
-    location.pathname.startsWith('/agent-guide') || location.pathname.startsWith('/writing-guide');
+  const guideOpen = location.pathname.startsWith('/agent-guide');
   const route = matchPath('/projects/:projectId/:section/*', location.pathname);
   const routeId = route?.params.projectId;
   const activeSection =
@@ -202,7 +200,6 @@ export function App() {
         >
           <Routes>
             <Route path="/agent-guide/*" element={<AgentGuidePage />} />
-            <Route path="/writing-guide/:topic?/:section?" element={<WritingGuidePage />} />
             <Route
               path="/projects/:projectId/overview/*"
               element={<OverviewPage onSelect={openPicker} />}

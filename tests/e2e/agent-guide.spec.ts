@@ -14,6 +14,7 @@ test('guide navigation, section links and bundled reference work in the built ap
   await page.getByRole('link', { name: 'Agent 接入', exact: true }).click();
   await expect(page.getByRole('heading', { name: guideTitle, exact: true })).toBeVisible();
   await expect(page.locator('.guide-lead')).toContainText('read_guide(topic="usage")');
+  await expect(page.getByRole('link', { name: '核对历史约定及出处' })).toHaveCount(0);
   await expect(page.locator('.guide-section')).toHaveCount(9);
   await expect(page.locator('.sidebar-guide-link')).toHaveAttribute('aria-current', 'page');
   await expect(page.locator('.guide-toc')).toBeVisible();

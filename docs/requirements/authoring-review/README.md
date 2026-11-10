@@ -2,7 +2,7 @@
 
 接入和写作正文已统一在 [Agent 接入与使用指南](../../operations/agent-integration.md)。人从 `#/agent-guide` 连续阅读，MCP `read_guide(topic="usage")` 返回同一全文，其他 topic 提取同文章节并附对应 Schema。本文及 `catalog.json` 保留为核对资料，不再维护第二份运行规范。
 
-`#/writing-guide/overview` 保留按主题、章节定位的原始摘录及出处。它没有“阅读／核对”双正文；只展示历史依据和当时未完成的核对记录。已经变化的进度附更正说明，不覆盖旧材料。窄屏沿用 Ant Design 菜单，页面使用全局设计系统与既有 Markdown 组件。
+历史核对页面及入口已移除，前端不再加载本目录资料。`catalog.json` 仅在仓库归档，供后续查证原始约定。
 
 `catalog.json` 的 54 条 agreements 及其摘录保持不变：原有 50 条加此前补入的 4 条现有文档依据。source 区分可见用户原话和仓库文档；文档不自动等于用户确认，未取得的平台消息编号不伪造。readings、examples 继续保存上一版整理稿，供逐字比对；不再由页面或 MCP 作为第二份正文发布。document 摘录由测试与实际源文逐字匹配。
 

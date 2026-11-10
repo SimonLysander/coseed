@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router';
 import { Button, Dropdown } from 'antd';
 import { CopyIcon } from '@animateicons/react/lucide/copy-icon';
 import { foundations } from '../design-system/tokens.js';
@@ -121,7 +120,6 @@ export default function AgentGuidePage() {
               className="reading-markdown guide-lead"
               dangerouslySetInnerHTML={{ __html: guideIntroductionHtml }}
             />
-            <Link to="/writing-guide/overview">核对历史约定及出处</Link>
             {copyState === 'copied' && (
               <span className="guide-copy-result" role="status">
                 已复制接入说明全文
