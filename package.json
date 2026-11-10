@@ -9,7 +9,8 @@
   },
   "files": [
     "dist",
-    "migrations"
+    "migrations",
+    "docs/operations/agent-integration.md"
   ],
   "engines": {
     "node": ">=26.13.0 <27",

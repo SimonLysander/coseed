@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
 import { once } from 'node:events';
-import { mkdtemp, mkdir, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, rm, stat, writeFile, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -187,7 +187,15 @@ try {
         .totalFiles,
       4,
     );
-    assert((await call('read_guide', { topic: 'usage' })).markdown.includes('save_changes'));
+    const guide = await call('read_guide', { topic: 'usage' });
+    assert.equal(guide.guideVersion, 2);
+    assert.equal(
+      guide.markdown,
+      await readFile(new URL('../docs/operations/agent-integration.md', import.meta.url), 'utf8'),
+    );
+    assert(
+      (await call('read_guide', { topic: 'design' })).markdown.includes('所有节点必须正交完备'),
+    );
     await call('save_changes', {
       projectId: created.receipt.projectId,
       requestKey: 'package-overview',

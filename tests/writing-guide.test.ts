@@ -30,12 +30,12 @@ describe('authoring review provenance', () => {
         }
       }
   });
-  it('leaves incomplete reconstruction explicit and does not replace runtime MCP guidance', () => {
+  it('keeps the evidence archive separate from the runtime document', () => {
     expect(catalog.status).toBe('review');
     expect(catalog.topics.every((topic) => topic.questions.length > 0)).toBe(true);
     const guide = readFileSync('src/server/mcp/guides.ts', 'utf8');
     expect(guide).not.toContain('authoring-review');
-    expect(guide).toContain('guideVersion: 1');
+    expect(guide).toContain('guideVersion: 2');
   });
 });
 

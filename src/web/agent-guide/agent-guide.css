@@ -38,18 +38,6 @@
 .guide-lead {
   color: var(--ds-color-text-secondary);
 }
-.guide-draft-note {
-  display: flex;
-  align-items: baseline;
-  gap: calc(var(--ds-space-4) * 1px);
-  color: var(--ds-color-text-secondary);
-  font-size: calc(var(--ds-type-ui-size) * 1px);
-  line-height: calc(var(--ds-type-ui-lineHeight) * 1px);
-}
-.guide-draft-label {
-  flex: none;
-  color: var(--ds-color-accent-solid);
-}
 .guide-copy-result,
 .guide-copy-error {
   font-size: calc(var(--ds-type-label-size) * 1px);
@@ -75,12 +63,6 @@
 }
 .guide-section p {
   color: var(--ds-color-text-secondary);
-}
-.guide-section code {
-  padding: 2px 4px;
-  background: var(--ds-color-surface-hover);
-  border-radius: var(--ds-shape-smallRadius);
-  overflow-wrap: anywhere;
 }
 .guide-article .guide-endnote {
   margin-top: calc(var(--ds-space-9) * 1px);
@@ -159,16 +141,16 @@
     flex-wrap: wrap;
     gap: calc(var(--ds-space-4) * 1px);
   }
-  .guide-draft-note {
-    display: block;
-  }
-  .guide-draft-label {
-    margin-right: calc(var(--ds-space-4) * 1px);
-  }
 }
 @media (pointer: coarse) {
   .guide-toc a,
   .guide-mobile-tools .ant-btn {
     min-height: calc(var(--ds-size-coarsePointerTarget) * 1px);
   }
+}
+
+.guide-section h4 {
+  margin-block: calc(var(--ds-space-6) * 1px) calc(var(--ds-space-3) * 1px);
+  font-size: calc(var(--ds-type-ui-size) * 1px);
+  line-height: calc(var(--ds-type-ui-lineHeight) * 1px);
 }

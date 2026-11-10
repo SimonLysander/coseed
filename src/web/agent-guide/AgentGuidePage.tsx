@@ -4,6 +4,7 @@ import { Button, Dropdown } from 'antd';
 import { CopyIcon } from '@animateicons/react/lucide/copy-icon';
 import { foundations } from '../design-system/tokens.js';
 import { guideHref, guideSections, guideText, guideTitle } from './guide-content.js';
+import '../reading/reading.css';
 import './agent-guide.css';
 
 export default function AgentGuidePage() {
@@ -111,13 +112,9 @@ export default function AgentGuidePage() {
               </div>
             </div>
             <p className="guide-lead">
-              从连接服务开始，让 Agent 读取项目资料、整理变化，再保存到 CoSeed。
+              理解任务、连接项目、整理内容、保存核对。人和 Agent 共用这一篇指南。
             </p>
-            <div className="guide-draft-note">
-              <span className="guide-draft-label">当前进度</span>
-              <span>项目选择、综述和需求推进已接入，业务设计页面仍在开发。</span>
-            </div>
-            <Link to="/writing-guide/overview">阅读内容编写规范（审阅稿）</Link>
+            <Link to="/writing-guide/overview">核对历史约定及出处</Link>
             {copyState === 'copied' && (
               <span className="guide-copy-result" role="status">
                 已复制接入说明全文
@@ -133,13 +130,14 @@ export default function AgentGuidePage() {
             <section
               key={id}
               id={id}
-              className="guide-section"
+              className="reading-markdown guide-section"
               aria-labelledby={headingId}
               dangerouslySetInnerHTML={{ __html: html }}
             />
           ))}
           <p className="guide-endnote">
-            具体内容规范通过 read_guide 按需读取；不同 Agent 的自动落盘仍需单独验证。
+            MCP 的 usage 返回本文全文，其他主题提取相应章节；实际 Agent
+            的规范遵循和自动落盘仍需单独验证。
           </p>
         </article>
         <aside className="ds-toc guide-toc" aria-label="阅读目录">

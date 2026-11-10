@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Anchor, Button, Collapse, Dropdown, Menu, Segmented, Table } from 'antd';
+import { useEffect } from 'react';
+import { Anchor, Button, Dropdown, Menu, Table } from 'antd';
 import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router';
 import { Markdown } from '../reading/Markdown.js';
 import { foundations } from '../design-system/tokens.js';
@@ -36,7 +36,6 @@ export default function WritingGuidePage() {
   const topic = writingTopics.find((item) => item.id === topicId);
   const location = useLocation(),
     navigate = useNavigate();
-  const [mode, setMode] = useState<'read' | 'review'>('read');
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       const target = document.getElementById(location.pathname);
@@ -44,13 +43,8 @@ export default function WritingGuidePage() {
       else window.scrollTo(0, 0);
     });
     return () => cancelAnimationFrame(frame);
-  }, [location.pathname, mode]);
+  }, [location.pathname]);
   if (!topic) return <Navigate replace to={writingPath()} />;
-  const agreements = new Map(
-    topic.sections
-      .flatMap((section) => section.agreements)
-      .map((agreement) => [agreement.id, agreement]),
-  );
   const sections = topic.sections.map((section) => ({
     key: section.id,
     title: section.title,
@@ -68,13 +62,13 @@ export default function WritingGuidePage() {
         <div>
           <Link to="/agent-guide">Agent 接入</Link>
           <span className="writing-heading-separator">/</span>
-          <span>内容编写规范</span>
+          <span>历史约定及出处</span>
         </div>
         <div className="writing-page-title">
-          <h1>内容编写规范</h1>
-          <span className="writing-review-label">审阅稿</span>
+          <h1>历史约定及出处</h1>
+          <span className="writing-review-label">核对资料</span>
         </div>
-        <p>按既有约定整理，供人和 Agent 共同阅读。本版尚未替换 Agent 指南。</p>
+        <p>这里只保留历史摘录供核对。接入和写作正文已统一在 Agent 指南，不在此维护第二份规范。</p>
       </header>
       <div className="writing-layout">
         <nav className="writing-topic-nav" aria-label="规范主题">
@@ -97,16 +91,6 @@ export default function WritingGuidePage() {
             >
               <Button className="writing-mobile-topics">{topic.title} ▾</Button>
             </Dropdown>
-            <Segmented
-              aria-label="规范阅读方式"
-              size="small"
-              value={mode}
-              options={[
-                { label: '阅读', value: 'read' },
-                { label: '核对约定', value: 'review' },
-              ]}
-              onChange={(value) => setMode(value as 'read' | 'review')}
-            />
             <Dropdown
               trigger={['click']}
               menu={{
@@ -122,112 +106,50 @@ export default function WritingGuidePage() {
           <article aria-label={`${topic.title}编写规范`} className="ds-prose writing-article">
             <h2 className="writing-topic-title">{topic.title}</h2>
             <p className="writing-introduction">{topic.introduction}</p>
-            {mode === 'read' ? (
-              topic.sections.map((section) => (
-                <section
-                  key={section.id}
-                  id={writingPath(topic.id, section.id)}
-                  className="writing-section"
-                >
-                  <h2>{section.title}</h2>
-                  {section.readings.map((reading) => (
-                    <section
-                      key={reading.title}
-                      className="writing-agreement"
-                      data-source-agreements={reading.agreementIds.join(' ')}
-                    >
-                      <h3>{reading.title}</h3>
-                      <div className="writing-reading">
-                        <Markdown text={reading.markdown} />
-                      </div>
-                      <Collapse
-                        ghost
-                        size="small"
-                        items={[
-                          {
-                            key: 'evidence',
-                            label: (
-                              <span className="writing-evidence-label">
-                                <span>核对出处</span>
-                                <span className="writing-basis">
-                                  {writingBasis(
-                                    reading.agreementIds.map((id) => agreements.get(id)!),
-                                  )}
-                                </span>
-                              </span>
-                            ),
-                            children: reading.agreementIds.map((id) => (
-                              <Evidence key={id} agreement={agreements.get(id)!} />
-                            )),
-                          },
-                        ]}
-                      />
-                    </section>
-                  ))}
-                  {section.examples.map((example) => (
-                    <aside
-                      key={example.title}
-                      className="writing-example"
-                      role="note"
-                      aria-label={`虚构写法示例：${example.title}`}
-                    >
-                      <p className="writing-example-label">写法示例 · 虚构预约项目</p>
-                      <h3>{example.title}</h3>
-                      <p className="writing-example-note">
-                        仅演示已有约定的写法，不代表当前项目事实，也不增加强制规则。
-                      </p>
-                      <Markdown text={example.markdown} />
-                      <Collapse
-                        ghost
-                        size="small"
-                        items={[
-                          {
-                            key: 'basis',
-                            label: '示例依据',
-                            children: example.agreementIds.map((id) => (
-                              <Evidence key={id} agreement={agreements.get(id)!} />
-                            )),
-                          },
-                        ]}
-                      />
-                    </aside>
-                  ))}
-                </section>
-              ))
-            ) : (
-              <Table<Agreement>
-                className="writing-review-table"
-                rowKey="id"
-                pagination={false}
-                size="small"
-                dataSource={topic.sections.flatMap((section) => section.agreements)}
-                columns={[
-                  {
-                    title: '约定',
-                    key: 'agreement',
-                    render: (_, agreement) => (
-                      <>
-                        <strong>{agreement.title}</strong>
-                        <Markdown text={agreement.excerpt} />
-                      </>
-                    ),
-                  },
-                  {
-                    title: '出处及核对情况',
-                    key: 'source',
-                    width: 200,
-                    render: (_, agreement) => (
-                      <>
-                        <Evidence agreement={agreement} showExcerpt={false} />
-                        {'editorialNote' in agreement && (
-                          <p className="writing-replacement">核对说明：{agreement.editorialNote}</p>
-                        )}
-                      </>
-                    ),
-                  },
-                ]}
-              />
-            )}
+            {topic.sections.map((section) => (
+              <section
+                key={section.id}
+                id={writingPath(topic.id, section.id)}
+                className="writing-section"
+              >
+                <h2>{section.title}</h2>
+                <Table<Agreement>
+                  className="writing-review-table"
+                  rowKey="id"
+                  pagination={false}
+                  size="small"
+                  dataSource={section.agreements}
+                  columns={[
+                    {
+                      title: '原始摘录',
+                      key: 'agreement',
+                      render: (_, agreement) => (
+                        <>
+                          <strong>{agreement.title}</strong>
+                          <Markdown text={agreement.excerpt} />
+                        </>
+                      ),
+                    },
+                    {
+                      title: '出处及核对情况',
+                      key: 'source',
+                      width: 200,
+                      render: (_, agreement) => (
+                        <>
+                          <p className="writing-basis">{writingBasis([agreement])}</p>
+                          <Evidence agreement={agreement} showExcerpt={false} />
+                          {'editorialNote' in agreement && (
+                            <p className="writing-replacement">
+                              核对说明：{agreement.editorialNote}
+                            </p>
+                          )}
+                        </>
+                      ),
+                    },
+                  ]}
+                />
+              </section>
+            ))}
             <section
               className="writing-section writing-questions"
               id={writingPath(topic.id, 'questions')}
@@ -235,7 +157,12 @@ export default function WritingGuidePage() {
               <h2>待核对</h2>
               <ul>
                 {topic.questions.map((question) => (
-                  <li key={question}>{question}</li>
+                  <li key={question}>
+                    {question}
+                    {question.includes('当前 MCP read_guide 仍使用原有简版') && (
+                      <p>进度更正：接入和写作指南现已同源，这条保留为原审阅稿记录，不再是待办。</p>
+                    )}
+                  </li>
                 ))}
               </ul>
             </section>
@@ -246,19 +173,15 @@ export default function WritingGuidePage() {
         </div>
         <aside className="ds-toc writing-toc" aria-label="规范章节目录">
           <p>本页目录</p>
-          {mode === 'read' ? (
-            <Anchor
-              affix={false}
-              items={sections}
-              targetOffset={foundations.layout.pagePadding}
-              onClick={(event, link) => {
-                event.preventDefault();
-                if (link.href) navigate(link.href.slice(1));
-              }}
-            />
-          ) : (
-            <p>逐条核对摘录及出处；切换“阅读”返回正文。</p>
-          )}
+          <Anchor
+            affix={false}
+            items={sections}
+            targetOffset={foundations.layout.pagePadding}
+            onClick={(event, link) => {
+              event.preventDefault();
+              if (link.href) navigate(link.href.slice(1));
+            }}
+          />
         </aside>
       </div>
     </div>

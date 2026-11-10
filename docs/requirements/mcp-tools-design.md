@@ -1,6 +1,6 @@
 # MCP 工具及提示词规范
 
-状态：第 2 阶段实现。采用九个工具、一次直接保存，不设置强制准备／提交、草稿表或资料 Git。业务保存复用 `ProjectContentService`。项目与综述页面已接入，需求推进页面已接入，业务设计页面仍待接入；当前服务只允许本机连接，尚无远程身份与项目授权。
+状态：第 2 阶段实现。采用九个工具、一次直接保存，不设置强制准备／提交、草稿表或资料 Git。业务保存复用 `ProjectContentService`。项目与综述页面已接入，需求推进页面已接入，业务设计页面已接入；当前服务只允许本机连接，尚无远程身份与项目授权。
 
 ## 1. 目标和职责
 
@@ -10,7 +10,7 @@ Agent 取得明确项目的一致资料，结合实际代码及用户指定的�
 - 提示词：解释目标、业务含义、整理方法及未知情况的处理。
 - Schema 和共同保存服务：检查结构、项目归属、版本、引用、来源覆盖和事务。
 - MCP：明确调用范围，分配新增 ID，解析同批引用，提供事实式结果。
-- 页面：展示权威内容和历史；本轮尚未完成业务页面查询。
+- 页面：展示权威内容和历史；当前已接入综述、需求和业务设计查询。
 
 结构合法和引用存在，不代表材料真的支持业务结论。节点职责是否正交完备、设计是否合理，仍需根据真实项目审阅。
 
@@ -106,9 +106,9 @@ Agent 利用自身文件能力下载到 staging，解码、核对全部文件及
 
 - 短入口：MCP instructions 说明用途、用户触发回顾和规范入口。
 - 工具和字段描述：调用前说明范围、副作用、参数来源及结果。
-- 按需规范：`read_guide` 的 usage、overview、requirements、design、sources、export。正文和运行内容 Schema 同主题返回，不一次注入全部规范。
+- 同源指南：`read_guide(topic="usage")` 返回完整接入与写作文章；overview、requirements、design、sources、export 返回文章的共同任务背景和对应章节，内容主题附运行 Schema。topic 仍为原有六项，不增加新工具。
 
-规范运行权威为 `src/server/mcp/guides.ts`，业务结构权威仍在共享 Schema。页面接入说明是面向人的简版使用文章，不复制所有内容规范。宿主是否读取 instructions 由客户端决定，CoSeed 不拥有其系统提示词，也不保证规范必然被模型遵守。
+规范正文唯一来源为 `docs/operations/agent-integration.md`，`src/server/mcp/guides.ts` 用 markdown-it 解析章节并提供 MCP 投影，guideVersion=2；页面直接渲染并复制同一全文。历史约定清单仅作核对资料。业务结构权威仍在共享 Schema，不在 Markdown 复制完整 JSON Schema。宿主是否读取 instructions 由客户端决定，CoSeed 不拥有其系统提示词，也不保证规范必然被模型遵守。
 
 遵循 designing-agent-tools、writing-prompts 和[用户提供的提示词原则](https://lux-stirring.space/note?at=6a4df7251d165e0ccde2225c&node=ci_b3b7f69b47a6)：先交代目标和上下文，必要约束使用枚举、Schema 和实际校验，未知情况留出口，例子校准关键判断，不要求内部思维过程。
 
@@ -118,6 +118,6 @@ Agent 利用自身文件能力下载到 staging，解码、核对全部文件及
 
 官方 MCP 客户端通过真实 HTTP 服务验证工具发现、空项目、同批引用、原始来源、幂等、冲突、项目隔离、对象修订、图成员版本、清单分页和文件摘要、重启恢复及体积限制。数据库原有语义测试继续覆盖回滚、状态依据、恢复和来源覆盖。测试使用临时目录，不写个人项目库。
 
-仍待验证或实施：真实 Agent 宿主自动落盘和提示词行为评测、超大项目容量、远程认证及项目授权、业务设计页面和实时更新。本轮不增加租户、执行器、内容 Git 或客户端连接器。
+仍待验证或实施：真实 Agent 宿主自动落盘和提示词行为评测、超大项目容量、远程认证及项目授权、实时更新。本轮不增加租户、执行器、内容 Git 或客户端连接器。
 
 参考：[存储实现](../database/storage-implementation.md)、[共同版本模型](../database/snapshot-save-model.md)、[MCP Tools](https://modelcontextprotocol.io/specification/2025-11-25/server/tools)。
