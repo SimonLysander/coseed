@@ -23,6 +23,7 @@ test('reads and renders the full business fixture with module navigation and cro
   await expect(page).toHaveURL(new RegExp(`/business/diagrams/${ids.$internal}\\?version=1$`));
   await expect(canvas).toHaveAttribute('data-ready', 'true', { timeout: 30000 });
   await expect(canvas.locator('.business-card')).toHaveCount(13);
+  await expect(page.locator('.business-measurement')).toHaveCount(0);
   await expect(canvas.locator('.business-note')).toHaveCount(2);
   await expect(canvas.locator('.business-card-note')).toHaveCount(1);
   await expect(canvas.locator('.business-edge-label')).toHaveCount(13);

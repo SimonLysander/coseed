@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import ELK from 'elkjs/lib/elk.bundled.js';
 import { intersection } from 'polygon-clipping';
 import {
@@ -84,4 +84,39 @@ describe('business graph semantics and native automatic layout', () => {
       ).toBe(true);
     }
   });
+});
+
+it('reuses valid geometry but invalidates topology, measured sizes and relationship text; returned results cannot corrupt the cache', async () => {
+  const { model, sizes } = fixtureModel();
+  model.title = '缓存回归测试独立范围';
+  const engine = new ELK.default();
+  const calls = vi.spyOn(engine, 'layout');
+  const first = await runLayout(engine, model, sizes, (text) => text.length * 8);
+  expect(calls).toHaveBeenCalledTimes(2);
+  first.root.width = 0;
+  const second = await runLayout(engine, model, sizes, (text) => text.length * 8);
+  expect(calls).toHaveBeenCalledTimes(2);
+  expect(second.root.width).toBeGreaterThan(0);
+  const nextSizes = new Map(sizes);
+  const id = cellId('entity', model.nodes[0]!.id);
+  nextSizes.set(id, { ...nextSizes.get(id)!, height: 350 });
+  await runLayout(engine, model, nextSizes, (text) => text.length * 8);
+  expect(calls).toHaveBeenCalledTimes(4);
+  const changed = {
+    ...model,
+    edges: model.edges.map((edge, index) =>
+      index === 0
+        ? { ...edge, content: { ...edge.content, summary: '修改后的语义调用标签' } }
+        : edge,
+    ),
+  };
+  await runLayout(engine, changed, nextSizes, (text) => text.length * 8);
+  expect(calls).toHaveBeenCalledTimes(6);
+  await runLayout(
+    engine,
+    { ...changed, edges: changed.edges.slice(1) },
+    nextSizes,
+    (text) => text.length * 8,
+  );
+  expect(calls).toHaveBeenCalledTimes(8);
 });

@@ -1,3 +1,4 @@
+import { LRUCache } from 'lru-cache';
 import type { ElkNode, ElkExtendedEdge, ELK } from 'elkjs/lib/elk-api.js';
 import { foundations } from '../../design-system/tokens.js';
 import { cellId, edgeText, type BusinessModel } from './model.js';
@@ -15,6 +16,13 @@ export interface LayoutInput {
   root: ElkNode;
   groups: Map<string, Group>;
 }
+// Geometry only: input includes topology, groups, measured sizes, labels and ELK options.
+// Bound both entry count and estimated UTF-16 serialized size; never persist project content.
+const layouts = new LRUCache<string, ElkNode>({
+  max: 8,
+  maxSize: 8 * 1024 * 1024,
+  sizeCalculation: (value, key) => 2 * (key.length + JSON.stringify(value).length),
+});
 const pad = foundations.graph.groupPadding;
 export function layoutInput(
   model: BusinessModel,
@@ -260,13 +268,16 @@ export async function runLayout(
   const candidates = [];
   for (const direction of ['DOWN', 'RIGHT'] as const) {
     const input = layoutInput(model, sizes, textWidth, direction);
-    const root = await engine.layout(input.root);
+    const key = JSON.stringify(input.root);
+    const cached = layouts.get(key);
+    const root = cached ? structuredClone(cached) : await engine.layout(input.root);
     const width = root.width ?? 0,
       height = root.height ?? 0;
     if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0)
       throw new Error('布局引擎未返回有效尺寸。');
     const flat = flattenLayout(root);
     const issues = geometryIssues(model, flat);
+    if (!cached && !issues.length) layouts.set(key, structuredClone(root));
     candidates.push({
       issues,
       ...input,
