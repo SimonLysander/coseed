@@ -24,6 +24,10 @@ interface ReadScope {
   id?: string;
   revisionNo?: number;
   includeDeleted?: boolean;
+  ids?: string[];
+  allRevisions?: boolean;
+  beforeRevision?: number;
+  limit?: number;
 }
 
 export class SnapshotRepository {
@@ -78,7 +82,7 @@ export class SnapshotRepository {
     };
   }
 
-  private selection(type: ObjectType, scope: ReadScope): SQL {
+  selection(type: ObjectType, scope: ReadScope): SQL {
     const d = definitions[type];
     const table = sql.identifier(d.revisions);
     const key = sql.identifier(d.key);
@@ -92,7 +96,17 @@ export class SnapshotRepository {
         : sql`NULL`;
     const captureOrdinal = type === 'record' ? sql`f.capture_ordinal` : sql`NULL`;
     const removed = d.removable ? sql`r.is_deleted` : sql`0`;
-    const idFilter = scope.id === undefined ? sql`` : sql`AND r.${key} = ${scope.id}`;
+    const idFilter =
+      scope.id !== undefined
+        ? sql`AND r.${key} = ${scope.id}`
+        : scope.ids !== undefined
+          ? scope.ids.length
+            ? sql`AND r.${key} IN (${sql.join(
+                scope.ids.map((id) => sql`${id}`),
+                sql`, `,
+              )})`
+            : sql`AND 0 = 1`
+          : sql``;
     const revisionFilter =
       scope.revisionNo === undefined ? sql`` : sql`AND r.revision_no = ${scope.revisionNo}`;
     return sql`SELECT * FROM (
@@ -103,7 +117,10 @@ export class SnapshotRepository {
       LEFT JOIN ${table} f ON f.project_id = r.project_id AND f.${key} = r.${key} AND f.revision_no = 1
       LEFT JOIN write_operations fo ON fo.project_id = f.project_id AND fo.id = f.operation_id
       WHERE r.project_id = ${scope.projectId} AND (o.result_content_version <= ${scope.version} OR r.operation_id = ${pendingId}) ${idFilter} ${revisionFilter}
-    ) WHERE __position = 1 ${scope.includeDeleted ? sql`` : sql`AND __removed = 0`}`;
+      ${scope.beforeRevision === undefined ? sql`` : sql`AND r.revision_no < ${scope.beforeRevision}`}
+    ) WHERE ${scope.allRevisions ? sql`1 = 1` : sql`__position = 1`} ${scope.includeDeleted ? sql`` : sql`AND __removed = 0`}
+    ${scope.allRevisions ? sql`ORDER BY revision_no DESC` : sql``}
+    ${scope.limit === undefined ? sql`` : sql`LIMIT ${scope.limit}`}`;
   }
 
   private children(table: string, type: ObjectType, scope: ReadScope): Row[] {

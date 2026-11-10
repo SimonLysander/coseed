@@ -27,7 +27,7 @@
           {
             "name": "limit",
             "in": "query",
-            "required": false,
+            "required": true,
             "schema": { "default": 30, "type": "integer", "minimum": 1, "maximum": 100 }
           }
         ],
@@ -622,6 +622,2554 @@
           },
           "404": {
             "description": "项目或指定版本不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/requirements": {
+      "get": {
+        "operationId": "listRequirements",
+        "summary": "固定项目版本，按最近更新优先分页读取需求；正文修订不生成新需求",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "description": "可选固定项目版本；省略则在一致读事务取得当前版本",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          {
+            "name": "afterId",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "minLength": 1, "maxLength": 512 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": true,
+            "schema": { "default": 30, "type": "integer", "minimum": 1, "maximum": 100 }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "maxLength": 200 }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "designing",
+                "ready_for_implementation",
+                "pending_acceptance",
+                "completed",
+                "on_hold",
+                "cancelled"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "需求列表；后续翻页使用首版返回的项目版本；Cache-Control: no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "project": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string" },
+                        "repositoryLocator": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "propertyNames": { "type": "string" },
+                              "additionalProperties": { "$ref": "#/$defs/__schema0" }
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                        "version": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                        "createdAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": ["name", "repositoryLocator", "id", "version", "createdAt"],
+                      "additionalProperties": false
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                          "revisionNo": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 9007199254740991
+                          },
+                          "projectVersion": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "savedAt": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "createdAt": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "operationId": { "type": "string", "minLength": 1, "maxLength": 512 },
+                          "isDeleted": { "type": "boolean" },
+                          "title": { "type": "string" },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "designing",
+                              "ready_for_implementation",
+                              "pending_acceptance",
+                              "completed",
+                              "on_hold",
+                              "cancelled"
+                            ]
+                          },
+                          "recordCount": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "statusChangedAt": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "revisionNo",
+                          "projectVersion",
+                          "savedAt",
+                          "createdAt",
+                          "operationId",
+                          "isDeleted",
+                          "title",
+                          "status",
+                          "recordCount",
+                          "statusChangedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "nextAfterId": {
+                      "anyOf": [
+                        { "type": "string", "minLength": 1, "maxLength": 512 },
+                        { "type": "null" }
+                      ]
+                    }
+                  },
+                  "required": ["project", "items", "nextAfterId"],
+                  "additionalProperties": false,
+                  "$defs": {
+                    "__schema0": {
+                      "anyOf": [
+                        { "type": "string" },
+                        { "type": "number" },
+                        { "type": "boolean" },
+                        { "type": "null" },
+                        { "type": "array", "items": { "$ref": "#/$defs/__schema0" } },
+                        {
+                          "type": "object",
+                          "propertyNames": { "type": "string" },
+                          "additionalProperties": { "$ref": "#/$defs/__schema0" }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "查询字段不合法",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "项目或版本不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/requirements/{requirementId}": {
+      "get": {
+        "operationId": "getRequirement",
+        "summary": "一致读取需求当前内容、当前记录数和真实状态变化时间",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "requirementId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "description": "可选固定项目版本；省略则在一致读事务取得当前版本",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "需求阅读视图；Cache-Control: no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "project": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string" },
+                        "repositoryLocator": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "propertyNames": { "type": "string" },
+                              "additionalProperties": { "$ref": "#/$defs/__schema0" }
+                            },
+                            { "type": "null" }
+                          ]
+                        },
+                        "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                        "version": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                        "createdAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": ["name", "repositoryLocator", "id", "version", "createdAt"],
+                      "additionalProperties": false
+                    },
+                    "requirement": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                        "revisionNo": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 9007199254740991
+                        },
+                        "projectVersion": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "savedAt": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                        "createdAt": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "operationId": { "type": "string", "minLength": 1, "maxLength": 512 },
+                        "isDeleted": { "type": "boolean" },
+                        "citations": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "sourceId": { "type": "string", "minLength": 1 },
+                              "side": { "type": "string", "enum": ["before", "after"] },
+                              "path": { "type": "string" },
+                              "explanationMd": { "type": "string" }
+                            },
+                            "required": ["sourceId", "side", "path", "explanationMd"],
+                            "additionalProperties": false
+                          }
+                        },
+                        "actor": {
+                          "type": "object",
+                          "properties": {
+                            "entrypoint": {
+                              "type": "string",
+                              "enum": ["web", "mcp", "cli", "system"]
+                            },
+                            "actorKind": { "type": "string", "enum": ["human", "agent", "system"] },
+                            "actorLabel": { "type": "string" },
+                            "noteMd": { "type": ["string", "null"] }
+                          },
+                          "required": ["entrypoint", "actorKind", "actorLabel", "noteMd"],
+                          "additionalProperties": false
+                        },
+                        "content": {
+                          "type": "object",
+                          "properties": {
+                            "title": { "type": "string" },
+                            "markdown": { "type": "string" },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "designing",
+                                "ready_for_implementation",
+                                "pending_acceptance",
+                                "completed",
+                                "on_hold",
+                                "cancelled"
+                              ]
+                            }
+                          },
+                          "required": ["title", "markdown", "status"],
+                          "additionalProperties": false
+                        },
+                        "links": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "target": {
+                                "oneOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": { "type": "string", "const": "overview" },
+                                      "part": {
+                                        "oneOf": [
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": { "type": "string", "const": "product" }
+                                            },
+                                            "required": ["kind"],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "const": "examples_introduction"
+                                              }
+                                            },
+                                            "required": ["kind"],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": { "type": "string", "const": "concept" },
+                                              "id": { "type": "string", "minLength": 1 }
+                                            },
+                                            "required": ["kind", "id"],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "const": "concept_relation"
+                                              },
+                                              "id": { "type": "string", "minLength": 1 }
+                                            },
+                                            "required": ["kind", "id"],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": { "type": "string", "const": "actor" },
+                                              "id": { "type": "string", "minLength": 1 }
+                                            },
+                                            "required": ["kind", "id"],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": { "type": "string", "const": "use_case" },
+                                              "id": { "type": "string", "minLength": 1 }
+                                            },
+                                            "required": ["kind", "id"],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": { "type": "string", "const": "example" },
+                                              "id": { "type": "string", "minLength": 1 }
+                                            },
+                                            "required": ["kind", "id"],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "const": "example_diagram"
+                                              },
+                                              "id": { "type": "string", "minLength": 1 }
+                                            },
+                                            "required": ["kind", "id"],
+                                            "additionalProperties": false
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "required": ["kind", "part"],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": { "type": "string", "const": "entity" },
+                                      "id": { "type": "string", "minLength": 1 }
+                                    },
+                                    "required": ["kind", "id"],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": { "type": "string", "const": "relationship" },
+                                      "id": { "type": "string", "minLength": 1 }
+                                    },
+                                    "required": ["kind", "id"],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": { "type": "string", "const": "diagram" },
+                                      "id": { "type": "string", "minLength": 1 }
+                                    },
+                                    "required": ["kind", "id"],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": { "type": "string", "const": "note" },
+                                      "id": { "type": "string", "minLength": 1 }
+                                    },
+                                    "required": ["kind", "id"],
+                                    "additionalProperties": false
+                                  }
+                                ]
+                              },
+                              "explanationMd": { "type": "string" }
+                            },
+                            "required": ["target", "explanationMd"],
+                            "additionalProperties": false
+                          }
+                        },
+                        "statusChange": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "enum": ["initial", "progress", "correction"]
+                                },
+                                "reasonMd": { "type": "string" },
+                                "records": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                                      "revisionNo": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 9007199254740991
+                                      }
+                                    },
+                                    "required": ["id", "revisionNo"],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": ["kind", "reasonMd", "records"],
+                              "additionalProperties": false
+                            },
+                            { "type": "null" }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "revisionNo",
+                        "projectVersion",
+                        "savedAt",
+                        "createdAt",
+                        "operationId",
+                        "isDeleted",
+                        "citations",
+                        "actor",
+                        "content",
+                        "links",
+                        "statusChange"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "recordCount": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                    "statusChangedAt": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": ["project", "requirement", "recordCount", "statusChangedAt"],
+                  "additionalProperties": false,
+                  "$defs": {
+                    "__schema0": {
+                      "anyOf": [
+                        { "type": "string" },
+                        { "type": "number" },
+                        { "type": "boolean" },
+                        { "type": "null" },
+                        { "type": "array", "items": { "$ref": "#/$defs/__schema0" } },
+                        {
+                          "type": "object",
+                          "propertyNames": { "type": "string" },
+                          "additionalProperties": { "$ref": "#/$defs/__schema0" }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "查询字段不合法",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "需求不存在、已移除或不属于该项目",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/requirements/{requirementId}/records": {
+      "get": {
+        "operationId": "listProgressRecords",
+        "summary": "按首次收录顺序倒序读取当前记录；修订不移动位置；version 必填",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "requirementId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+          },
+          {
+            "name": "afterId",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "minLength": 1, "maxLength": 512 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": true,
+            "schema": { "default": 30, "type": "integer", "minimum": 1, "maximum": 100 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "每个记录身份仅出现一次；Cache-Control: no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "version": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                          "revisionNo": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 9007199254740991
+                          },
+                          "projectVersion": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "savedAt": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "createdAt": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "operationId": { "type": "string", "minLength": 1, "maxLength": 512 },
+                          "isDeleted": { "type": "boolean" },
+                          "citations": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "sourceId": { "type": "string", "minLength": 1 },
+                                "side": { "type": "string", "enum": ["before", "after"] },
+                                "path": { "type": "string" },
+                                "explanationMd": { "type": "string" }
+                              },
+                              "required": ["sourceId", "side", "path", "explanationMd"],
+                              "additionalProperties": false
+                            }
+                          },
+                          "actor": {
+                            "type": "object",
+                            "properties": {
+                              "entrypoint": {
+                                "type": "string",
+                                "enum": ["web", "mcp", "cli", "system"]
+                              },
+                              "actorKind": {
+                                "type": "string",
+                                "enum": ["human", "agent", "system"]
+                              },
+                              "actorLabel": { "type": "string" },
+                              "noteMd": { "type": ["string", "null"] }
+                            },
+                            "required": ["entrypoint", "actorKind", "actorLabel", "noteMd"],
+                            "additionalProperties": false
+                          },
+                          "content": {
+                            "type": "object",
+                            "properties": {
+                              "requirementId": { "type": "string", "minLength": 1 },
+                              "title": { "type": "string" },
+                              "markdown": { "type": "string" },
+                              "occurredAt": {
+                                "anyOf": [
+                                  { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                                  { "type": "null" }
+                                ]
+                              }
+                            },
+                            "required": ["requirementId", "title", "markdown", "occurredAt"],
+                            "additionalProperties": false
+                          },
+                          "links": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "target": {
+                                  "oneOf": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": { "type": "string", "const": "overview" },
+                                        "revisionNo": {
+                                          "type": "integer",
+                                          "exclusiveMinimum": 0,
+                                          "maximum": 9007199254740991
+                                        },
+                                        "part": {
+                                          "oneOf": [
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "kind": { "type": "string", "const": "product" }
+                                              },
+                                              "required": ["kind"],
+                                              "additionalProperties": false
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "kind": {
+                                                  "type": "string",
+                                                  "const": "examples_introduction"
+                                                }
+                                              },
+                                              "required": ["kind"],
+                                              "additionalProperties": false
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "kind": { "type": "string", "const": "concept" },
+                                                "id": { "type": "string", "minLength": 1 }
+                                              },
+                                              "required": ["kind", "id"],
+                                              "additionalProperties": false
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "kind": {
+                                                  "type": "string",
+                                                  "const": "concept_relation"
+                                                },
+                                                "id": { "type": "string", "minLength": 1 }
+                                              },
+                                              "required": ["kind", "id"],
+                                              "additionalProperties": false
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "kind": { "type": "string", "const": "actor" },
+                                                "id": { "type": "string", "minLength": 1 }
+                                              },
+                                              "required": ["kind", "id"],
+                                              "additionalProperties": false
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "kind": { "type": "string", "const": "use_case" },
+                                                "id": { "type": "string", "minLength": 1 }
+                                              },
+                                              "required": ["kind", "id"],
+                                              "additionalProperties": false
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "kind": { "type": "string", "const": "example" },
+                                                "id": { "type": "string", "minLength": 1 }
+                                              },
+                                              "required": ["kind", "id"],
+                                              "additionalProperties": false
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "kind": {
+                                                  "type": "string",
+                                                  "const": "example_diagram"
+                                                },
+                                                "id": { "type": "string", "minLength": 1 }
+                                              },
+                                              "required": ["kind", "id"],
+                                              "additionalProperties": false
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "required": ["kind", "revisionNo", "part"],
+                                      "additionalProperties": false
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": { "type": "string", "const": "diagram" },
+                                        "id": { "type": "string", "minLength": 1 },
+                                        "projectVersion": {
+                                          "type": "integer",
+                                          "minimum": 0,
+                                          "maximum": 9007199254740991
+                                        }
+                                      },
+                                      "required": ["kind", "id", "projectVersion"],
+                                      "additionalProperties": false
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": { "type": "string", "const": "record" },
+                                        "id": { "type": "string", "minLength": 1 },
+                                        "revisionNo": {
+                                          "type": "integer",
+                                          "exclusiveMinimum": 0,
+                                          "maximum": 9007199254740991
+                                        }
+                                      },
+                                      "required": ["kind", "id", "revisionNo"],
+                                      "additionalProperties": false
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": { "type": "string", "const": "entity" },
+                                        "id": { "type": "string", "minLength": 1 },
+                                        "revisionNo": {
+                                          "type": "integer",
+                                          "exclusiveMinimum": 0,
+                                          "maximum": 9007199254740991
+                                        }
+                                      },
+                                      "required": ["kind", "id", "revisionNo"],
+                                      "additionalProperties": false
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": { "type": "string", "const": "relationship" },
+                                        "id": { "type": "string", "minLength": 1 },
+                                        "revisionNo": {
+                                          "type": "integer",
+                                          "exclusiveMinimum": 0,
+                                          "maximum": 9007199254740991
+                                        }
+                                      },
+                                      "required": ["kind", "id", "revisionNo"],
+                                      "additionalProperties": false
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": { "type": "string", "const": "note" },
+                                        "id": { "type": "string", "minLength": 1 },
+                                        "revisionNo": {
+                                          "type": "integer",
+                                          "exclusiveMinimum": 0,
+                                          "maximum": 9007199254740991
+                                        }
+                                      },
+                                      "required": ["kind", "id", "revisionNo"],
+                                      "additionalProperties": false
+                                    }
+                                  ]
+                                },
+                                "explanationMd": { "type": "string" }
+                              },
+                              "required": ["target", "explanationMd"],
+                              "additionalProperties": false
+                            }
+                          },
+                          "captureVersion": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "captureOrdinal": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "revisionNo",
+                          "projectVersion",
+                          "savedAt",
+                          "createdAt",
+                          "operationId",
+                          "isDeleted",
+                          "citations",
+                          "actor",
+                          "content",
+                          "links",
+                          "captureVersion",
+                          "captureOrdinal"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "nextAfterId": {
+                      "anyOf": [
+                        { "type": "string", "minLength": 1, "maxLength": 512 },
+                        { "type": "null" }
+                      ]
+                    }
+                  },
+                  "required": ["version", "items", "nextAfterId"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "缺少版本或分页位置无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "项目、需求或版本不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/history/{objectType}/{objectId}": {
+      "get": {
+        "operationId": "listRequirementRevisions",
+        "summary": "按修订号倒序分页读取需求或记录历史，包括移除记录；version 必填",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "objectType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "enum": ["requirement", "record"]
+            }
+          },
+          {
+            "name": "objectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": true,
+            "schema": { "default": 30, "type": "integer", "minimum": 1, "maximum": 100 }
+          },
+          {
+            "name": "beforeRevision",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "exclusiveMinimum": 0, "maximum": 9007199254740991 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "逐版内容、系统保存时间、执行者和状态依据；Cache-Control: no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "version": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                              "revisionNo": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 9007199254740991
+                              },
+                              "projectVersion": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "savedAt": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "createdAt": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "operationId": { "type": "string", "minLength": 1, "maxLength": 512 },
+                              "isDeleted": { "type": "boolean" },
+                              "citations": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "sourceId": { "type": "string", "minLength": 1 },
+                                    "side": { "type": "string", "enum": ["before", "after"] },
+                                    "path": { "type": "string" },
+                                    "explanationMd": { "type": "string" }
+                                  },
+                                  "required": ["sourceId", "side", "path", "explanationMd"],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "actor": {
+                                "type": "object",
+                                "properties": {
+                                  "entrypoint": {
+                                    "type": "string",
+                                    "enum": ["web", "mcp", "cli", "system"]
+                                  },
+                                  "actorKind": {
+                                    "type": "string",
+                                    "enum": ["human", "agent", "system"]
+                                  },
+                                  "actorLabel": { "type": "string" },
+                                  "noteMd": { "type": ["string", "null"] }
+                                },
+                                "required": ["entrypoint", "actorKind", "actorLabel", "noteMd"],
+                                "additionalProperties": false
+                              },
+                              "content": {
+                                "type": "object",
+                                "properties": {
+                                  "title": { "type": "string" },
+                                  "markdown": { "type": "string" },
+                                  "status": {
+                                    "type": "string",
+                                    "enum": [
+                                      "designing",
+                                      "ready_for_implementation",
+                                      "pending_acceptance",
+                                      "completed",
+                                      "on_hold",
+                                      "cancelled"
+                                    ]
+                                  }
+                                },
+                                "required": ["title", "markdown", "status"],
+                                "additionalProperties": false
+                              },
+                              "links": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "target": {
+                                      "oneOf": [
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "kind": { "type": "string", "const": "overview" },
+                                            "part": {
+                                              "oneOf": [
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "kind": { "type": "string", "const": "product" }
+                                                  },
+                                                  "required": ["kind"],
+                                                  "additionalProperties": false
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "kind": {
+                                                      "type": "string",
+                                                      "const": "examples_introduction"
+                                                    }
+                                                  },
+                                                  "required": ["kind"],
+                                                  "additionalProperties": false
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "kind": {
+                                                      "type": "string",
+                                                      "const": "concept"
+                                                    },
+                                                    "id": { "type": "string", "minLength": 1 }
+                                                  },
+                                                  "required": ["kind", "id"],
+                                                  "additionalProperties": false
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "kind": {
+                                                      "type": "string",
+                                                      "const": "concept_relation"
+                                                    },
+                                                    "id": { "type": "string", "minLength": 1 }
+                                                  },
+                                                  "required": ["kind", "id"],
+                                                  "additionalProperties": false
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "kind": { "type": "string", "const": "actor" },
+                                                    "id": { "type": "string", "minLength": 1 }
+                                                  },
+                                                  "required": ["kind", "id"],
+                                                  "additionalProperties": false
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "kind": {
+                                                      "type": "string",
+                                                      "const": "use_case"
+                                                    },
+                                                    "id": { "type": "string", "minLength": 1 }
+                                                  },
+                                                  "required": ["kind", "id"],
+                                                  "additionalProperties": false
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "kind": {
+                                                      "type": "string",
+                                                      "const": "example"
+                                                    },
+                                                    "id": { "type": "string", "minLength": 1 }
+                                                  },
+                                                  "required": ["kind", "id"],
+                                                  "additionalProperties": false
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "kind": {
+                                                      "type": "string",
+                                                      "const": "example_diagram"
+                                                    },
+                                                    "id": { "type": "string", "minLength": 1 }
+                                                  },
+                                                  "required": ["kind", "id"],
+                                                  "additionalProperties": false
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "required": ["kind", "part"],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "kind": { "type": "string", "const": "entity" },
+                                            "id": { "type": "string", "minLength": 1 }
+                                          },
+                                          "required": ["kind", "id"],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "kind": { "type": "string", "const": "relationship" },
+                                            "id": { "type": "string", "minLength": 1 }
+                                          },
+                                          "required": ["kind", "id"],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "kind": { "type": "string", "const": "diagram" },
+                                            "id": { "type": "string", "minLength": 1 }
+                                          },
+                                          "required": ["kind", "id"],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "kind": { "type": "string", "const": "note" },
+                                            "id": { "type": "string", "minLength": 1 }
+                                          },
+                                          "required": ["kind", "id"],
+                                          "additionalProperties": false
+                                        }
+                                      ]
+                                    },
+                                    "explanationMd": { "type": "string" }
+                                  },
+                                  "required": ["target", "explanationMd"],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "statusChange": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": {
+                                        "type": "string",
+                                        "enum": ["initial", "progress", "correction"]
+                                      },
+                                      "reasonMd": { "type": "string" },
+                                      "records": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "id": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 512
+                                            },
+                                            "revisionNo": {
+                                              "type": "integer",
+                                              "minimum": 1,
+                                              "maximum": 9007199254740991
+                                            }
+                                          },
+                                          "required": ["id", "revisionNo"],
+                                          "additionalProperties": false
+                                        }
+                                      }
+                                    },
+                                    "required": ["kind", "reasonMd", "records"],
+                                    "additionalProperties": false
+                                  },
+                                  { "type": "null" }
+                                ]
+                              },
+                              "objectType": { "type": "string", "const": "requirement" }
+                            },
+                            "required": [
+                              "id",
+                              "revisionNo",
+                              "projectVersion",
+                              "savedAt",
+                              "createdAt",
+                              "operationId",
+                              "isDeleted",
+                              "citations",
+                              "actor",
+                              "content",
+                              "links",
+                              "statusChange",
+                              "objectType"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                              "revisionNo": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 9007199254740991
+                              },
+                              "projectVersion": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "savedAt": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "createdAt": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "operationId": { "type": "string", "minLength": 1, "maxLength": 512 },
+                              "isDeleted": { "type": "boolean" },
+                              "citations": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "sourceId": { "type": "string", "minLength": 1 },
+                                    "side": { "type": "string", "enum": ["before", "after"] },
+                                    "path": { "type": "string" },
+                                    "explanationMd": { "type": "string" }
+                                  },
+                                  "required": ["sourceId", "side", "path", "explanationMd"],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "actor": {
+                                "type": "object",
+                                "properties": {
+                                  "entrypoint": {
+                                    "type": "string",
+                                    "enum": ["web", "mcp", "cli", "system"]
+                                  },
+                                  "actorKind": {
+                                    "type": "string",
+                                    "enum": ["human", "agent", "system"]
+                                  },
+                                  "actorLabel": { "type": "string" },
+                                  "noteMd": { "type": ["string", "null"] }
+                                },
+                                "required": ["entrypoint", "actorKind", "actorLabel", "noteMd"],
+                                "additionalProperties": false
+                              },
+                              "content": {
+                                "type": "object",
+                                "properties": {
+                                  "requirementId": { "type": "string", "minLength": 1 },
+                                  "title": { "type": "string" },
+                                  "markdown": { "type": "string" },
+                                  "occurredAt": {
+                                    "anyOf": [
+                                      {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 9007199254740991
+                                      },
+                                      { "type": "null" }
+                                    ]
+                                  }
+                                },
+                                "required": ["requirementId", "title", "markdown", "occurredAt"],
+                                "additionalProperties": false
+                              },
+                              "links": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "target": {
+                                      "oneOf": [
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "kind": { "type": "string", "const": "overview" },
+                                            "revisionNo": {
+                                              "type": "integer",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 9007199254740991
+                                            },
+                                            "part": {
+                                              "oneOf": [
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "kind": { "type": "string", "const": "product" }
+                                                  },
+                                                  "required": ["kind"],
+                                                  "additionalProperties": false
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "kind": {
+                                                      "type": "string",
+                                                      "const": "examples_introduction"
+                                                    }
+                                                  },
+                                                  "required": ["kind"],
+                                                  "additionalProperties": false
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "kind": {
+                                                      "type": "string",
+                                                      "const": "concept"
+                                                    },
+                                                    "id": { "type": "string", "minLength": 1 }
+                                                  },
+                                                  "required": ["kind", "id"],
+                                                  "additionalProperties": false
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "kind": {
+                                                      "type": "string",
+                                                      "const": "concept_relation"
+                                                    },
+                                                    "id": { "type": "string", "minLength": 1 }
+                                                  },
+                                                  "required": ["kind", "id"],
+                                                  "additionalProperties": false
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "kind": { "type": "string", "const": "actor" },
+                                                    "id": { "type": "string", "minLength": 1 }
+                                                  },
+                                                  "required": ["kind", "id"],
+                                                  "additionalProperties": false
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "kind": {
+                                                      "type": "string",
+                                                      "const": "use_case"
+                                                    },
+                                                    "id": { "type": "string", "minLength": 1 }
+                                                  },
+                                                  "required": ["kind", "id"],
+                                                  "additionalProperties": false
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "kind": {
+                                                      "type": "string",
+                                                      "const": "example"
+                                                    },
+                                                    "id": { "type": "string", "minLength": 1 }
+                                                  },
+                                                  "required": ["kind", "id"],
+                                                  "additionalProperties": false
+                                                },
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "kind": {
+                                                      "type": "string",
+                                                      "const": "example_diagram"
+                                                    },
+                                                    "id": { "type": "string", "minLength": 1 }
+                                                  },
+                                                  "required": ["kind", "id"],
+                                                  "additionalProperties": false
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "required": ["kind", "revisionNo", "part"],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "kind": { "type": "string", "const": "diagram" },
+                                            "id": { "type": "string", "minLength": 1 },
+                                            "projectVersion": {
+                                              "type": "integer",
+                                              "minimum": 0,
+                                              "maximum": 9007199254740991
+                                            }
+                                          },
+                                          "required": ["kind", "id", "projectVersion"],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "kind": { "type": "string", "const": "record" },
+                                            "id": { "type": "string", "minLength": 1 },
+                                            "revisionNo": {
+                                              "type": "integer",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 9007199254740991
+                                            }
+                                          },
+                                          "required": ["kind", "id", "revisionNo"],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "kind": { "type": "string", "const": "entity" },
+                                            "id": { "type": "string", "minLength": 1 },
+                                            "revisionNo": {
+                                              "type": "integer",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 9007199254740991
+                                            }
+                                          },
+                                          "required": ["kind", "id", "revisionNo"],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "kind": { "type": "string", "const": "relationship" },
+                                            "id": { "type": "string", "minLength": 1 },
+                                            "revisionNo": {
+                                              "type": "integer",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 9007199254740991
+                                            }
+                                          },
+                                          "required": ["kind", "id", "revisionNo"],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "kind": { "type": "string", "const": "note" },
+                                            "id": { "type": "string", "minLength": 1 },
+                                            "revisionNo": {
+                                              "type": "integer",
+                                              "exclusiveMinimum": 0,
+                                              "maximum": 9007199254740991
+                                            }
+                                          },
+                                          "required": ["kind", "id", "revisionNo"],
+                                          "additionalProperties": false
+                                        }
+                                      ]
+                                    },
+                                    "explanationMd": { "type": "string" }
+                                  },
+                                  "required": ["target", "explanationMd"],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "captureVersion": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "captureOrdinal": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "objectType": { "type": "string", "const": "record" }
+                            },
+                            "required": [
+                              "id",
+                              "revisionNo",
+                              "projectVersion",
+                              "savedAt",
+                              "createdAt",
+                              "operationId",
+                              "isDeleted",
+                              "citations",
+                              "actor",
+                              "content",
+                              "links",
+                              "captureVersion",
+                              "captureOrdinal",
+                              "objectType"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      }
+                    },
+                    "nextBeforeRevision": {
+                      "anyOf": [
+                        { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+                        { "type": "null" }
+                      ]
+                    }
+                  },
+                  "required": ["version", "items", "nextBeforeRevision"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "查询或类型无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "对象或版本不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/history/{objectType}/{objectId}/revisions/{revisionNo}": {
+      "get": {
+        "operationId": "getRequirementRevision",
+        "summary": "读取一个确定修订及其原始来源，不把后来的修订替换成旧依据",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "objectType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "enum": ["requirement", "record"]
+            }
+          },
+          {
+            "name": "objectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "revisionNo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "固定修订及来源原文；Cache-Control: no-store",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "version": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                    "revision": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                            "revisionNo": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 9007199254740991
+                            },
+                            "projectVersion": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            "savedAt": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            "createdAt": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            "operationId": { "type": "string", "minLength": 1, "maxLength": 512 },
+                            "isDeleted": { "type": "boolean" },
+                            "citations": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "sourceId": { "type": "string", "minLength": 1 },
+                                  "side": { "type": "string", "enum": ["before", "after"] },
+                                  "path": { "type": "string" },
+                                  "explanationMd": { "type": "string" }
+                                },
+                                "required": ["sourceId", "side", "path", "explanationMd"],
+                                "additionalProperties": false
+                              }
+                            },
+                            "actor": {
+                              "type": "object",
+                              "properties": {
+                                "entrypoint": {
+                                  "type": "string",
+                                  "enum": ["web", "mcp", "cli", "system"]
+                                },
+                                "actorKind": {
+                                  "type": "string",
+                                  "enum": ["human", "agent", "system"]
+                                },
+                                "actorLabel": { "type": "string" },
+                                "noteMd": { "type": ["string", "null"] }
+                              },
+                              "required": ["entrypoint", "actorKind", "actorLabel", "noteMd"],
+                              "additionalProperties": false
+                            },
+                            "content": {
+                              "type": "object",
+                              "properties": {
+                                "title": { "type": "string" },
+                                "markdown": { "type": "string" },
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "designing",
+                                    "ready_for_implementation",
+                                    "pending_acceptance",
+                                    "completed",
+                                    "on_hold",
+                                    "cancelled"
+                                  ]
+                                }
+                              },
+                              "required": ["title", "markdown", "status"],
+                              "additionalProperties": false
+                            },
+                            "links": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "target": {
+                                    "oneOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": { "type": "string", "const": "overview" },
+                                          "part": {
+                                            "oneOf": [
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": { "type": "string", "const": "product" }
+                                                },
+                                                "required": ["kind"],
+                                                "additionalProperties": false
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": {
+                                                    "type": "string",
+                                                    "const": "examples_introduction"
+                                                  }
+                                                },
+                                                "required": ["kind"],
+                                                "additionalProperties": false
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": { "type": "string", "const": "concept" },
+                                                  "id": { "type": "string", "minLength": 1 }
+                                                },
+                                                "required": ["kind", "id"],
+                                                "additionalProperties": false
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": {
+                                                    "type": "string",
+                                                    "const": "concept_relation"
+                                                  },
+                                                  "id": { "type": "string", "minLength": 1 }
+                                                },
+                                                "required": ["kind", "id"],
+                                                "additionalProperties": false
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": { "type": "string", "const": "actor" },
+                                                  "id": { "type": "string", "minLength": 1 }
+                                                },
+                                                "required": ["kind", "id"],
+                                                "additionalProperties": false
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": { "type": "string", "const": "use_case" },
+                                                  "id": { "type": "string", "minLength": 1 }
+                                                },
+                                                "required": ["kind", "id"],
+                                                "additionalProperties": false
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": { "type": "string", "const": "example" },
+                                                  "id": { "type": "string", "minLength": 1 }
+                                                },
+                                                "required": ["kind", "id"],
+                                                "additionalProperties": false
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": {
+                                                    "type": "string",
+                                                    "const": "example_diagram"
+                                                  },
+                                                  "id": { "type": "string", "minLength": 1 }
+                                                },
+                                                "required": ["kind", "id"],
+                                                "additionalProperties": false
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "required": ["kind", "part"],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": { "type": "string", "const": "entity" },
+                                          "id": { "type": "string", "minLength": 1 }
+                                        },
+                                        "required": ["kind", "id"],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": { "type": "string", "const": "relationship" },
+                                          "id": { "type": "string", "minLength": 1 }
+                                        },
+                                        "required": ["kind", "id"],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": { "type": "string", "const": "diagram" },
+                                          "id": { "type": "string", "minLength": 1 }
+                                        },
+                                        "required": ["kind", "id"],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": { "type": "string", "const": "note" },
+                                          "id": { "type": "string", "minLength": 1 }
+                                        },
+                                        "required": ["kind", "id"],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  },
+                                  "explanationMd": { "type": "string" }
+                                },
+                                "required": ["target", "explanationMd"],
+                                "additionalProperties": false
+                              }
+                            },
+                            "statusChange": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "kind": {
+                                      "type": "string",
+                                      "enum": ["initial", "progress", "correction"]
+                                    },
+                                    "reasonMd": { "type": "string" },
+                                    "records": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 512
+                                          },
+                                          "revisionNo": {
+                                            "type": "integer",
+                                            "minimum": 1,
+                                            "maximum": 9007199254740991
+                                          }
+                                        },
+                                        "required": ["id", "revisionNo"],
+                                        "additionalProperties": false
+                                      }
+                                    }
+                                  },
+                                  "required": ["kind", "reasonMd", "records"],
+                                  "additionalProperties": false
+                                },
+                                { "type": "null" }
+                              ]
+                            },
+                            "objectType": { "type": "string", "const": "requirement" }
+                          },
+                          "required": [
+                            "id",
+                            "revisionNo",
+                            "projectVersion",
+                            "savedAt",
+                            "createdAt",
+                            "operationId",
+                            "isDeleted",
+                            "citations",
+                            "actor",
+                            "content",
+                            "links",
+                            "statusChange",
+                            "objectType"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                            "revisionNo": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 9007199254740991
+                            },
+                            "projectVersion": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            "savedAt": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            "createdAt": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            "operationId": { "type": "string", "minLength": 1, "maxLength": 512 },
+                            "isDeleted": { "type": "boolean" },
+                            "citations": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "sourceId": { "type": "string", "minLength": 1 },
+                                  "side": { "type": "string", "enum": ["before", "after"] },
+                                  "path": { "type": "string" },
+                                  "explanationMd": { "type": "string" }
+                                },
+                                "required": ["sourceId", "side", "path", "explanationMd"],
+                                "additionalProperties": false
+                              }
+                            },
+                            "actor": {
+                              "type": "object",
+                              "properties": {
+                                "entrypoint": {
+                                  "type": "string",
+                                  "enum": ["web", "mcp", "cli", "system"]
+                                },
+                                "actorKind": {
+                                  "type": "string",
+                                  "enum": ["human", "agent", "system"]
+                                },
+                                "actorLabel": { "type": "string" },
+                                "noteMd": { "type": ["string", "null"] }
+                              },
+                              "required": ["entrypoint", "actorKind", "actorLabel", "noteMd"],
+                              "additionalProperties": false
+                            },
+                            "content": {
+                              "type": "object",
+                              "properties": {
+                                "requirementId": { "type": "string", "minLength": 1 },
+                                "title": { "type": "string" },
+                                "markdown": { "type": "string" },
+                                "occurredAt": {
+                                  "anyOf": [
+                                    {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 9007199254740991
+                                    },
+                                    { "type": "null" }
+                                  ]
+                                }
+                              },
+                              "required": ["requirementId", "title", "markdown", "occurredAt"],
+                              "additionalProperties": false
+                            },
+                            "links": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "target": {
+                                    "oneOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": { "type": "string", "const": "overview" },
+                                          "revisionNo": {
+                                            "type": "integer",
+                                            "exclusiveMinimum": 0,
+                                            "maximum": 9007199254740991
+                                          },
+                                          "part": {
+                                            "oneOf": [
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": { "type": "string", "const": "product" }
+                                                },
+                                                "required": ["kind"],
+                                                "additionalProperties": false
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": {
+                                                    "type": "string",
+                                                    "const": "examples_introduction"
+                                                  }
+                                                },
+                                                "required": ["kind"],
+                                                "additionalProperties": false
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": { "type": "string", "const": "concept" },
+                                                  "id": { "type": "string", "minLength": 1 }
+                                                },
+                                                "required": ["kind", "id"],
+                                                "additionalProperties": false
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": {
+                                                    "type": "string",
+                                                    "const": "concept_relation"
+                                                  },
+                                                  "id": { "type": "string", "minLength": 1 }
+                                                },
+                                                "required": ["kind", "id"],
+                                                "additionalProperties": false
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": { "type": "string", "const": "actor" },
+                                                  "id": { "type": "string", "minLength": 1 }
+                                                },
+                                                "required": ["kind", "id"],
+                                                "additionalProperties": false
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": { "type": "string", "const": "use_case" },
+                                                  "id": { "type": "string", "minLength": 1 }
+                                                },
+                                                "required": ["kind", "id"],
+                                                "additionalProperties": false
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": { "type": "string", "const": "example" },
+                                                  "id": { "type": "string", "minLength": 1 }
+                                                },
+                                                "required": ["kind", "id"],
+                                                "additionalProperties": false
+                                              },
+                                              {
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": {
+                                                    "type": "string",
+                                                    "const": "example_diagram"
+                                                  },
+                                                  "id": { "type": "string", "minLength": 1 }
+                                                },
+                                                "required": ["kind", "id"],
+                                                "additionalProperties": false
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "required": ["kind", "revisionNo", "part"],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": { "type": "string", "const": "diagram" },
+                                          "id": { "type": "string", "minLength": 1 },
+                                          "projectVersion": {
+                                            "type": "integer",
+                                            "minimum": 0,
+                                            "maximum": 9007199254740991
+                                          }
+                                        },
+                                        "required": ["kind", "id", "projectVersion"],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": { "type": "string", "const": "record" },
+                                          "id": { "type": "string", "minLength": 1 },
+                                          "revisionNo": {
+                                            "type": "integer",
+                                            "exclusiveMinimum": 0,
+                                            "maximum": 9007199254740991
+                                          }
+                                        },
+                                        "required": ["kind", "id", "revisionNo"],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": { "type": "string", "const": "entity" },
+                                          "id": { "type": "string", "minLength": 1 },
+                                          "revisionNo": {
+                                            "type": "integer",
+                                            "exclusiveMinimum": 0,
+                                            "maximum": 9007199254740991
+                                          }
+                                        },
+                                        "required": ["kind", "id", "revisionNo"],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": { "type": "string", "const": "relationship" },
+                                          "id": { "type": "string", "minLength": 1 },
+                                          "revisionNo": {
+                                            "type": "integer",
+                                            "exclusiveMinimum": 0,
+                                            "maximum": 9007199254740991
+                                          }
+                                        },
+                                        "required": ["kind", "id", "revisionNo"],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": { "type": "string", "const": "note" },
+                                          "id": { "type": "string", "minLength": 1 },
+                                          "revisionNo": {
+                                            "type": "integer",
+                                            "exclusiveMinimum": 0,
+                                            "maximum": 9007199254740991
+                                          }
+                                        },
+                                        "required": ["kind", "id", "revisionNo"],
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  },
+                                  "explanationMd": { "type": "string" }
+                                },
+                                "required": ["target", "explanationMd"],
+                                "additionalProperties": false
+                              }
+                            },
+                            "captureVersion": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            "captureOrdinal": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            "objectType": { "type": "string", "const": "record" }
+                          },
+                          "required": [
+                            "id",
+                            "revisionNo",
+                            "projectVersion",
+                            "savedAt",
+                            "createdAt",
+                            "operationId",
+                            "isDeleted",
+                            "citations",
+                            "actor",
+                            "content",
+                            "links",
+                            "captureVersion",
+                            "captureOrdinal",
+                            "objectType"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "sources": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "minLength": 1 },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "conversation",
+                              "manual_edit",
+                              "code",
+                              "verification",
+                              "document"
+                            ]
+                          },
+                          "rawText": { "type": "string" },
+                          "locator": {
+                            "default": {},
+                            "type": "object",
+                            "propertyNames": { "type": "string" },
+                            "additionalProperties": { "$ref": "#/$defs/__schema0" }
+                          },
+                          "occurredAt": {
+                            "default": null,
+                            "anyOf": [
+                              { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                              { "type": "null" }
+                            ]
+                          },
+                          "contentHash": { "type": "string" },
+                          "capturedByOperationId": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 512
+                          },
+                          "capturedAt": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "capturedProjectVersion": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "kind",
+                          "rawText",
+                          "locator",
+                          "occurredAt",
+                          "contentHash",
+                          "capturedByOperationId",
+                          "capturedAt",
+                          "capturedProjectVersion"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": ["version", "revision", "sources"],
+                  "additionalProperties": false,
+                  "$defs": {
+                    "__schema0": {
+                      "anyOf": [
+                        { "type": "string" },
+                        { "type": "number" },
+                        { "type": "boolean" },
+                        { "type": "null" },
+                        { "type": "array", "items": { "$ref": "#/$defs/__schema0" } },
+                        {
+                          "type": "object",
+                          "propertyNames": { "type": "string" },
+                          "additionalProperties": { "$ref": "#/$defs/__schema0" }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "缺少项目版本或修订号无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": { "type": "string" },
+                        "message": { "type": "string" }
+                      },
+                      "required": ["code", "message"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["error"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "对象、修订或项目版本不存在",
             "content": {
               "application/json": {
                 "schema": {

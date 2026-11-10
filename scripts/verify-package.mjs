@@ -220,6 +220,69 @@ try {
       overview.overview.content.product.markdown,
       'Fictional installed-package overview.',
     );
+    const requirements = await (
+      await fetch(`${base}/api/projects/${created.receipt.projectId}/requirements`)
+    ).json();
+    assert.equal(requirements.project.version, 2);
+    assert.equal(requirements.items.length, 1);
+    const requirementId = requirements.items[0].id;
+    const requirement = await (
+      await fetch(`${base}/api/projects/${created.receipt.projectId}/requirements/${requirementId}`)
+    ).json();
+    assert.equal(requirement.requirement.content.title, 'Package tool verification');
+    await call('save_changes', {
+      projectId: created.receipt.projectId,
+      requestKey: 'package-record',
+      baseVersion: 2,
+      sources: [
+        {
+          id: '$material',
+          kind: 'document',
+          rawText: 'Fictional installed-package progress material.',
+        },
+      ],
+      changes: [
+        {
+          action: 'upsert',
+          objectType: 'record',
+          id: '$progress',
+          expectedRevision: null,
+          content: {
+            requirementId,
+            title: 'Installed package progress',
+            markdown: 'Fictional verification only.',
+            occurredAt: null,
+          },
+          citations: [
+            {
+              sourceId: '$material',
+              side: 'after',
+              path: '',
+              explanationMd: 'Fictional fixture only.',
+            },
+          ],
+        },
+      ],
+    });
+    const records = await (
+      await fetch(
+        `${base}/api/projects/${created.receipt.projectId}/requirements/${requirementId}/records?version=3`,
+      )
+    ).json();
+    assert.equal(records.items.length, 1);
+    assert.equal(records.items[0].content.title, 'Installed package progress');
+    const history = await (
+      await fetch(
+        `${base}/api/projects/${created.receipt.projectId}/history/record/${records.items[0].id}?version=3`,
+      )
+    ).json();
+    assert.equal(history.items[0].actor.entrypoint, 'mcp');
+    const revision = await (
+      await fetch(
+        `${base}/api/projects/${created.receipt.projectId}/history/record/${records.items[0].id}/revisions/1?version=3`,
+      )
+    ).json();
+    assert.equal(revision.sources[0].rawText, 'Fictional installed-package progress material.');
     const worker = packed.files.find((entry) =>
       /^dist\/web\/assets\/elk-worker.*\.js$/.test(entry.path),
     );
@@ -285,6 +348,7 @@ try {
           'MCP initialize',
           'MCP discovery/create/save/retry/export/guide',
           'HTTP project overview and bundled ELK worker asset',
+          'HTTP requirement timeline/revisions/sources over MCP writes',
           'formal migrations and project-content save/history',
         ],
       },

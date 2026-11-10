@@ -114,7 +114,7 @@ export default function AgentGuidePage() {
             </p>
             <div className="guide-draft-note">
               <span className="guide-draft-label">当前进度</span>
-              <span>项目选择和综述已接入，需求推进和业务设计页面仍在开发。</span>
+              <span>项目选择、综述和需求推进已接入，业务设计页面仍在开发。</span>
             </div>
             {copyState === 'copied' && (
               <span className="guide-copy-result" role="status">

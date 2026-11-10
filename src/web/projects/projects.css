@@ -3,6 +3,9 @@
   margin: calc(var(--ds-space-8) * 1px) 0 calc(var(--ds-space-6) * 1px);
   font-size: calc(var(--ds-type-navigation-size) * 1px);
 }
+.project-picker-prefix {
+  display: none;
+}
 .project-picker-popup.ant-select-dropdown {
   max-width: calc(100vw - var(--ds-space-8) * 2px);
   padding: calc(var(--ds-space-4) * 1px);
@@ -67,6 +70,31 @@
 @media (min-width: 768px) and (max-width: 1023px) {
   .sidebar .project-slot.ant-select {
     padding-inline: calc(var(--ds-space-2) * 1px);
+  }
+  .sidebar .project-slot:not(.ant-select-open) {
+    height: calc(var(--ds-size-navItem) * 1px);
+    border-color: transparent;
+    box-shadow: none;
+    background: transparent;
+  }
+  .sidebar .project-slot:not(.ant-select-open):hover {
+    background: var(--ds-color-surface-hover);
+  }
+  .sidebar .project-slot:not(.ant-select-open):has(input:focus-visible) {
+    outline: calc(var(--ds-shape-focusStroke) * 1px) solid var(--ds-color-accent-solid);
+    outline-offset: calc(var(--ds-shape-focusOffset) * 1px);
+  }
+  .sidebar .project-slot:not(.ant-select-open) .project-picker-prefix {
+    position: absolute;
+    inset: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    pointer-events: none;
+  }
+  .sidebar .project-slot:not(.ant-select-open) .ant-select-suffix {
+    display: none;
   }
   .sidebar:has(.project-slot.ant-select-open) {
     overflow: visible;

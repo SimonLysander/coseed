@@ -10,18 +10,18 @@
 
 ## 当前职责
 
-| 位置                               | 职责                                                                                |
-| ---------------------------------- | ----------------------------------------------------------------------------------- |
-| src/cli                            | 解析启动参数、加载配置、启动和退出                                                  |
-| src/server/config                  | 合并配置、路径解析、Zod 校验，产出只读运行配置                                      |
-| src/server/database                | SQLite/Drizzle 生命周期、正式迁移和查询列映射                                       |
-| src/server/modules/project-content | 项目及业务内容的原子保存、来源、修订和固定快照查询，由 MCP 复用                     |
-| src/server/modules/system          | 真实服务状态检查                                                                    |
-| src/server/mcp                     | 官方 SDK 无会话 HTTP；工具、临时引用解析、按需规范、固定快照文件导出                |
-| src/server/security                | 本机 Host 和同源 Origin 检查                                                        |
-| src/contracts                      | 服务状态、内容 Schema、内部保存／读取及 MCP 输入输出契约                            |
-| src/web                            | 无顶栏左侧导航、真实项目选择／创建、综述阅读和 Agent 指南；按路由及图形需要加载模块 |
-| src/web/design-system              | 唯一的字体、布局、主题和动效 Token；统一 CSS、Ant Design、Motion 及明暗偏好         |
+| 位置                               | 职责                                                                                        |
+| ---------------------------------- | ------------------------------------------------------------------------------------------- |
+| src/cli                            | 解析启动参数、加载配置、启动和退出                                                          |
+| src/server/config                  | 合并配置、路径解析、Zod 校验，产出只读运行配置                                              |
+| src/server/database                | SQLite/Drizzle 生命周期、正式迁移和查询列映射                                               |
+| src/server/modules/project-content | 项目及业务内容的原子保存、来源、修订和固定快照查询，由 MCP 复用                             |
+| src/server/modules/system          | 真实服务状态检查                                                                            |
+| src/server/mcp                     | 官方 SDK 无会话 HTTP；工具、临时引用解析、按需规范、固定快照文件导出                        |
+| src/server/security                | 本机 Host 和同源 Origin 检查                                                                |
+| src/contracts                      | 服务状态、内容 Schema、内部保存／读取及 MCP 输入输出契约                                    |
+| src/web                            | 无顶栏左侧导航、真实项目选择／创建、综述、需求时间线和 Agent 指南；按路由及图形需要加载模块 |
+| src/web/design-system              | 唯一的字体、布局、主题和动效 Token；统一 CSS、Ant Design、Motion 及明暗偏好                 |
 
 配置在创建 Nest 应用之前校验，CLI 参数覆盖环境变量，环境变量覆盖配置文件，文件覆盖默认值。Nest ConfigService 提供已经解析的配置，不再从调用者的仓库自动读取 `.env`。
 
@@ -29,7 +29,7 @@
 
 ## 请求边界
 
-HTTP 提供 `/api/status` 以及项目列表、空项目创建、元数据和综述读取。项目契约以 `src/contracts/projects-http.ts` 为权威，复用已有内容 Schema，OpenAPI 从共享 Schema 生成。综述读取在同一事务固定项目版本和名称，不为阅读综述加载整张业务图；响应不使用浏览器 HTTP 缓存。
+HTTP 提供 `/api/status` 以及项目列表、空项目创建、元数据、综述和需求读取。项目与需求 HTTP 契约分别以 `src/contracts/projects-http.ts`、`src/contracts/requirements-http.ts` 为权威，复用已有内容 Schema，OpenAPI 从共享 Schema 生成。综述读取在同一事务固定项目版本和名称，不为阅读综述加载整张业务图；响应不使用浏览器 HTTP 缓存。
 
 `POST /mcp` 由官方服务端 SDK 和 Node 传输处理，每次请求建立独立实例，使用 JSON 响应。`GET /mcp` 和 `DELETE /mcp` 返回 405；当前不提供 SSE 订阅或会话状态。未来需要这些能力时须重新设计生命周期。
 
@@ -43,13 +43,13 @@ X6 和 ELK 已用于综述的概念关系图及分节用例图，业务设计图
 
 ## 前端设计系统
 
-正式 Web 和独立设计样板共用 `src/web/design-system/` 的类型化入口及 Provider。中文使用系统字体，主题固定松针绿，左侧栏底部提供无 Tooltip 的日月按钮直接切换明暗，默认浅色并保存选择；样板与应用分别保存显示偏好。构建插件从同一主题和偏好读取函数生成首帧脚本，英文字标及 OFL 随 Web 包交付。页面布局和组件样式只消费该系统，基础设计不依赖业务模块。当前工作台、项目弹窗和综述阅读共用该系统。
+正式 Web 和独立设计样板共用 `src/web/design-system/` 的类型化入口及 Provider。中文使用系统字体，主题固定松针绿，左侧栏底部提供无 Tooltip 的日月按钮直接切换明暗，默认浅色并保存选择；样板与应用分别保存显示偏好。构建插件从同一主题和偏好读取函数生成首帧脚本，英文字标及 OFL 随 Web 包交付。页面布局和组件样式只消费该系统，基础设计不依赖业务模块。当前工作台、项目下拉选择、行内创建、综述和需求阅读共用该系统。
 
 ## 接入说明阅读页
 
 `#/agent-guide` 是正式前端的静态文档页，内容唯一来源为 `docs/operations/agent-integration.md`，由 Vite 按需打包导入；页面不复制维护另一份正文。`src/web/agent-guide/` 负责文档分节、Markdown 呈现、章节定位、右侧目录和复制全文。Markdown 禁用原始 HTML，仓库内的本地运行参考文档作为可打开的构建资源交付。
 
-桌面沿用全局阅读宽度和右侧目录，窄屏把目录入口放在文章标题旁；支持章节直达、刷新定位、滚动高亮和明暗模式。正文说明 MCP 工具和业务页面的实际边界。人类说明页与 read_guide 的按需业务规范用途不同；页面没有复制全套工具 Schema。项目综述已接入，需求推进和业务设计页面尚未接入。
+桌面沿用全局阅读宽度和右侧目录，窄屏把目录入口放在文章标题旁；支持章节直达、刷新定位、滚动高亮和明暗模式。正文说明 MCP 工具和业务页面的实际边界。人类说明页与 read_guide 的按需业务规范用途不同；页面没有复制全套工具 Schema。项目综述已接入，需求推进页面已接入，业务设计页面尚未接入。
 
 ## 项目内容保存
 
@@ -80,3 +80,11 @@ React Router 的 HashRouter 管理项目与章节链接；旧 `#/overview` 恢�
 综述按产品说明、核心概念、使用示例阅读。每个示例保持稳定身份链接，标题改动和排序不改变目标。图从内容模型派生，不存布局坐标。ELK 在共享 Worker 中计算几何，X6 原生 boundary 计算实际形状端点；主题切换只更新样式，单独改产品正文不重算不受影响的图。ResizeObserver 观察外层自适应容器，页面缩窄时不保留图引擎旧宽度。全部综述图只读、固定适应画布。
 
 详细交互、接口和验证边界见 [项目入口与综述](docs/requirements/project-workbench.md)。
+
+## 需求推进阅读
+
+`RequirementsReadService` 在项目内容模块内复用同一快照解析和来源读取。需求列表、当前记录和修订分别分页；来源只在读取具体修订时返回，不通过导出全项目完成页面查询。HTTP 沿用项目模块的契约校验和错误映射，不新增写入或数据库结构。
+
+列表首请求、需求详情固定一个项目版本，后续页及历史必须携带该版本。需求按最近更新排列；推进记录按首次收录的版本和同批次序倒序，修订旧记录不挪位置，真实发生时间单独显示。状态变化时间从最近一次真实状态变化得到，正文修订不产生假的状态事件。状态依据固定记录的具体版本。
+
+`src/web/requirements/` 使用现有路由、查询、Markdown 和 Ant Design Timeline/Drawer/Collapse。修订面板按打开时的版本读取，原始来源按需展开。项目隔离、状态依据、旧归属和移除历史继续由共同存储模型约束。交互和验证入口见 [需求推进阅读](docs/requirements/requirements-reading.md)。

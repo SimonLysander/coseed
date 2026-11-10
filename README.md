@@ -6,7 +6,7 @@ CoSeed 帮助开发者与 Coding Agent 共同理解、设计和推进软件项�
 
 ## 当前进度
 
-工程初始化已实现：React 工作台框架、Agent 接入说明阅读页、NestJS/Fastify 服务、CLI、分层配置、SQLite/Drizzle 连接和 MCP 标准握手。项目创建、业务内容的数据库保存、修订及固定快照查询已在内部服务实现；九个 MCP 业务工具和固定版本文件读取已接入；客户端落盘需使用自身能力；项目选择、创建、切换及综述阅读已接入，需求推进和业务设计页面待接入。此前已经验证过项目综述、业务设计图等阅读原型；原型仍在前期工作目录，尚未迁入本仓库。Claude Monitor 是原型的示例项目，不是 CoSeed 本身。
+工程初始化已实现：React 工作台框架、Agent 接入说明阅读页、NestJS/Fastify 服务、CLI、分层配置、SQLite/Drizzle 连接和 MCP 标准握手。项目创建、业务内容的数据库保存、修订及固定快照查询已在内部服务实现；九个 MCP 业务工具和固定版本文件读取已接入；客户端落盘需使用自身能力；项目选择、创建、切换及综述阅读已接入，需求推进及修订来源阅读已接入，业务设计页面待接入。此前已经验证过项目综述、业务设计图等阅读原型；原型仍在前期工作目录，尚未迁入本仓库。Claude Monitor 是原型的示例项目，不是 CoSeed 本身。
 
 当前运行实现是提供 Web 和 MCP 入口的本机服务。后续已确认方向为：数据库保存项目资料及历史；Agent 使用已有 MCP 能力连接 CoSeed，初始化拉取完整当前资料到本地读取副本，正式修改经 MCP 提交；无需本地连接器，不使用资料 Git 仓库，也不要求业务仓库提交 CoSeed 缓存。数据库和 MCP 读写已实现；不同 Agent 宿主的自动落盘仍需逐个验证。一个实例可管理多个项目，各项目的内容、来源引用及更正历史独立，默认不跨项目读写。CoSeed 不依赖特定 Coding Agent，不内置执行器或模型 SDK。前端组件方向已确定为 Ant Design + Motion + AnimateIcons；其他推荐和待验证事项见技术选型文档。
 
@@ -47,6 +47,7 @@ npm run verify:package
 - [存储及 Agent 读写流程](docs/database/storage-and-agent-flow.md)：数据库、本地读取目录、固定快照、MCP 提交、冲突和恢复；决策见 [ADR 0003](docs/adr/0003-database-and-agent-cache.md)。
 - [Git 资料格式调研](docs/research/git-content-formats-2026.md)：保留的备选方案研究，已不作为当前实施方向。
 
+- [需求推进阅读](docs/requirements/requirements-reading.md)：需求列表、时间线、状态依据及修订来源。
 - [业务设计](docs/requirements/product.md)：产品范围、核心概念、业务关系、职责边界和验收场景。
 - [工作台界面设计](docs/ui/workbench.md)：项目选择、阅读布局、需求详情和回顾入口的第一版草案。
 - [真实讨论的回顾示例](docs/requirements/retrospective-example.md)：用 CoSeed 自身的讨论说明需求、记录、修订及回顾怎样区分。

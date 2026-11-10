@@ -89,51 +89,6 @@
   min-width: 0;
   color: var(--ds-color-text-secondary);
 }
-.reading-markdown {
-  overflow-wrap: anywhere;
-}
-.reading-markdown :where(h1, h2, h3, h4) {
-  margin-block: calc(var(--ds-space-6) * 1px) calc(var(--ds-space-4) * 1px);
-}
-.reading-markdown :where(ul, ol) {
-  padding-left: calc(var(--ds-space-8) * 1px);
-  line-height: calc(var(--ds-type-reading-lineHeight) * 1px);
-  font-size: calc(var(--ds-type-reading-size) * 1px);
-}
-.reading-markdown pre {
-  max-width: 100%;
-  overflow: auto;
-  padding: calc(var(--ds-space-5) * 1px);
-  border-radius: var(--ds-shape-smallRadius);
-  background: var(--ds-color-surface-hover);
-}
-.reading-markdown :not(pre) > code {
-  padding: 2px 4px;
-  border-radius: var(--ds-shape-smallRadius);
-  background: var(--ds-color-surface-hover);
-}
-.reading-markdown table {
-  display: block;
-  max-width: 100%;
-  overflow: auto;
-  border-collapse: collapse;
-  font-size: calc(var(--ds-type-ui-size) * 1px);
-}
-.reading-markdown :where(td, th) {
-  padding: calc(var(--ds-space-4) * 1px);
-  border-bottom: 1px solid var(--ds-color-border-subtle);
-  text-align: left;
-}
-.reading-markdown img {
-  max-width: 100%;
-  height: auto;
-}
-.reading-markdown blockquote {
-  margin-inline: 0;
-  padding-left: calc(var(--ds-space-6) * 1px);
-  border-left: 2px solid var(--ds-color-border-subtle);
-  color: var(--ds-color-text-secondary);
-}
 .overview-toc {
   top: calc(var(--ds-layout-pagePadding) * 1px);
 }

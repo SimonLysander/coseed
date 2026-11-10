@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import MarkdownIt from 'markdown-it';
+import './reading.css';
 
 // Project material is content, never executable HTML. markdown-it also rejects unsafe link schemes.
 const markdown = new MarkdownIt({ html: false, linkify: false });

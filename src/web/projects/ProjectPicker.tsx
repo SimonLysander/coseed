@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Empty, Select, Spin, type RefSelectProps } from 'antd';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { FolderOpenIcon } from '@animateicons/react/lucide/folder-open-icon';
 import { PlusIcon } from '@animateicons/react/lucide/plus-icon';
 import { CheckIcon } from '@animateicons/react/lucide/check-icon';
 import { foundations } from '../design-system/tokens.js';
@@ -49,6 +50,9 @@ export function ProjectPicker({
       className="project-slot"
       aria-label={selectedName ? `切换项目，当前：${selectedName}` : '选择项目'}
       placeholder="选择项目"
+      prefix={
+        <FolderOpenIcon className="ds-icon" size={foundations.size.navIcon} aria-hidden="true" />
+      }
       value={selectedId}
       labelRender={() => selectedName ?? '当前项目'}
       open={open}
@@ -61,7 +65,7 @@ export function ProjectPicker({
         trigger.closest<HTMLElement>('.ant-drawer-body') ?? document.body
       }
       popupMatchSelectWidth={foundations.size.projectPicker}
-      classNames={{ popup: { root: 'project-picker-popup' } }}
+      classNames={{ prefix: 'project-picker-prefix', popup: { root: 'project-picker-popup' } }}
       virtual={false}
       options={projects.map((project) => ({ value: project.id, label: project.name, title: '' }))}
       onSelect={onSelect}

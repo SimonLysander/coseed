@@ -1,0 +1,167 @@
+.requirements-page {
+  min-width: 0;
+  padding: calc(var(--ds-layout-pagePadding) * 1px);
+}
+.requirements-reading {
+  width: 100%;
+  max-width: calc(var(--ds-layout-readingWidth) * 1px);
+  margin-inline: auto;
+}
+.requirements-heading {
+  display: grid;
+  gap: calc(var(--ds-space-4) * 1px);
+}
+.requirements-title-row,
+.requirements-section-title,
+.requirement-list-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: calc(var(--ds-space-5) * 1px);
+}
+.requirements-title-row h1,
+.requirement-list-title > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.requirements-title-row > .ant-btn,
+.requirement-status.ant-tag {
+  flex: none;
+}
+.requirement-status.ant-tag {
+  margin: 0;
+  color: var(--ds-color-text-secondary);
+  background: var(--ds-color-surface-hover);
+}
+.requirement-status-designing.ant-tag {
+  color: var(--ds-color-state-info-foreground);
+  background: var(--ds-color-state-info-background);
+}
+.requirement-status-ready_for_implementation.ant-tag,
+.requirement-status-completed.ant-tag {
+  color: var(--ds-color-state-success-foreground);
+  background: var(--ds-color-state-success-background);
+}
+.requirement-status-pending_acceptance.ant-tag {
+  color: var(--ds-color-state-warning-foreground);
+  background: var(--ds-color-state-warning-background);
+}
+.requirements-reading .requirement-meta,
+.requirement-history-reader .requirement-meta {
+  color: var(--ds-color-text-muted);
+  font-size: calc(var(--ds-type-caption-size) * 1px);
+  line-height: calc(var(--ds-type-caption-lineHeight) * 1px);
+  overflow-wrap: anywhere;
+}
+.requirements-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: calc(var(--ds-space-5) * 1px);
+  margin-block: calc(var(--ds-space-8) * 1px) calc(var(--ds-space-4) * 1px);
+}
+.requirements-filters > .ant-select {
+  min-width: calc(var(--ds-size-controlLarge) * 3px);
+}
+.requirement-list-row {
+  display: grid;
+  gap: calc(var(--ds-space-4) * 1px);
+  width: 100%;
+  padding-block: calc(var(--ds-space-4) * 1px);
+  color: var(--ds-color-text-primary);
+  text-decoration: none;
+}
+.requirement-list-row:hover .requirement-list-title > span:first-child {
+  color: var(--ds-color-accent-solid);
+}
+.requirement-list-title > span:first-child {
+  font-weight: var(--ds-type-label-weight);
+}
+.requirements-empty {
+  padding-block: calc(var(--ds-space-10) * 1px);
+}
+.requirements-empty p {
+  color: var(--ds-color-text-secondary);
+}
+.requirements-empty p + p {
+  margin-top: calc(var(--ds-space-5) * 1px);
+}
+.requirement-back {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--ds-space-4) * 1px);
+  margin-bottom: calc(var(--ds-space-8) * 1px);
+  color: var(--ds-color-text-secondary);
+  text-decoration: none;
+}
+.requirement-current-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--ds-space-4) * 1px);
+}
+.requirement-description > .ant-btn {
+  padding-inline: 0;
+  margin-top: calc(var(--ds-space-4) * 1px);
+}
+.requirements-section-title {
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: calc(var(--ds-space-8) * 1px);
+}
+.progress-record h3 {
+  margin: 0 0 calc(var(--ds-space-4) * 1px);
+  font-size: calc(var(--ds-type-ui-size) * 1px);
+  line-height: calc(var(--ds-type-ui-lineHeight) * 1px);
+  font-weight: var(--ds-type-sectionTitle-weight);
+}
+.progress-record .reading-markdown {
+  margin-top: calc(var(--ds-space-5) * 1px);
+}
+.progress-record-actions .ant-btn {
+  padding-inline: 0;
+}
+.requirements-more.ant-btn {
+  display: block;
+  margin: calc(var(--ds-space-6) * 1px) auto 0;
+}
+.requirement-related {
+  margin: calc(var(--ds-space-4) * 1px) 0;
+  padding-inline-start: calc(var(--ds-space-6) * 1px);
+}
+.requirement-history-body h3 {
+  margin-block: 0 calc(var(--ds-space-5) * 1px);
+  overflow-wrap: anywhere;
+}
+.requirement-history-body > .reading-markdown,
+.requirement-state-reason,
+.requirement-evidence > section + section {
+  margin-top: calc(var(--ds-space-6) * 1px);
+}
+.requirement-history-body p {
+  margin-block: calc(var(--ds-space-4) * 1px);
+}
+.requirement-source {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: calc(var(--ds-space-5) * 1px);
+  font: inherit;
+  line-height: calc(var(--ds-type-ui-lineHeight) * 1px);
+  border-radius: var(--ds-shape-smallRadius);
+  background: var(--ds-color-surface-hover);
+}
+@media (max-width: 1023px) {
+  .requirements-page {
+    padding: calc(var(--ds-layout-mobilePagePadding) * 1px);
+  }
+}
+@media (max-width: 767px) {
+  .requirements-title-row {
+    flex-wrap: wrap;
+  }
+  .requirement-list-title {
+    flex-wrap: wrap;
+  }
+  .requirements-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

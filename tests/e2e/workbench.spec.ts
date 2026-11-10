@@ -10,6 +10,15 @@ test('workbench navigation aligns icons and labels without baseline space', asyn
   await expectNavigationAlignment(rows, { count: 3, height: 36 });
   await page.setViewportSize({ width: 900, height: 1000 });
   await expectNavigationAlignment(rows, { count: 3, height: 36, rail: true });
+  const slot = page.locator('.sidebar .project-slot');
+  await expect(slot).toHaveCSS('border-color', 'rgba(0, 0, 0, 0)');
+  await expect(slot).toHaveCSS('height', '36px');
+  const projectIcon = await slot.locator('.project-picker-prefix .ds-icon').boundingBox();
+  const navigationIcon = await rows.first().locator('.ds-icon').boundingBox();
+  expect(projectIcon!.x + projectIcon!.width / 2).toBeCloseTo(
+    navigationIcon!.x + navigationIcon!.width / 2,
+    0,
+  );
 });
 
 test('workbench has no redundant service connection entry', async ({ page }) => {
