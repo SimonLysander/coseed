@@ -12,17 +12,14 @@ test('workbench navigation aligns icons and labels without baseline space', asyn
   await expectNavigationAlignment(rows, { count: 3, height: 36, rail: true });
 });
 
-test('workbench shows real readiness and connection details', async ({ page }) => {
+test('workbench has no redundant service connection entry', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/');
   await expect(page.getByRole('heading', { name: '先从一个项目开始' })).toBeVisible();
   await expect(page.getByText('本地服务已就绪', { exact: true })).toHaveCount(0);
-  await page.getByRole('button', { name: '服务连接' }).click();
-  await expect(page.getByRole('dialog')).toContainText('数据库');
-  await expect(page.getByRole('dialog')).toContainText('已就绪');
-  await page.getByRole('button', { name: '关闭', exact: true }).last().click();
-  await expect(page.getByRole('dialog')).not.toBeVisible();
+  await expect(page.getByRole('button', { name: '服务连接' })).toHaveCount(0);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
@@ -37,8 +34,12 @@ test('narrow reading layout does not overflow', async ({ page }) => {
   await expect(page.getByRole('dialog').getByText('本地服务已就绪', { exact: true })).toHaveCount(
     0,
   );
-  await page.getByRole('dialog').getByRole('button', { name: '服务连接' }).click();
-  await expect(page.getByRole('dialog', { name: '本地服务' })).toContainText('数据库');
+  await expect(page.getByRole('button', { name: '服务连接' })).toHaveCount(0);
+  await page.getByRole('dialog').getByRole('combobox', { name: '选择项目', exact: true }).click();
+  await expect(page.getByRole('region', { name: '选择项目', exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
 });
 
 test('failed connection can be retried', async ({ page }) => {
@@ -49,8 +50,7 @@ test('failed connection can be retried', async ({ page }) => {
   await page.getByRole('button', { name: '重新连接' }).click();
   await expect(page.getByText('本地服务已就绪', { exact: true })).toHaveCount(0);
   await expect(page.getByRole('alert')).not.toBeVisible();
-  await page.getByRole('button', { name: '服务连接' }).click();
-  await expect(page.getByRole('dialog')).toContainText('已就绪');
+  await expect(page.getByRole('button', { name: '服务连接' })).toHaveCount(0);
 });
 
 test('workbench uses the shared system typography and pine-green modes', async ({ page }) => {
@@ -73,13 +73,13 @@ test('workbench uses the shared system typography and pine-green modes', async (
   ).toBe('#2F7864');
   await chooseAppearance(page, 'dark');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await page.getByRole('button', { name: '服务连接' }).click();
-  await expect(page.locator('.ant-modal-container')).toHaveCSS('border-radius', '16px');
-  await expect(page.locator('.ant-modal-container')).toHaveCSS(
+  await page.locator('.sidebar').getByRole('combobox', { name: '选择项目', exact: true }).click();
+  await expect(page.locator('.project-picker-popup')).toHaveCSS('border-radius', '16px');
+  await expect(page.locator('.project-picker-popup')).toHaveCSS(
     'background-color',
     'rgb(35, 35, 41)',
   );
-  await page.getByRole('button', { name: '关闭', exact: true }).last().click();
+  await page.locator('.sidebar').getByRole('combobox').press('Escape');
   await page.reload();
   await expect(page.getByRole('button', { name: '切换到浅色', exact: true })).toBeVisible();
 });

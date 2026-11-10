@@ -2,7 +2,6 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import { Alert, Button, Drawer, Menu } from 'antd';
 import { matchPath, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
-import { FolderOpenIcon } from '@animateicons/react/lucide/folder-open-icon';
 import { ProjectWelcome } from '../projects/ProjectWelcome.js';
 import { ProjectPicker } from '../projects/ProjectPicker.js';
 import { CreateProjectDialog } from '../projects/CreateProjectDialog.js';
@@ -21,13 +20,10 @@ import { GitBranchIcon } from '@animateicons/react/lucide/git-branch-icon';
 import { HistoryIcon } from '@animateicons/react/lucide/history-icon';
 import { SproutIcon } from '@animateicons/react/lucide/sprout-icon';
 import { FileTextIcon } from '@animateicons/react/lucide/file-text-icon';
-import { PlugIcon } from '@animateicons/react/lucide/plug-icon';
 import { useServiceStatus } from './use-service-status.js';
 
 const AgentGuidePage = lazy(() => import('../agent-guide/AgentGuidePage.js'));
 const OverviewPage = lazy(() => import('../overview/OverviewPage.js'));
-
-const ServiceConnectionDialog = lazy(() => import('./ServiceConnectionDialog.js'));
 
 export function App() {
   const location = useLocation();
@@ -55,18 +51,18 @@ export function App() {
     window.scrollTo(0, 0);
   };
   const openPicker = () => {
-    setNavigationOpen(false);
+    setNavigationOpen(window.innerWidth < foundations.layout.breakpoint.tablet);
     setPickerOpen(true);
   };
   const openCreate = () => {
     setPickerOpen(false);
+    setNavigationOpen(false);
     setCreateOpen(true);
   };
   const [navigationOpen, setNavigationOpen] = useState(false);
-  const [connectionOpen, setConnectionOpen] = useState(false);
   const { connection, retry } = useServiceStatus();
 
-  const sidebarContent = (
+  const sidebarContent = (inDrawer = false) => (
     <div className="sidebar-content">
       <a className="brand" href="#/overview" aria-label="CoSeed 首页">
         <span className="brand-mark">
@@ -76,19 +72,14 @@ export function App() {
           CoSeed<span className="brand-caption">共同理解，一起生长</span>
         </span>
       </a>
-      <Button
-        type="text"
-        className="project-slot"
-        aria-label={project.data ? `切换项目，当前：${project.data.project.name}` : '选择项目'}
-        icon={
-          <FolderOpenIcon className="ds-icon" size={foundations.size.navIcon} aria-hidden="true" />
-        }
-        onClick={openPicker}
-      >
-        <span className="project-slot-label">
-          {project.data?.project.name ?? (projectId ? '当前项目' : '选择项目')}
-        </span>
-      </Button>
+      <ProjectPicker
+        open={pickerOpen && navigationOpen === inDrawer}
+        selectedId={projectId}
+        selectedName={project.data?.project.name ?? null}
+        onOpenChange={setPickerOpen}
+        onSelect={selectProject}
+        onCreate={openCreate}
+      />
       <nav aria-label="主导航">
         <Menu
           mode="inline"
@@ -136,18 +127,6 @@ export function App() {
         >
           <span className="sidebar-action-label">Agent 接入</span>
         </Button>
-        <Button
-          className="ds-nav-item"
-          type="text"
-          aria-label="服务连接"
-          icon={<PlugIcon className="ds-icon" size={foundations.size.navIcon} />}
-          onClick={() => {
-            setNavigationOpen(false);
-            setConnectionOpen(true);
-          }}
-        >
-          <span className="sidebar-action-label">服务连接</span>
-        </Button>
         <div className="sidebar-utilities">
           <AppearanceToggle />
         </div>
@@ -158,7 +137,7 @@ export function App() {
 
   return (
     <div className={`workbench${guideOpen ? ' workbench-guide' : ''}`}>
-      <aside className="sidebar">{sidebarContent}</aside>
+      <aside className="sidebar">{sidebarContent()}</aside>
 
       <main className="main-area">
         <Button
@@ -213,32 +192,20 @@ export function App() {
       <Drawer
         title="CoSeed"
         open={navigationOpen}
-        onClose={() => setNavigationOpen(false)}
+        onClose={() => {
+          setNavigationOpen(false);
+          setPickerOpen(false);
+        }}
         placement="left"
         size={foundations.layout.mobileDrawerWidth}
       >
-        {sidebarContent}
+        {sidebarContent(true)}
       </Drawer>
-      <ProjectPicker
-        open={pickerOpen}
-        selectedId={projectId}
-        onClose={() => setPickerOpen(false)}
-        onSelect={selectProject}
-        onCreate={openCreate}
-      />
       <CreateProjectDialog
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         onCreated={selectProject}
       />
-      {connectionOpen && (
-        <Suspense fallback={<span role="status">正在打开连接信息…</span>}>
-          <ServiceConnectionDialog
-            connection={connection}
-            onClose={() => setConnectionOpen(false)}
-          />
-        </Suspense>
-      )}
     </div>
   );
 }

@@ -153,12 +153,11 @@ test('switches explicit projects and refreshes MCP updates without mixing their 
   await expect(page.getByText('这是虚构项目 A 的独有内容。', { exact: true })).toBeVisible();
   await page
     .locator('.sidebar')
-    .getByRole('button', { name: /^切换项目/ })
+    .getByRole('combobox', { name: /^切换项目/ })
     .click();
-  const dialog = page.getByRole('dialog', { name: '选择项目', exact: true });
-  await dialog.getByRole('searchbox', { name: '搜索项目' }).fill(bName);
-  await dialog.getByRole('searchbox', { name: '搜索项目' }).press('Enter');
-  await dialog.getByRole('button', { name: new RegExp(bName) }).click();
+  const dialog = page.getByRole('region', { name: '选择项目', exact: true });
+  await page.locator('.sidebar').getByRole('combobox').fill(bName);
+  await dialog.getByRole('option', { name: new RegExp(bName) }).click();
   await expect(page.getByText('这是虚构项目 B 的独有内容。', { exact: true })).toBeVisible();
   await expect(page.getByText('这是虚构项目 A 的独有内容。', { exact: true })).toHaveCount(0);
   await saveFixtureOverview(
@@ -248,5 +247,87 @@ test('supports reading links, safely renders Markdown, and recovers from a missi
   await expect(page.getByRole('heading', { name: '暂时无法打开项目' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '产品说明', exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: '选择其他项目' }).click();
-  await expect(page.getByRole('dialog', { name: '选择项目', exact: true })).toBeVisible();
+  await expect(page.getByRole('region', { name: '选择项目', exact: true })).toBeVisible();
+});
+
+test('project selection searches in its trigger, supports keyboard selection and creates from the dropdown', async ({
+  page,
+  request,
+}, testInfo) => {
+  const title = name('下拉选择');
+  const project = await createFixture(request, title);
+  await page.goto(`/#/projects/${project.projectId}/overview`);
+  const card = page.getByRole('region', { name: '选择项目', exact: true });
+  const trigger = page.locator('.sidebar').getByRole('combobox', { name: /^切换项目/ });
+  await trigger.focus();
+  await trigger.press('ArrowDown');
+  await expect(card).toBeVisible();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+  await trigger.fill(title);
+  await expect(card.getByRole('option', { name: new RegExp(title) })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+  const bounds = await page.locator('.project-picker-popup:visible').boundingBox();
+  const anchor = await page.locator('.sidebar .project-slot').boundingBox();
+  expect(bounds!.x).toBeCloseTo(anchor!.x, 0);
+  expect(bounds!.y).toBeGreaterThanOrEqual(anchor!.y + anchor!.height);
+  await expect(card.getByText(/创建于/)).toHaveCount(0);
+  await page.screenshot({
+    path: testInfo.outputPath('project-picker-light.png'),
+    fullPage: true,
+    animations: 'disabled',
+  });
+  await trigger.press('Escape');
+  await expect(card).not.toBeVisible();
+  await expect(trigger).toBeFocused();
+  await trigger.click();
+  await page.getByRole('heading', { name: title, exact: true }).click();
+  await expect(card).not.toBeVisible();
+  await chooseAppearance(page, 'dark');
+  await trigger.click();
+  await page.screenshot({ path: testInfo.outputPath('project-picker-dark.png'), fullPage: true });
+  await card.getByRole('button', { name: '创建项目', exact: true }).click();
+  await expect(card).not.toBeVisible();
+  await expect(page.getByRole('dialog', { name: '创建项目', exact: true })).toBeVisible();
+});
+
+test('project select remains searchable in the tablet rail and switches inside the mobile drawer', async ({
+  page,
+  request,
+}, testInfo) => {
+  const a = await createFixture(request, name('手机 A'));
+  const bTitle = name('手机 B');
+  const b = await createFixture(request, bTitle);
+  await page.goto(`/#/projects/${a.projectId}/overview`);
+  await page.setViewportSize({ width: 900, height: 900 });
+  const rail = page.locator('.sidebar').getByRole('combobox', { name: /^切换项目/ });
+  await rail.click();
+  const card = page.getByRole('region', { name: '选择项目', exact: true });
+  await expect(card).toBeVisible();
+  await rail.fill(bTitle);
+  await expect(rail).toHaveValue(bTitle);
+  await expect(page.locator('.sidebar .project-slot')).toHaveCSS('width', '320px');
+  await expect(card.getByRole('option', { name: new RegExp(bTitle) })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('project-picker-tablet.png'), fullPage: true });
+  await rail.press('Escape');
+  await page.setViewportSize({ width: 320, height: 720 });
+  await page.getByRole('button', { name: '打开主导航' }).click();
+  const navigation = page.getByRole('dialog', { name: 'CoSeed', exact: true });
+  const trigger = navigation.getByRole('combobox', { name: /^切换项目/ });
+  await trigger.click();
+  await expect(card).toBeVisible();
+  await trigger.fill(bTitle);
+  await expect(card.getByRole('option', { name: new RegExp(bTitle) })).toBeVisible();
+  await card.getByRole('option', { name: new RegExp(bTitle) }).click({ trial: true });
+  const bounds = await page.locator('.project-picker-popup:visible').boundingBox();
+  expect(bounds!.x).toBeGreaterThanOrEqual(0);
+  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(320);
+  await page.screenshot({ path: testInfo.outputPath('project-picker-mobile.png'), fullPage: true });
+  await trigger.press('ArrowDown');
+  await trigger.press('Enter');
+  await expect(page).toHaveURL(new RegExp(`/projects/${b.projectId}/overview$`));
+  await expect(navigation).not.toBeVisible();
+  await expect(card).not.toBeVisible();
 });
