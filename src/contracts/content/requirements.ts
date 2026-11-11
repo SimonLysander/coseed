@@ -36,7 +36,14 @@ export const progressRecordContentSchema = z.strictObject({
   requirementId: id,
   title: text,
   markdown: text,
-  occurredAt: z.number().int().nonnegative().nullable(),
+  occurredAt: z
+    .number()
+    .int()
+    .nonnegative()
+    .nullable()
+    .describe(
+      '结论或事件实际发生时间，Unix 毫秒；无法核实时为 null，更正也须有依据。收录和修订保存时间由系统记录。',
+    ),
 });
 
 export const retrospectiveContentSchema = z.strictObject({

@@ -990,10 +990,24 @@
                           "items": {
                             "type": "object",
                             "properties": {
-                              "sourceId": { "type": "string", "minLength": 1 },
-                              "side": { "type": "string", "enum": ["before", "after"] },
-                              "path": { "type": "string" },
-                              "explanationMd": { "type": "string" }
+                              "sourceId": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "已有来源 ID，或本批新增来源的 $临时名称。"
+                              },
+                              "side": {
+                                "type": "string",
+                                "enum": ["before", "after"],
+                                "description": "before 支持修改前内容，after 支持修改后内容；删除使用 before。"
+                              },
+                              "path": {
+                                "type": "string",
+                                "description": "内容 JSON Pointer，空字符串表示完整内容。"
+                              },
+                              "explanationMd": {
+                                "type": "string",
+                                "description": "说明该材料具体支持哪项变化。"
+                              }
                             },
                             "required": ["sourceId", "side", "path", "explanationMd"],
                             "additionalProperties": false
@@ -1394,10 +1408,24 @@
                             "items": {
                               "type": "object",
                               "properties": {
-                                "sourceId": { "type": "string", "minLength": 1 },
-                                "side": { "type": "string", "enum": ["before", "after"] },
-                                "path": { "type": "string" },
-                                "explanationMd": { "type": "string" }
+                                "sourceId": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "description": "已有来源 ID，或本批新增来源的 $临时名称。"
+                                },
+                                "side": {
+                                  "type": "string",
+                                  "enum": ["before", "after"],
+                                  "description": "before 支持修改前内容，after 支持修改后内容；删除使用 before。"
+                                },
+                                "path": {
+                                  "type": "string",
+                                  "description": "内容 JSON Pointer，空字符串表示完整内容。"
+                                },
+                                "explanationMd": {
+                                  "type": "string",
+                                  "description": "说明该材料具体支持哪项变化。"
+                                }
                               },
                               "required": ["sourceId", "side", "path", "explanationMd"],
                               "additionalProperties": false
@@ -1430,7 +1458,8 @@
                                 "anyOf": [
                                   { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
                                   { "type": "null" }
-                                ]
+                                ],
+                                "description": "结论或事件实际发生时间，Unix 毫秒；无法核实时为 null，更正也须有依据。收录和修订保存时间由系统记录。"
                               }
                             },
                             "required": ["requirementId", "title", "markdown", "occurredAt"],
@@ -1547,7 +1576,8 @@
                                         "projectVersion": {
                                           "type": "integer",
                                           "minimum": 0,
-                                          "maximum": 9007199254740991
+                                          "maximum": 9007199254740991,
+                                          "description": "固定整张历史图的项目版本，全部成员按此版本解析。"
                                         }
                                       },
                                       "required": ["kind", "id", "projectVersion"],
@@ -1811,10 +1841,24 @@
                                 "items": {
                                   "type": "object",
                                   "properties": {
-                                    "sourceId": { "type": "string", "minLength": 1 },
-                                    "side": { "type": "string", "enum": ["before", "after"] },
-                                    "path": { "type": "string" },
-                                    "explanationMd": { "type": "string" }
+                                    "sourceId": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "description": "已有来源 ID，或本批新增来源的 $临时名称。"
+                                    },
+                                    "side": {
+                                      "type": "string",
+                                      "enum": ["before", "after"],
+                                      "description": "before 支持修改前内容，after 支持修改后内容；删除使用 before。"
+                                    },
+                                    "path": {
+                                      "type": "string",
+                                      "description": "内容 JSON Pointer，空字符串表示完整内容。"
+                                    },
+                                    "explanationMd": {
+                                      "type": "string",
+                                      "description": "说明该材料具体支持哪项变化。"
+                                    }
                                   },
                                   "required": ["sourceId", "side", "path", "explanationMd"],
                                   "additionalProperties": false
@@ -2095,10 +2139,24 @@
                                 "items": {
                                   "type": "object",
                                   "properties": {
-                                    "sourceId": { "type": "string", "minLength": 1 },
-                                    "side": { "type": "string", "enum": ["before", "after"] },
-                                    "path": { "type": "string" },
-                                    "explanationMd": { "type": "string" }
+                                    "sourceId": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "description": "已有来源 ID，或本批新增来源的 $临时名称。"
+                                    },
+                                    "side": {
+                                      "type": "string",
+                                      "enum": ["before", "after"],
+                                      "description": "before 支持修改前内容，after 支持修改后内容；删除使用 before。"
+                                    },
+                                    "path": {
+                                      "type": "string",
+                                      "description": "内容 JSON Pointer，空字符串表示完整内容。"
+                                    },
+                                    "explanationMd": {
+                                      "type": "string",
+                                      "description": "说明该材料具体支持哪项变化。"
+                                    }
                                   },
                                   "required": ["sourceId", "side", "path", "explanationMd"],
                                   "additionalProperties": false
@@ -2135,7 +2193,8 @@
                                         "maximum": 9007199254740991
                                       },
                                       { "type": "null" }
-                                    ]
+                                    ],
+                                    "description": "结论或事件实际发生时间，Unix 毫秒；无法核实时为 null，更正也须有依据。收录和修订保存时间由系统记录。"
                                   }
                                 },
                                 "required": ["requirementId", "title", "markdown", "occurredAt"],
@@ -2261,7 +2320,8 @@
                                             "projectVersion": {
                                               "type": "integer",
                                               "minimum": 0,
-                                              "maximum": 9007199254740991
+                                              "maximum": 9007199254740991,
+                                              "description": "固定整张历史图的项目版本，全部成员按此版本解析。"
                                             }
                                           },
                                           "required": ["kind", "id", "projectVersion"],
@@ -2526,10 +2586,24 @@
                               "items": {
                                 "type": "object",
                                 "properties": {
-                                  "sourceId": { "type": "string", "minLength": 1 },
-                                  "side": { "type": "string", "enum": ["before", "after"] },
-                                  "path": { "type": "string" },
-                                  "explanationMd": { "type": "string" }
+                                  "sourceId": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "已有来源 ID，或本批新增来源的 $临时名称。"
+                                  },
+                                  "side": {
+                                    "type": "string",
+                                    "enum": ["before", "after"],
+                                    "description": "before 支持修改前内容，after 支持修改后内容；删除使用 before。"
+                                  },
+                                  "path": {
+                                    "type": "string",
+                                    "description": "内容 JSON Pointer，空字符串表示完整内容。"
+                                  },
+                                  "explanationMd": {
+                                    "type": "string",
+                                    "description": "说明该材料具体支持哪项变化。"
+                                  }
                                 },
                                 "required": ["sourceId", "side", "path", "explanationMd"],
                                 "additionalProperties": false
@@ -2801,10 +2875,24 @@
                               "items": {
                                 "type": "object",
                                 "properties": {
-                                  "sourceId": { "type": "string", "minLength": 1 },
-                                  "side": { "type": "string", "enum": ["before", "after"] },
-                                  "path": { "type": "string" },
-                                  "explanationMd": { "type": "string" }
+                                  "sourceId": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "已有来源 ID，或本批新增来源的 $临时名称。"
+                                  },
+                                  "side": {
+                                    "type": "string",
+                                    "enum": ["before", "after"],
+                                    "description": "before 支持修改前内容，after 支持修改后内容；删除使用 before。"
+                                  },
+                                  "path": {
+                                    "type": "string",
+                                    "description": "内容 JSON Pointer，空字符串表示完整内容。"
+                                  },
+                                  "explanationMd": {
+                                    "type": "string",
+                                    "description": "说明该材料具体支持哪项变化。"
+                                  }
                                 },
                                 "required": ["sourceId", "side", "path", "explanationMd"],
                                 "additionalProperties": false
@@ -2841,7 +2929,8 @@
                                       "maximum": 9007199254740991
                                     },
                                     { "type": "null" }
-                                  ]
+                                  ],
+                                  "description": "结论或事件实际发生时间，Unix 毫秒；无法核实时为 null，更正也须有依据。收录和修订保存时间由系统记录。"
                                 }
                               },
                               "required": ["requirementId", "title", "markdown", "occurredAt"],
@@ -2958,7 +3047,8 @@
                                           "projectVersion": {
                                             "type": "integer",
                                             "minimum": 0,
-                                            "maximum": 9007199254740991
+                                            "maximum": 9007199254740991,
+                                            "description": "固定整张历史图的项目版本，全部成员按此版本解析。"
                                           }
                                         },
                                         "required": ["kind", "id", "projectVersion"],
@@ -3076,15 +3166,20 @@
                               "document"
                             ]
                           },
-                          "rawText": { "type": "string" },
+                          "rawText": {
+                            "type": "string",
+                            "description": "实际取得的原始材料，保留原文、空白和换行；来源保存后不可变。"
+                          },
                           "locator": {
                             "default": {},
+                            "description": "实际可核对的路径、行号、提交、URL 或对话位置。code 来源须有规范仓库相对 path，排除绝对路径、反斜线和 ..；代码及验证材料应能对应代码状态。",
                             "type": "object",
                             "propertyNames": { "type": "string" },
                             "additionalProperties": { "$ref": "#/$defs/__schema0" }
                           },
                           "occurredAt": {
                             "default": null,
+                            "description": "材料实际发生时间，Unix 毫秒；未知为 null。收录时间由系统生成。",
                             "anyOf": [
                               { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
                               { "type": "null" }
@@ -3560,13 +3655,15 @@
                                             "required": ["kind", "id"],
                                             "additionalProperties": false
                                           }
-                                        ]
+                                        ],
+                                        "description": "对象实际所属模块或外部系统，id 引用对应实体。"
                                       },
                                       "primarySourceId": {
                                         "anyOf": [
                                           { "type": "string", "minLength": 1 },
                                           { "type": "null" }
-                                        ]
+                                        ],
+                                        "description": "核心真实实现来源：kind=code 且 locator.path 为真实仓库相对路径的来源 ID；缺失为 null。"
                                       }
                                     },
                                     "required": [
@@ -3607,19 +3704,22 @@
                                             "required": ["kind", "id"],
                                             "additionalProperties": false
                                           }
-                                        ]
+                                        ],
+                                        "description": "对象实际所属模块或外部系统，id 引用对应实体。"
                                       },
                                       "primarySourceId": {
                                         "anyOf": [
                                           { "type": "string", "minLength": 1 },
                                           { "type": "null" }
-                                        ]
+                                        ],
+                                        "description": "核心真实实现来源：kind=code 且 locator.path 为真实仓库相对路径的来源 ID；缺失为 null。"
                                       },
                                       "typeSourceId": {
                                         "anyOf": [
                                           { "type": "string", "minLength": 1 },
                                           { "type": "null" }
-                                        ]
+                                        ],
+                                        "description": "类型设计材料的来源 ID，可引用代码或设计文档；缺失为 null。"
                                       },
                                       "typeName": { "type": "string" },
                                       "typeScript": { "type": "string" }

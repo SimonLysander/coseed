@@ -41,18 +41,32 @@ export const projectMetadataSchema = z.strictObject({
 export const sourceInputSchema = z.strictObject({
   id,
   kind: z.enum(['conversation', 'manual_edit', 'code', 'verification', 'document']),
-  rawText: text,
-  locator: jsonObject.default({}),
-  occurredAt: version.nullable().default(null),
+  rawText: text.describe('实际取得的原始材料，保留原文、空白和换行；来源保存后不可变。'),
+  locator: jsonObject
+    .default({})
+    .describe(
+      '实际可核对的路径、行号、提交、URL 或对话位置。code 来源须有规范仓库相对 path，排除绝对路径、反斜线和 ..；代码及验证材料应能对应代码状态。',
+    ),
+  occurredAt: version
+    .nullable()
+    .default(null)
+    .describe('材料实际发生时间，Unix 毫秒；未知为 null。收录时间由系统生成。'),
 });
 export const citationSchema = z.strictObject({
-  sourceId: id,
-  side: z.enum(['before', 'after']),
+  sourceId: id.describe('已有来源 ID，或本批新增来源的 $临时名称。'),
+  side: z
+    .enum(['before', 'after'])
+    .describe('before 支持修改前内容，after 支持修改后内容；删除使用 before。'),
   path: z
     .string()
-    .refine((value) => value === '' || value.startsWith('/'), '使用 JSON Pointer 定位内容'),
-  explanationMd: text,
+    .refine((value) => value === '' || value.startsWith('/'), '使用 JSON Pointer 定位内容')
+    .describe('内容 JSON Pointer，空字符串表示完整内容。'),
+  explanationMd: text.describe('说明该材料具体支持哪项变化。'),
 });
+const citations = z
+  .array(citationSchema)
+  .min(1)
+  .describe('至少一项来源引用，并覆盖全部改变字段；结构校验不证明材料实际支持结论。');
 
 export const overviewPartSchema = z.discriminatedUnion('kind', [
   z.strictObject({ kind: z.literal('product') }),
@@ -73,22 +87,35 @@ export const currentLinkSchema = z.strictObject({
 export const historicalLinkSchema = z.strictObject({
   target: z.discriminatedUnion('kind', [
     z.strictObject({ kind: z.literal('overview'), revisionNo: revision, part: overviewPartSchema }),
-    z.strictObject({ kind: z.literal('diagram'), id, projectVersion: version }),
+    z.strictObject({
+      kind: z.literal('diagram'),
+      id,
+      projectVersion: version.describe('固定整张历史图的项目版本，全部成员按此版本解析。'),
+    }),
     ...(['record', 'entity', 'relationship', 'note'] as const).map((kind) =>
       z.strictObject({ kind: z.literal(kind), id, revisionNo: revision }),
     ),
   ]),
   explanationMd: text,
 });
-export const statusChangeSchema = z.strictObject({
-  kind: z.enum(['progress', 'correction']),
-  reasonMd: text,
-  records: z.array(z.strictObject({ id, revisionNo: revision })).default([]),
-});
+export const statusChangeSchema = z
+  .strictObject({
+    kind: z
+      .enum(['progress', 'correction'])
+      .describe('progress 表示真实状态推进，correction 表示状态纠错。'),
+    reasonMd: text.describe('状态变化的具体原因；correction 由 citations 中的原始材料支持。'),
+    records: z
+      .array(z.strictObject({ id, revisionNo: revision }))
+      .default([])
+      .describe('progress 至少引用一条同一需求的固定记录修订；其后记录更正仍保留该历史依据。'),
+  })
+  .describe(
+    '初建需求或状态未变时省略或为 null；初始状态由 content.status 和 citations 支持，系统生成 initial 历史。状态变化时间由系统取最近一次实际状态值改变的保存时间。',
+  );
 const common = {
   id,
   expectedRevision: revision.nullable(),
-  citations: z.array(citationSchema).min(1),
+  citations,
 };
 const upsert = z.discriminatedUnion('objectType', [
   z.strictObject({
@@ -108,7 +135,7 @@ const upsert = z.discriminatedUnion('objectType', [
     objectType: z.literal('requirement'),
     ...common,
     content: requirementContentSchema,
-    links: z.array(currentLinkSchema).optional(),
+    links: z.array(currentLinkSchema).optional().describe('省略沿用当前链接，空数组清空。'),
     statusChange: statusChangeSchema.nullable().default(null),
   }),
   z.strictObject({
@@ -116,7 +143,10 @@ const upsert = z.discriminatedUnion('objectType', [
     objectType: z.literal('record'),
     ...common,
     content: progressRecordContentSchema,
-    links: z.array(historicalLinkSchema).optional(),
+    links: z
+      .array(historicalLinkSchema)
+      .optional()
+      .describe('固定历史对象及其版本；省略沿用当前链接，空数组清空。'),
   }),
   z.strictObject({
     action: z.literal('upsert'),
@@ -158,7 +188,7 @@ export const contentChangeSchema = z.union([
     objectType: removable,
     id,
     expectedRevision: revision,
-    citations: z.array(citationSchema).min(1),
+    citations,
   }),
   z.strictObject({
     action: z.literal('restore'),
@@ -166,7 +196,7 @@ export const contentChangeSchema = z.union([
     id,
     expectedRevision: revision,
     fromRevisionNo: revision,
-    citations: z.array(citationSchema).min(1),
+    citations,
     statusChange: statusChangeSchema.nullable().default(null),
   }),
 ]);

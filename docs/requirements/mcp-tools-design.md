@@ -7,7 +7,7 @@
 Agent 取得明确项目的一致资料，结合实际代码及用户指定的讨论范围整理变化，保存有依据、可追溯的新版本。工具不替 Agent 判断业务结论，不获取内部推理，也不自动取得完整聊天记录。
 
 - Agent：理解业务、区分进展与纠错、判断受影响对象、提供实际材料。
-- 提示词：解释目标、业务含义、整理方法及未知情况的处理。
+- 指南提示词：解释目标、业务含义、整理方法及未知情况的处理；调用语义由工具描述和字段 Schema 提供。
 - Schema 和共同保存服务：检查结构、项目归属、版本、引用、来源覆盖和事务。
 - MCP：明确调用范围，分配新增 ID，解析同批引用，提供事实式结果。
 - 页面：展示权威内容和历史；当前已接入综述、需求和业务设计查询。
@@ -104,11 +104,11 @@ Agent 利用自身文件能力下载到 staging，解码、核对全部文件及
 
 ## 7. 提示词分层
 
-- 短入口：MCP instructions 说明用途、用户触发回顾和规范入口。
-- 工具和字段描述：调用前说明范围、副作用、参数来源及结果。
+- 短入口：MCP instructions 说明用途、规范入口和授权边界。
+- 工具和字段描述：调用前说明范围、副作用、参数来源及结果；分页、快照校验、保存标识、状态变更和引用字段的接口语义在对应描述及 Schema 维护。
 - 同源指南：`read_guide(topic="usage")` 返回完整接入与写作文章；overview、requirements、design、sources、export 返回文章的共同任务背景和对应章节，内容主题附运行 Schema。topic 仍为原有六项，不增加新工具。
 
-规范正文唯一来源为 `docs/operations/agent-integration.md`，`src/server/mcp/guides.ts` 用 markdown-it 解析章节并提供 MCP 投影，guideVersion=2；页面直接渲染并复制同一全文。历史约定清单仅作核对资料。业务结构权威仍在共享 Schema，不在 Markdown 复制完整 JSON Schema。宿主是否读取 instructions 由客户端决定，CoSeed 不拥有其系统提示词，也不保证规范必然被模型遵守。
+协作和写作规范唯一正文为 `docs/operations/agent-integration.md`，`src/server/mcp/guides.ts` 用 markdown-it 解析章节并提供 MCP 投影，guideVersion=2；页面直接渲染并复制同一全文。历史约定清单仅作核对资料。工具与字段语义以注册的 description 和共享 Schema 为准，通过实际工具发现生成契约；指南保留业务判断和内容写法，不再复述参数、返回值及协议细节。宿主是否读取 instructions 由客户端决定，CoSeed 不拥有其系统提示词，也不保证规范必然被模型遵守。
 
 遵循 designing-agent-tools、writing-prompts 和[用户提供的提示词原则](https://lux-stirring.space/note?at=6a4df7251d165e0ccde2225c&node=ci_b3b7f69b47a6)：先交代目标和上下文，必要约束使用枚举、Schema 和实际校验，未知情况留出口，例子校准关键判断，不要求内部思维过程。
 

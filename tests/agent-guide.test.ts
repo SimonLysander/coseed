@@ -38,7 +38,6 @@ describe('one human and agent guide', () => {
     for (const obligation of [
       '由用户明确发起阶段回顾',
       '有且只有一个主需求',
-      '无法核实时填 `null`',
       '引用其具体修订并说明变化',
       '六种状态均可回退、恢复和跳转',
       '一张图的所有节点必须正交完备',
@@ -54,6 +53,17 @@ describe('one human and agent guide', () => {
     ])
       expect(document).toContain(obligation);
     expect(document).not.toContain('不对，我觉得整个这里其实是');
+    for (const interfaceTerm of [
+      'manifestSha256',
+      'nextAfterPath',
+      'expectedRevision',
+      'requestKey',
+    ])
+      expect(document).not.toContain(interfaceTerm);
+    expect(readGuide('requirements').schemas).toHaveProperty(
+      'record.properties.occurredAt.description',
+      expect.stringContaining('无法核实时为 null'),
+    );
   });
 
   it('publishes the document in the installable package and keeps navigation mappings explicit', () => {

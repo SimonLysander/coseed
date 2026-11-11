@@ -5,21 +5,30 @@ const id = z
   .string()
   .min(1)
   .refine((value) => value.trim() === value, 'ID 不能包含首尾空白');
-const owner = z.discriminatedUnion('kind', [
-  z.strictObject({ kind: z.literal('module'), id }),
-  z.strictObject({ kind: z.literal('external_system'), id }),
-]);
+const owner = z
+  .discriminatedUnion('kind', [
+    z.strictObject({ kind: z.literal('module'), id }),
+    z.strictObject({ kind: z.literal('external_system'), id }),
+  ])
+  .describe('对象实际所属模块或外部系统，id 引用对应实体。');
+const primarySource = id
+  .nullable()
+  .describe(
+    '核心真实实现来源：kind=code 且 locator.path 为真实仓库相对路径的来源 ID；缺失为 null。',
+  );
 const base = { name: text, summary: text };
 const entity = z.discriminatedUnion('kind', [
   z.strictObject({ kind: z.literal('module'), ...base, role: z.enum(['core', 'support']) }),
   z.strictObject({ kind: z.literal('external_system'), ...base }),
-  z.strictObject({ kind: z.literal('component'), ...base, owner, primarySourceId: id.nullable() }),
+  z.strictObject({ kind: z.literal('component'), ...base, owner, primarySourceId: primarySource }),
   z.strictObject({
     kind: z.literal('data_object'),
     ...base,
     owner,
-    primarySourceId: id.nullable(),
-    typeSourceId: id.nullable(),
+    primarySourceId: primarySource,
+    typeSourceId: id
+      .nullable()
+      .describe('类型设计材料的来源 ID，可引用代码或设计文档；缺失为 null。'),
     typeName: text,
     typeScript: text,
   }),

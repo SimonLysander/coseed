@@ -213,7 +213,7 @@ export class McpToolsService {
 
     register(
       'export_snapshot',
-      '读取固定项目版本的完整文件清单或单文件字节分块，包含当前资料、来源和必要历史引用。version 来自已读项目；路径和分页位置来自本工具返回。不会在客户端落盘；格式见 export 规范。',
+      '读取固定项目版本的文件清单或单文件分块，包含全部当前有效资料、来源及必要的固定历史引用；已移除对象仅出现在必要历史中。历史图成员按同一 projectVersion 解析。只返回数据，不在客户端落盘；下载和校验字段见输入 Schema。',
       exportSnapshotInputSchema,
       false,
       (input) =>
@@ -306,7 +306,7 @@ export class McpToolsService {
 
     register(
       'create_project',
-      '创建空项目，只保存实际提供的名称和可选仓库定位，业务内容为空、版本为0。requestKey 标识一次创建意图，同一 key 同内容重试返回原回执，不重复创建。不会扫描或修改业务仓库。',
+      '创建空项目，保存实际提供的名称和可选仓库定位，业务内容为空、版本为0；成功返回 receipt。不会扫描或修改业务仓库。',
       createProjectToolInputSchema,
       true,
       ({ requestKey, ...input }) => {
@@ -320,7 +320,7 @@ export class McpToolsService {
 
     register(
       'save_changes',
-      '一次原子保存指定项目的来源、综述、需求、记录或图对象变化，追加修订和来源历史。baseVersion/expectedRevision 必须是实际读取值。新增 ID 用 $临时名称，服务分配正式 ID 并解析同批引用。requestKey 同请求可安全重试，不同内容冲突；无自动合并或隐式准备步骤。HTTP请求上限1 MiB。写作和引用规范见 read_guide。',
+      '原子保存一个项目的来源和完整对象变化，追加修订历史。成功数据含 receipt（不可变操作回执及资料版本）和 allocations（新增 ID 映射）；无变化返回 NO_CHANGES 且不增加版本，版本冲突整批未保存，无自动合并或准备步骤。HTTP 请求上限 1 MiB，超出返回 413、整批未保存；无分块上传或自动拆批。内容写法见 read_guide。',
       saveChangesInputSchema,
       true,
       (input) => {

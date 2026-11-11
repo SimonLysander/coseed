@@ -173,7 +173,21 @@ describe('real MCP business tools over the official HTTP client', () => {
     const guide = await data('read_guide', { topic: 'usage' });
     expect(guide.markdown).toBe(await readFile('docs/operations/agent-integration.md', 'utf8'));
     expect(guide.guideVersion).toBe(2);
-    expect(guide.markdown).toContain('保存采用直接提交方式');
+    const exportTool = tools.find((tool) => tool.name === 'export_snapshot')!;
+    expect(exportTool.inputSchema).toHaveProperty(
+      'properties.part.description',
+      expect.stringContaining('RFC 8785'),
+    );
+    expect(JSON.stringify(exportTool.inputSchema)).toContain('nextAfterPath');
+    expect(JSON.stringify(exportTool.inputSchema)).toContain('Base64');
+    const saveTool = tools.find((tool) => tool.name === 'save_changes')!;
+    expect(saveTool.description).toContain('无自动合并或准备步骤');
+    expect(saveTool.inputSchema).toHaveProperty(
+      'properties.requestKey.description',
+      expect.stringContaining('OPERATION_MISMATCH'),
+    );
+    expect(JSON.stringify(saveTool.inputSchema)).toContain('JSON Pointer');
+    expect(JSON.stringify(saveTool.inputSchema)).toContain('初建需求或状态未变时');
     const requirements = await data('read_guide', { topic: 'requirements' });
     expect(requirements.schemas.requirement.properties.status.enum).toContain(
       'ready_for_implementation',
