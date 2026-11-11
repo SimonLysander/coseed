@@ -37,13 +37,13 @@ const chapters = headings.map((heading, index) =>
     .trim(),
 );
 const topicChapters = {
-  overview: [5, 8],
-  requirements: [6, 8],
-  design: [7, 8],
-  sources: [8],
-  export: [3],
+  overview: [3, 6],
+  requirements: [4, 6],
+  design: [5, 6],
+  sources: [6],
+  export: [2],
 } as const;
-if (chapters.length !== 9) throw new Error('Agent 指南章节映射需要同步更新');
+if (chapters.length !== 7) throw new Error('Agent 指南章节映射需要同步更新');
 
 function guideMarkdown(topic: z.infer<typeof guideTopicSchema>) {
   if (topic === 'usage') return document;

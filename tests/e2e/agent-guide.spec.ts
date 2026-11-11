@@ -15,26 +15,24 @@ test('guide navigation, section links and bundled reference work in the built ap
   await expect(page.getByRole('heading', { name: guideTitle, exact: true })).toBeVisible();
   await expect(page.locator('.guide-lead')).toContainText('read_guide(topic="usage")');
   await expect(page.getByRole('link', { name: '核对历史约定及出处' })).toHaveCount(0);
-  await expect(page.locator('.guide-section')).toHaveCount(9);
+  await expect(page.locator('.guide-section')).toHaveCount(7);
   await expect(page.locator('.sidebar-guide-link')).toHaveAttribute('aria-current', 'page');
   await expect(page.locator('.guide-toc')).toBeVisible();
   await expect(page.locator('.guide-article')).toContainText('一张图的所有节点必须正交完备');
   await expect(page.locator('.guide-article')).toContainText('虚构预约项目');
   await expect(page.locator('.guide-article')).not.toContainText('不对，我觉得整个这里其实是');
   await expect(page.locator('.guide-article')).not.toContainText('业务设计页面仍在开发');
-  await page.locator('.guide-toc').getByRole('link', { name: '推进并发起回顾' }).click();
+  await page.locator('.guide-toc').getByRole('link', { name: '整理需求推进' }).click();
   await expect(page).toHaveURL(/#\/agent-guide\/guide-section-4$/);
   await expect(
-    page.getByRole('heading', { name: '4. 推进并发起回顾', exact: true }),
+    page.getByRole('heading', { name: '4. 整理需求推进', exact: true }),
   ).toBeInViewport();
-  await expect(page.locator('.guide-toc a[aria-current="location"]')).toContainText(
-    '推进并发起回顾',
-  );
+  await expect(page.locator('.guide-toc a[aria-current="location"]')).toContainText('整理需求推进');
   await chooseAppearance(page, 'dark');
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(
-    page.getByRole('heading', { name: '4. 推进并发起回顾', exact: true }),
+    page.getByRole('heading', { name: '4. 整理需求推进', exact: true }),
   ).toBeInViewport();
   const reference = await page
     .getByRole('link', { name: '本地开发和运行', exact: true })
@@ -70,8 +68,8 @@ test('guide remains readable with working contents and navigation on narrow scre
     }
   }
   await page.getByRole('button', { name: '打开阅读目录' }).click();
-  await page.getByRole('menuitem', { name: '连接并选择项目' }).click();
-  const heading = page.getByRole('heading', { name: '2. 连接并选择项目', exact: true });
+  await page.getByRole('menuitem', { name: '连接并读取项目' }).click();
+  const heading = page.getByRole('heading', { name: '2. 连接并读取项目', exact: true });
   await expect(heading).toBeInViewport();
   expect((await heading.boundingBox())!.y).toBeGreaterThanOrEqual(60);
   await page.getByRole('button', { name: '打开主导航' }).click();

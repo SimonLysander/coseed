@@ -10,17 +10,23 @@ describe('one human and agent guide', () => {
     expect(readGuide('usage').markdown).toBe(document);
     expect(readGuide('usage').guideVersion).toBe(2);
     for (const [topic, title] of [
-      ['overview', '5. 更新项目综述'],
-      ['requirements', '6. 整理需求推进'],
-      ['design', '7. 更新业务设计'],
-      ['sources', '8. 保留依据和未知'],
-      ['export', '3. 读取完整资料'],
+      ['overview', '3. 更新项目综述'],
+      ['requirements', '4. 整理需求推进'],
+      ['design', '5. 更新业务设计'],
+      ['sources', '6. 保留依据和未知'],
+      ['export', '2. 连接并读取项目'],
     ] as const) {
       const guide = readGuide(topic);
       expect(guide.markdown).toContain(`## ${title}`);
       // Paragraphs are literal source excerpts, not separately rewritten prompts.
       for (const paragraph of guide.markdown.split('\n\n')) expect(document).toContain(paragraph);
       expect(guide.markdown).toContain('Agent 的任务是结合用户目标');
+      expect(guide.markdown).toContain('### 内容表达规范');
+      if (topic !== 'export') {
+        expect(guide.markdown).toContain('## 6. 保留依据和未知');
+      } else {
+        expect(guide.markdown).not.toContain('## 3. 更新项目综述');
+      }
     }
     expect(readGuide('overview').schemas).toHaveProperty('overview');
     expect(readGuide('requirements').schemas).toHaveProperty('record');
@@ -59,14 +65,12 @@ describe('one human and agent guide', () => {
     );
     expect(titles).toEqual([
       '1. 明确任务',
-      '2. 连接并选择项目',
-      '3. 读取完整资料',
-      '4. 推进并发起回顾',
-      '5. 更新项目综述',
-      '6. 整理需求推进',
-      '7. 更新业务设计',
-      '8. 保留依据和未知',
-      '9. 保存并核对结果',
+      '2. 连接并读取项目',
+      '3. 更新项目综述',
+      '4. 整理需求推进',
+      '5. 更新业务设计',
+      '6. 保留依据和未知',
+      '7. 保存并核对结果',
     ]);
   });
 });
