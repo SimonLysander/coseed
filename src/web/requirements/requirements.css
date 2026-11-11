@@ -103,12 +103,15 @@
   padding-inline: 0;
   margin-top: calc(var(--ds-space-4) * 1px);
 }
+.requirement-description > h2 {
+  margin-bottom: calc(var(--ds-space-6) * 1px);
+}
 .requirements-section-title {
   align-items: center;
   flex-wrap: wrap;
   margin-bottom: calc(var(--ds-space-8) * 1px);
 }
-.progress-record h3 {
+.progress-record > h3 {
   margin: 0 0 calc(var(--ds-space-4) * 1px);
   font-size: calc(var(--ds-type-ui-size) * 1px);
   line-height: calc(var(--ds-type-ui-lineHeight) * 1px);
@@ -128,9 +131,17 @@
   margin: calc(var(--ds-space-4) * 1px) 0;
   padding-inline-start: calc(var(--ds-space-6) * 1px);
 }
-.requirement-history-body h3 {
+.requirement-history-body > h3 {
   margin-block: 0 calc(var(--ds-space-5) * 1px);
   overflow-wrap: anywhere;
+  font-size: calc(var(--ds-type-reading-size) * 1px);
+  line-height: calc(var(--ds-type-reading-lineHeight) * 1px);
+  font-weight: var(--ds-type-sectionTitle-weight);
+}
+.requirement-state-reason > h4 {
+  font-size: calc(var(--ds-type-label-size) * 1px);
+  line-height: calc(var(--ds-type-label-lineHeight) * 1px);
+  font-weight: var(--ds-type-label-weight);
 }
 .requirement-history-body > .reading-markdown,
 .requirement-state-reason,

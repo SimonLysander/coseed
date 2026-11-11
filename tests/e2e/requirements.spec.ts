@@ -233,3 +233,41 @@ test('stays readable in both themes and small viewports, including revision hist
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBe(320);
   expect(errors).toEqual([]);
 });
+
+test('distinguishes fixed sections from headings in requirement, record and history content', async ({
+  page,
+  request,
+  baseURL,
+}) => {
+  const project = await createFixture(request, title());
+  const fixture = await seedRequirementFixture(baseURL!, project.projectId);
+  await saveRequirementFixture(baseURL!, project.projectId, 3, [
+    change(
+      'requirement',
+      fixture.ids.$first!,
+      {
+        title: '虚构：看清需求如何演变',
+        markdown: '# 自由正文的范围\n\n这里是需求正文。\n\n## 约束\n\n这里是正文约束。',
+        status: 'ready_for_implementation',
+      },
+      3,
+    ),
+    change('record', '$structured', {
+      requirementId: fixture.ids.$first,
+      title: '虚构：本轮记录',
+      markdown: '# 本轮结论\n\n这里是推进记录正文。',
+      occurredAt: null,
+    }),
+  ]);
+  await page.goto(`/#/projects/${project.projectId}/requirements/${fixture.ids.$first}`);
+  await expect(page.locator('.requirements-reading h1')).toHaveCount(1);
+  await expect(page.locator('.requirements-reading > section > h2')).toHaveText(['需求说明']);
+  await expect(page.getByRole('heading', { name: '推进记录', level: 2 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '自由正文的范围', level: 3 })).toBeVisible();
+  const record = page.getByRole('article', { name: '虚构：本轮记录', exact: true });
+  await expect(record.getByRole('heading', { name: '虚构：本轮记录', level: 3 })).toBeVisible();
+  await expect(record.getByRole('heading', { name: '本轮结论', level: 4 })).toBeVisible();
+  await record.getByRole('button', { name: '修订历史与来源' }).click();
+  const history = page.getByRole('dialog', { name: '记录修订历史', exact: true });
+  await expect(history.getByRole('heading', { name: '本轮结论', level: 4 })).toBeVisible();
+});

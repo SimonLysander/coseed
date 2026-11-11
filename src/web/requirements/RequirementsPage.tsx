@@ -80,7 +80,7 @@ function CurrentLinks({ projectId, links }: { projectId: string; links: CurrentL
             ) : (
               <span className="requirement-meta">关联业务设计</span>
             )}
-            <Markdown text={link.explanationMd} />
+            <Markdown text={link.explanationMd} headingStart={4} />
           </li>
         );
       })}
@@ -242,7 +242,7 @@ function ProgressRecords({
                     ? ` · 第 ${record.revisionNo} 版，修订于 ${date(record.savedAt)}`
                     : ''}
                 </p>
-                <Markdown text={record.content.markdown} />
+                <Markdown text={record.content.markdown} headingStart={4} />
                 <div className="progress-record-actions">
                   <Button
                     type="link"
@@ -325,6 +325,7 @@ function RequirementDetail({
         )}
       </header>
       <section className="requirement-description">
+        <h2>需求说明</h2>
         <Markdown text={requirement.content.markdown} />
         <Button
           type="link"

@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import { createFixture } from '../helpers/project-fixture.js';
-import { seedBusinessFixture } from '../helpers/business-fixture.js';
+import { buildBusinessFixture, seedBusinessFixture } from '../helpers/business-fixture.js';
 import { fixtureCitations, saveRequirementFixture } from '../helpers/requirements-fixture.js';
 import { chooseAppearance } from '../helpers/appearance.js';
 
@@ -180,4 +180,37 @@ test('module links pin a project version while current graphs reflect shared nod
   await page.goto(`/#/projects/${other.projectId}/business/diagrams/${ids.$internal}`);
   await expect(page.getByText('无法打开业务设计图', { exact: true })).toBeVisible();
   await expect(page.locator('.business-card')).toHaveCount(0);
+});
+
+test('keeps technical-note Markdown below the graph card and page headings', async ({
+  page,
+  request,
+  baseURL,
+}) => {
+  const project = await createFixture(request, `虚构技术说明标题 ${randomUUID().slice(0, 6)}`);
+  const fixture = buildBusinessFixture();
+  for (const raw of fixture.changes) {
+    const item = raw as { id: string; content: { problemMd?: string } };
+    if (item.id === '$state') item.content.problemMd = '# 节点说明中的标题\n\n解释节点采用的机制。';
+    if (item.id === '$transaction')
+      item.content.problemMd = '# 跨节点说明中的标题\n\n解释共同保存的机制。';
+  }
+  const saved = await saveRequirementFixture(
+    baseURL!,
+    project.projectId,
+    0,
+    fixture.changes,
+    '虚构标题层级验证',
+    fixture.sources,
+  );
+  const ids = Object.fromEntries(saved.allocations.map((item) => [item.localRef, item.id]));
+  await page.goto(`/#/projects/${project.projectId}/business/diagrams/${ids.$internal}`);
+  const canvas = page.getByRole('region', { name: '业务设计画布', exact: true });
+  await expect(canvas).toHaveAttribute('data-ready', 'true', { timeout: 30000 });
+  await expect(page.locator('.business-page h1')).toHaveCount(1);
+  await expect(canvas.locator('h1, h2')).toHaveCount(0);
+  await expect(canvas.getByRole('heading', { name: '节点说明中的标题', level: 5 })).toHaveCount(1);
+  await expect(canvas.getByRole('heading', { name: '跨节点说明中的标题', level: 4 })).toHaveCount(
+    1,
+  );
 });

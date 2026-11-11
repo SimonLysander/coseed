@@ -81,6 +81,8 @@ test('renders complete overview sections, each example diagram, and fixed canvas
   await expect(page.getByRole('heading', { name: '产品说明', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: '核心概念', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: '使用示例', exact: true })).toBeVisible();
+  await expect(page.locator('.reading-chapter-number')).toHaveText(['1', '2', '3']);
+  await expect(page.locator('.overview-scene-label')).toHaveText(['场景 1', '场景 2']);
   const canvases = page.locator('.overview-diagram-canvas');
   await expect(canvases).toHaveCount(3);
   await expect
@@ -208,12 +210,25 @@ test('supports reading links, safely renders Markdown, and recovers from a missi
     ...fixture,
     product: {
       markdown:
-        '正文里的 **重点** 与段落。\n\n<script>window.fakeExecution=true</script>\n\n[非法链接](javascript:alert(1))',
+        '# 正文自定义标题\n\n正文里的 **重点** 与段落。\n\n## 正文下级标题\n\n<script>window.fakeExecution=true</script>\n\n[非法链接](javascript:alert(1))',
     },
   });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto(`/#/projects/${project.projectId}/overview`);
   await expect(page.locator('.reading-markdown strong').first()).toHaveText('重点');
+  await expect(page.locator('.overview-article h1')).toHaveCount(1);
+  await expect(page.locator('.overview-article h2')).toHaveCount(3);
+  await expect(page.getByRole('heading', { name: '正文自定义标题', level: 3 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '正文下级标题', level: 4 })).toBeVisible();
+  expect(
+    await page
+      .getByRole('heading', { name: '正文自定义标题' })
+      .evaluate((node) => parseFloat(getComputedStyle(node).fontSize)),
+  ).toBeLessThan(
+    await page
+      .getByRole('heading', { name: '产品说明', exact: true })
+      .evaluate((node) => parseFloat(getComputedStyle(node).fontSize)),
+  );
   expect(await page.evaluate(() => 'fakeExecution' in window)).toBe(false);
   await expect(page.locator('.reading-markdown a[href^="javascript:"]')).toHaveCount(0);
   await page.locator('.overview-toc').getByRole('link', { name: '使用示例', exact: true }).click();

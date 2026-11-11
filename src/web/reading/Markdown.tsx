@@ -1,11 +1,14 @@
 import { useMemo } from 'react';
-import MarkdownIt from 'markdown-it';
+import { renderContentMarkdown, type ContentHeadingLevel } from './render-markdown.js';
 import './reading.css';
 
-// Project material is content, never executable HTML. markdown-it also rejects unsafe link schemes.
-const markdown = new MarkdownIt({ html: false, linkify: false });
-
-export function Markdown({ text }: { text: string }) {
-  const html = useMemo(() => markdown.render(text), [text]);
+export function Markdown({
+  text,
+  headingStart = 3,
+}: {
+  text: string;
+  headingStart?: ContentHeadingLevel;
+}) {
+  const html = useMemo(() => renderContentMarkdown(text, headingStart), [text, headingStart]);
   return <div className="reading-markdown" dangerouslySetInnerHTML={{ __html: html }} />;
 }

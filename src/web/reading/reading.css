@@ -1,8 +1,48 @@
 .reading-markdown {
   overflow-wrap: anywhere;
 }
-.reading-markdown :where(h1, h2, h3, h4) {
+.reading-markdown :where(h1, h2, h3, h4, h5, h6) {
   margin-block: calc(var(--ds-space-6) * 1px) calc(var(--ds-space-4) * 1px);
+}
+.reading-markdown .reading-content-heading {
+  color: var(--ds-color-text-primary);
+  font-size: calc(var(--ds-type-ui-size) * 1px);
+  line-height: calc(var(--ds-type-ui-lineHeight) * 1px);
+  font-weight: var(--ds-type-sectionTitle-weight);
+}
+.reading-markdown :where(h4, h5, h6).reading-content-heading {
+  font-size: calc(var(--ds-type-label-size) * 1px);
+  line-height: calc(var(--ds-type-label-lineHeight) * 1px);
+  font-weight: var(--ds-type-label-weight);
+}
+.reading-chapter-heading {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--ds-space-5) * 1px);
+  font-size: calc(var(--ds-type-sectionTitle-size) * 1px);
+  line-height: calc(var(--ds-type-sectionTitle-lineHeight) * 1px);
+  font-weight: var(--ds-type-sectionTitle-weight);
+}
+.reading-chapter-number {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: calc(var(--ds-size-control) * 1px);
+  height: calc(var(--ds-size-control) * 1px);
+  color: var(--ds-color-accent-solid);
+  font-family: var(--ds-font-brand);
+  font-size: calc(var(--ds-type-annotation-size) * 1px);
+  line-height: calc(var(--ds-type-annotation-lineHeight) * 1px);
+  font-weight: var(--ds-type-annotation-weight);
+  transform: rotate(-4deg);
+}
+.reading-chapter-number::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  mask: url('./assets/rough-oval.svg') center / 100% 100% no-repeat;
 }
 .reading-markdown :where(ul, ol) {
   padding-left: calc(var(--ds-space-8) * 1px);

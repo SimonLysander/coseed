@@ -38,11 +38,20 @@
 .overview-example {
   margin-top: calc(var(--ds-space-8) * 1px);
 }
-.overview-example h3 {
+.overview-example > h3 {
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--ds-space-4) * 1px);
   margin: 0 0 calc(var(--ds-space-5) * 1px);
-  font-size: calc(var(--ds-type-ui-size) * 1px);
-  line-height: calc(var(--ds-type-ui-lineHeight) * 1px);
-  font-weight: 600;
+  font-size: calc(var(--ds-type-reading-size) * 1px);
+  line-height: calc(var(--ds-type-reading-lineHeight) * 1px);
+  font-weight: var(--ds-type-sectionTitle-weight);
+}
+.overview-scene-label {
+  flex: none;
+  color: var(--ds-color-text-muted);
+  font-size: calc(var(--ds-type-caption-size) * 1px);
+  font-weight: var(--ds-type-caption-weight);
 }
 .overview-missing {
   color: var(--ds-color-text-muted);
@@ -101,6 +110,14 @@
   white-space: normal;
   font-size: calc(var(--ds-type-navigation-size) * 1px);
   line-height: calc(var(--ds-type-navigation-lineHeight) * 1px);
+}
+.overview-toc-chapter {
+  display: inline-flex;
+  gap: calc(var(--ds-space-4) * 1px);
+}
+.overview-toc-number {
+  color: var(--ds-color-accent-solid);
+  font-family: var(--ds-font-brand);
 }
 .overview-mobile-toc {
   display: none;

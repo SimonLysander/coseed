@@ -117,8 +117,8 @@
   background: var(--ds-color-graph-external-background);
   border-color: var(--ds-color-graph-external-border);
 }
-.business-card h3,
-.business-note h3 {
+.business-card > h3,
+.business-note > h3 {
   margin: 0 0 calc(var(--ds-space-4) * 1px);
   font-size: calc(var(--ds-type-nodeTitle-size) * 1px);
   line-height: calc(var(--ds-type-nodeTitle-lineHeight) * 1px);

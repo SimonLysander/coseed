@@ -60,7 +60,7 @@ export function RelatedRecords({
                           : '业务设计内容'}
                     </span>
                   )}
-                  <Markdown text={link.explanationMd} />
+                  <Markdown text={link.explanationMd} headingStart={4} />
                 </li>
               ))}
             </ul>
@@ -91,11 +91,11 @@ function RevisionBody({
             : `发生于 ${date(value.content.occurredAt)}`}
         </p>
       )}
-      <Markdown text={value.content.markdown} />
+      <Markdown text={value.content.markdown} headingStart={4} />
       <p className="requirement-meta">
         保存于 {date(value.savedAt)} · {value.actor.actorLabel} · {value.actor.entrypoint}
       </p>
-      {value.actor.noteMd && <Markdown text={value.actor.noteMd} />}
+      {value.actor.noteMd && <Markdown text={value.actor.noteMd} headingStart={4} />}
       {value.objectType === 'requirement' && value.statusChange && (
         <div className="requirement-state-reason">
           <h4>
@@ -105,7 +105,7 @@ function RevisionBody({
                 ? '状态更正'
                 : '状态变化'}
           </h4>
-          <Markdown text={value.statusChange.reasonMd} />
+          <Markdown text={value.statusChange.reasonMd} headingStart={5} />
           {value.statusChange.records.map((record) => (
             <Button
               key={`${record.id}:${record.revisionNo}`}
@@ -167,7 +167,7 @@ function Evidence({
                     {citation.side === 'before' ? '更正前的依据' : '本版内容的依据'} ·{' '}
                     {citation.path || '整体内容'}
                   </p>
-                  <Markdown text={citation.explanationMd} />
+                  <Markdown text={citation.explanationMd} headingStart={4} />
                 </div>
               ))}
             {source ? (

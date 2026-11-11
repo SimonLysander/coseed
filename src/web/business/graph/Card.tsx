@@ -43,7 +43,7 @@ export function BusinessCard({ data }: { data: CardData }) {
           <span className="business-scope-marker">{data.marker}</span>
           {data.note.content.title}
         </h3>
-        <Markdown text={data.note.content.problemMd} />
+        <Markdown text={data.note.content.problemMd} headingStart={4} />
       </aside>
     );
   const node = data.node!;
@@ -67,7 +67,7 @@ export function BusinessCard({ data }: { data: CardData }) {
       {node.notes.map((note) => (
         <aside className="business-card-note" role="note" key={note.id}>
           <h4>{note.content.title}</h4>
-          <Markdown text={note.content.problemMd} />
+          <Markdown text={note.content.problemMd} headingStart={5} />
         </aside>
       ))}
       {data.diagrams?.length === 1 && (
