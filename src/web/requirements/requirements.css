@@ -24,6 +24,9 @@
   min-width: 0;
   overflow-wrap: anywhere;
 }
+.requirement-list-title {
+  align-items: baseline;
+}
 .requirements-title-row > .ant-btn,
 .requirement-status.ant-tag {
   flex: none;
@@ -66,7 +69,6 @@
   display: grid;
   gap: calc(var(--ds-space-4) * 1px);
   width: 100%;
-  padding-block: calc(var(--ds-space-4) * 1px);
   color: var(--ds-color-text-primary);
   text-decoration: none;
 }
@@ -74,7 +76,9 @@
   color: var(--ds-color-accent-solid);
 }
 .requirement-list-title > span:first-child {
-  font-weight: var(--ds-type-label-weight);
+  font-size: calc(var(--ds-type-sectionTitle-size) * 1px);
+  line-height: calc(var(--ds-type-sectionTitle-lineHeight) * 1px);
+  font-weight: var(--ds-type-sectionTitle-weight);
 }
 .requirements-empty {
   padding-block: calc(var(--ds-space-10) * 1px);
@@ -161,7 +165,6 @@
   }
 }
 
-.requirement-list-times,
 .requirement-times {
   display: flex;
   flex-wrap: wrap;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Alert, Button, Input, List, Select, Skeleton, Space } from 'antd';
+import { Alert, Button, Input, Select, Skeleton, Space } from 'antd';
 import { Link, useParams } from 'react-router';
 import { RefreshCwIcon } from '@animateicons/react/lucide/refresh-cw-icon';
 import { ArrowLeftIcon } from '@animateicons/react/lucide/arrow-left-icon';
@@ -14,6 +14,7 @@ import { recordsQuery, requirementQuery, requirementsPath, requirementsQuery } f
 import { HistoryReader, type Inspection } from './HistoryReader.js';
 import { StatusTag, date } from './StatusTag.js';
 import { RecordTimeline } from './timeline/RecordTimeline.js';
+import { RequirementTimeline } from './timeline/RequirementTimeline.js';
 import './requirements.css';
 
 function Refresh({ projectId, busy }: { projectId: string; busy: boolean }) {
@@ -53,7 +54,7 @@ function Failure({
     />
   );
 }
-function RequirementList({
+function RequirementsIndex({
   projectId,
   name,
   status,
@@ -118,48 +119,22 @@ function RequirementList({
           {query.isError && (
             <Failure stale message={query.error.message} retry={() => void query.refetch()} />
           )}
-          <List
-            rowKey="id"
-            dataSource={items}
-            locale={{
-              emptyText: (
-                <div className="requirements-empty">
-                  <p>{name || status !== 'all' ? '没有匹配的需求' : '还没有需求'}</p>
-                  {!name && status === 'all' && (
-                    <>
-                      <p>让 Agent 在阶段回顾后整理需求和推进记录，保存到 CoSeed。</p>
-                      <Link to="/agent-guide">查看 Agent 接入说明</Link>
-                    </>
-                  )}
-                </div>
-              ),
-            }}
-            renderItem={(item) => (
-              <List.Item>
-                <Link className="requirement-list-row" to={requirementsPath(projectId, item.id)}>
-                  <div className="requirement-list-title">
-                    <span>{item.title}</span>
-                    <StatusTag status={item.status} />
-                  </div>
-                  <span className="requirement-meta">{item.recordCount} 条推进记录</span>
-                  <span className="requirement-list-times requirement-meta">
-                    <span>
-                      首次收录于{' '}
-                      <time dateTime={new Date(item.createdAt).toISOString()}>
-                        {date(item.createdAt)}
-                      </time>
-                    </span>
-                    <span>
-                      最近更新于{' '}
-                      <time dateTime={new Date(item.savedAt).toISOString()}>
-                        {date(item.savedAt)}
-                      </time>
-                    </span>
-                  </span>
-                </Link>
-              </List.Item>
-            )}
-          />
+          {items.length ? (
+            <>
+              <p className="requirement-meta">需求时间线 · 最新创建在前</p>
+              <RequirementTimeline projectId={projectId} requirements={items} />
+            </>
+          ) : (
+            <div className="requirements-empty">
+              <p>{name || status !== 'all' ? '没有匹配的需求' : '还没有需求'}</p>
+              {!name && status === 'all' && (
+                <>
+                  <p>让 Agent 在阶段回顾后整理需求和推进记录，保存到 CoSeed。</p>
+                  <Link to="/agent-guide">查看 Agent 接入说明</Link>
+                </>
+              )}
+            </div>
+          )}
           {query.hasNextPage && (
             <Button
               className="requirements-more"
@@ -335,7 +310,7 @@ export default function RequirementsPage({ onSelect }: { onSelect: () => void })
           onSelect={onSelect}
         />
       ) : (
-        <RequirementList
+        <RequirementsIndex
           projectId={projectId}
           name={name}
           status={status}

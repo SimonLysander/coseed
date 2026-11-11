@@ -123,23 +123,24 @@ export class RequirementsReadService {
       let after: SQL = sql``;
       if (options.afterId !== undefined) {
         const cursor = requireCurrent(repository, projectId, at, options.afterId);
-        after = sql`AND (__version < ${cursor.projectVersion} OR (__version = ${cursor.projectVersion} AND requirement_id > ${cursor.id}))`;
+        after = sql`AND (__created_at < ${cursor.createdAt} OR (__created_at = ${cursor.createdAt} AND requirement_id > ${cursor.id}))`;
       }
       const rows = tx.all<{
         id: string;
         title: string;
+        markdown: string;
         status: string;
         revisionNo: number;
         projectVersion: number;
         savedAt: number;
         createdAt: number;
         operationId: string;
-      }>(sql`SELECT requirement_id AS id, title, status, revision_no AS revisionNo,
+      }>(sql`SELECT requirement_id AS id, title, markdown, status, revision_no AS revisionNo,
         __version AS projectVersion, __saved_at AS savedAt, __created_at AS createdAt, operation_id AS operationId
         FROM (${current}) WHERE 1 = 1 ${after}
         ${options.name === undefined ? sql`` : sql`AND instr(lower(title), lower(${options.name})) > 0`}
         ${options.status === undefined ? sql`` : sql`AND status = ${options.status}`}
-        ORDER BY __version DESC, requirement_id ASC LIMIT ${options.limit + 1}`);
+        ORDER BY __created_at DESC, requirement_id ASC LIMIT ${options.limit + 1}`);
       const page = rows.slice(0, options.limit);
       const counts = stats(
         tx,
@@ -148,12 +149,33 @@ export class RequirementsReadService {
         at,
         page.map((r) => r.id),
       );
+      const previews = new Map<string, { id: string; title: string; markdown: string }[]>();
+      if (page.length) {
+        const recent = tx.all<{
+          id: string;
+          requirementId: string;
+          title: string;
+          markdown: string;
+        }>(sql`
+          SELECT progress_record_id AS id, requirement_id AS requirementId, title, markdown FROM (
+            SELECT r.*, row_number() OVER (
+              PARTITION BY requirement_id ORDER BY __capture_version DESC, __capture_ordinal DESC
+            ) AS preview_position
+            FROM (${repository.selection('record', { projectId, version: at })}) r
+            WHERE requirement_id IN (${inList(page.map((r) => r.id))})
+          ) WHERE preview_position <= 2 ORDER BY requirement_id, preview_position`);
+        for (const { requirementId, ...record } of recent) {
+          const records = previews.get(requirementId) ?? [];
+          records.push(record);
+          previews.set(requirementId, records);
+        }
+      }
       return {
         project,
         items: page.map((r) => {
           const count = counts.get(r.id);
           ensure(count, 'STORAGE_CORRUPT', '需求缺少首次状态记录。');
-          return { ...r, isDeleted: false, ...count };
+          return { ...r, isDeleted: false, ...count, recentRecords: previews.get(r.id) ?? [] };
         }),
         nextAfterId: rows.length > options.limit ? page.at(-1)!.id : null,
       };

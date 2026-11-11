@@ -650,7 +650,7 @@
     "/api/projects/{projectId}/requirements": {
       "get": {
         "operationId": "listRequirements",
-        "summary": "固定项目版本，按最近更新优先分页读取需求；正文修订不生成新需求",
+        "summary": "固定项目版本，按创建时间倒序分页读取需求；后续更新不移动需求位置",
         "parameters": [
           {
             "name": "projectId",
@@ -772,6 +772,21 @@
                           "operationId": { "type": "string", "minLength": 1, "maxLength": 512 },
                           "isDeleted": { "type": "boolean" },
                           "title": { "type": "string" },
+                          "markdown": { "type": "string" },
+                          "recentRecords": {
+                            "maxItems": 2,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": { "type": "string", "minLength": 1, "maxLength": 512 },
+                                "title": { "type": "string" },
+                                "markdown": { "type": "string" }
+                              },
+                              "required": ["id", "title", "markdown"],
+                              "additionalProperties": false
+                            }
+                          },
                           "status": {
                             "type": "string",
                             "enum": [
@@ -803,6 +818,8 @@
                           "operationId",
                           "isDeleted",
                           "title",
+                          "markdown",
+                          "recentRecords",
                           "status",
                           "recordCount",
                           "statusChangedAt"

@@ -18,6 +18,78 @@
 .progress-record > .progress-time {
   margin-block-end: calc(var(--ds-space-5) * 1px);
 }
+.requirement-subject > .progress-time {
+  margin-block-end: calc(var(--ds-space-5) * 1px);
+}
+.requirements-reading .requirement-preview {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  margin: 0;
+  color: var(--ds-color-text-secondary);
+  font-size: calc(var(--ds-type-ui-size) * 1px);
+  line-height: calc(var(--ds-type-ui-lineHeight) * 1px);
+  font-weight: var(--ds-type-ui-weight);
+}
+.requirement-record-previews {
+  display: grid;
+  gap: calc(var(--ds-space-4) * 1px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.requirement-record-preview-title {
+  display: block;
+  color: var(--ds-color-text-primary);
+  font-size: calc(var(--ds-type-label-size) * 1px);
+  line-height: calc(var(--ds-type-label-lineHeight) * 1px);
+  font-weight: var(--ds-type-label-weight);
+}
+.requirement-record-preview-group {
+  margin-inline-start: calc(var(--ds-space-4) * 1px);
+  padding: calc(var(--ds-space-5) * 1px);
+  border-radius: var(--ds-shape-smallRadius);
+  background: var(--ds-color-surface-hover);
+}
+.requirement-record-preview-heading {
+  display: block;
+  margin-block-end: calc(var(--ds-space-4) * 1px);
+  color: var(--ds-color-text-muted);
+  font-size: calc(var(--ds-type-caption-size) * 1px);
+  line-height: calc(var(--ds-type-caption-lineHeight) * 1px);
+}
+.requirements-reading .requirement-record-previews p {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  margin: calc(var(--ds-space-1) * 1px) 0 0;
+  color: var(--ds-color-text-secondary);
+  font-size: calc(var(--ds-type-label-size) * 1px);
+  line-height: calc(var(--ds-type-label-lineHeight) * 1px);
+}
+.requirement-preview-more {
+  color: var(--ds-color-text-link);
+  font-size: calc(var(--ds-type-label-size) * 1px);
+  line-height: calc(var(--ds-type-label-lineHeight) * 1px);
+}
+.requirement-preview-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: calc(var(--ds-space-4) * 1px) calc(var(--ds-space-5) * 1px);
+}
+.requirement-created-time {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: inherit;
+  column-gap: calc(var(--ds-space-3) * 1px);
+}
+.ant-timeline-item-title .requirement-created-time {
+  justify-content: flex-end;
+}
 .progress-record > h3 {
   margin: 0;
   font-size: calc(var(--ds-type-reading-size) * 1px);

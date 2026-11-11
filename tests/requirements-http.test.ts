@@ -65,7 +65,7 @@ describe('requirement HTTP read models over real MCP writes and SQLite', () => {
     expect(value.nextAfterId).toBeNull();
   });
 
-  it('lists recently updated requirements first and separates status changes from text revisions', async () => {
+  it('keeps creation order and separates status changes from text revisions', async () => {
     const clock = vi.spyOn(Date, 'now');
     let time = 1794268800000;
     clock.mockImplementation(() => time++);
@@ -74,15 +74,18 @@ describe('requirement HTTP read models over real MCP writes and SQLite', () => {
       const list = requirementsResponseSchema.parse(
         await (await get(projectId, 'requirements')).json(),
       );
-      expect(list.items.map((r) => r.id)).toEqual([ids.$first, ids.$second]);
-      expect(list.items[0]).toMatchObject({
+      expect(list.items.map((r) => r.id)).toEqual([ids.$first!, ids.$second!].sort());
+      const primary = list.items.find((r) => r.id === ids.$first)!;
+      expect(primary.recentRecords.map((r) => r.id)).toEqual([ids.$decision, ids.$old2]);
+      expect(list.items.find((r) => r.id === ids.$second)!.recentRecords).toEqual([]);
+      expect(primary).toMatchObject({
         revisionNo: 3,
         recordCount: 3,
         status: 'ready_for_implementation',
         statusChangedAt: settled.receipt.savedAt,
         savedAt: corrected.receipt.savedAt,
       });
-      expect(list.items[0]!.statusChangedAt).toBeLessThan(list.items[0]!.savedAt);
+      expect(primary.statusChangedAt).toBeLessThan(primary.savedAt);
       const detail = requirementResponseSchema.parse(
         await (await get(projectId, `requirements/${ids.$first}`)).json(),
       );
@@ -106,7 +109,8 @@ describe('requirement HTTP read models over real MCP writes and SQLite', () => {
     const first = requirementsResponseSchema.parse(
       await (await get(projectId, 'requirements?limit=1')).json(),
     );
-    expect(first.items.map((r) => r.id)).toEqual([ids.$first]);
+    const order = [ids.$first!, ids.$second!].sort();
+    expect(first.items.map((r) => r.id)).toEqual([order[0]]);
     await saveRequirementFixture(base, projectId, 3, [
       change(
         'requirement',
@@ -124,13 +128,52 @@ describe('requirement HTTP read models over real MCP writes and SQLite', () => {
         await get(projectId, `requirements?limit=1&version=3&afterId=${first.nextAfterId}`)
       ).json(),
     );
-    expect(second.items.map((r) => r.id)).toEqual([ids.$second]);
+    expect(second.items.map((r) => r.id)).toEqual([order[1]]);
     expect(second.project.version).toBe(3);
     expect(second.nextAfterId).toBeNull();
     expect(
       requirementsResponseSchema.parse(await (await get(projectId, 'requirements')).json())
         .items[0]!.id,
-    ).toBe(ids.$second);
+    ).toBe(order[0]);
+  });
+
+  it('does not move an older requirement after an update', async () => {
+    const { projectId, ids } = await seed();
+    const added = await saveRequirementFixture(base, projectId, 3, [
+      change('requirement', '$new', {
+        title: '虚构：后来创建的需求',
+        markdown: '新需求的预览。',
+        status: 'designing',
+      }),
+    ]);
+    const newest = added.allocations.find((x) => x.localRef === '$new')!.id;
+    const before = requirementsResponseSchema.parse(
+      await (await get(projectId, 'requirements')).json(),
+    );
+    expect(before.items[0]!.id).toBe(newest);
+    await saveRequirementFixture(base, projectId, 4, [
+      change(
+        'requirement',
+        ids.$first!,
+        {
+          title: '虚构：看清需求如何演变',
+          markdown: '后来更正的预览。',
+          status: 'ready_for_implementation',
+        },
+        3,
+      ),
+    ]);
+    const after = requirementsResponseSchema.parse(
+      await (await get(projectId, 'requirements')).json(),
+    );
+    expect(after.items.map((x) => x.id)).toEqual(before.items.map((x) => x.id));
+    expect(after.items.find((x) => x.id === ids.$first)!.markdown).toBe('后来更正的预览。');
+    const historic = requirementsResponseSchema.parse(
+      await (await get(projectId, 'requirements?version=4')).json(),
+    );
+    expect(historic.items.find((x) => x.id === ids.$first)!.markdown).toBe(
+      '用户需要理解需求推进的过程、保留原始来源，并能回看旧版本。',
+    );
   });
 
   it('orders each current record once by first capture, including corrections and backfills', async () => {

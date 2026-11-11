@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { renderContentMarkdown } from '../src/web/reading/render-markdown.js';
+import { contentPreview, renderContentMarkdown } from '../src/web/reading/render-markdown.js';
 
 it('keeps project Markdown below interface headings while preserving relative hierarchy', () => {
   const html = renderContentMarkdown('# 正文标题\n\n## 内部小节\n\n**重点**与正文。');
@@ -29,4 +29,12 @@ it('keeps semantic table headers and column alignment inside a keyboard-accessib
   expect(html).toContain('<th style="text-align:right" scope="col">数量</th>');
   expect(html).toContain('<td style="text-align:right">1</td>');
   expect(html).toContain('</table>\n</div>');
+});
+
+it('previews the first paragraph through the existing Markdown parser', () => {
+  expect(
+    contentPreview(
+      '# 标题\n\n说明 **目标**，保留 `id` 和[文档](https://example.com)。\n\n详细边界。',
+    ),
+  ).toBe('说明 目标，保留 id 和文档。');
 });

@@ -9,7 +9,7 @@ import {
 import { chooseAppearance } from '../helpers/appearance.js';
 const title = () => `虚构需求测试 ${randomUUID().slice(0, 6)}`;
 
-test('keeps requirements as the entry, shows their own dates, and removes content associations', async ({
+test('uses requirements as the first timeline nodes and opens only their own record timeline', async ({
   page,
   request,
   baseURL,
@@ -70,62 +70,57 @@ test('keeps requirements as the entry, shows their own dates, and removes conten
     ),
   ]);
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto(`/#/projects/${project.projectId}/requirements`);
+  const route = `/#/projects/${project.projectId}/requirements`;
+  await page.goto(route);
   await expect(page.locator('.requirement-list-row')).toHaveCount(2);
   await expect(page.locator('.progress-record')).toHaveCount(0);
-  await expect(page.locator('.requirement-list-times')).toHaveCount(2);
-  await expect(page.locator('.requirement-list-times').first()).toContainText('首次收录于');
-  await expect(page.locator('.requirement-list-times').first()).toContainText('最近更新于');
-  await page.getByRole('link', { name: /虚构：看清需求如何演变/ }).click();
-  await expect(page.locator('.progress-record')).toHaveCount(3);
-  await expect(page.locator('.requirement-times')).toContainText('首次收录于');
-  await expect(page.locator('.requirement-times')).toContainText('最近更新于');
-  await expect(page.getByText('不应出现在需求阅读页的关联说明。', { exact: true })).toHaveCount(0);
-  await expect(page.getByRole('link', { name: '查看对应综述', exact: true })).toHaveCount(0);
-  await expect(
-    page.getByRole('article', { name: '虚构：另一需求的记录', exact: true }),
-  ).toHaveCount(0);
-  const titleColumn = page.locator('.ant-timeline-item-title .progress-time');
-  await expect(titleColumn).toHaveCount(3);
-  const timeBox = await titleColumn.first().boundingBox();
-  const bodyBox = await page.locator('.progress-record').first().boundingBox();
-  expect(timeBox!.x + timeBox!.width).toBeLessThan(bodyBox!.x);
+  await expect(page.locator('.ant-collapse')).toHaveCount(0);
+  const primary = page
+    .locator('.requirement-subject')
+    .filter({ hasText: '保留需求说明及时间线。' });
+  await expect(primary.locator('.requirement-preview')).toBeVisible();
+  await expect(primary.locator('.requirement-record-previews li')).toHaveCount(2);
+  await expect(primary.locator('.requirement-record-previews')).toContainText('方案已经明确');
+  await expect(primary.locator('.requirement-record-previews')).toContainText('保留原始来源');
+  await expect(primary.locator('.requirement-preview-more')).toContainText('查看全部 3 条记录');
+  await expect(primary.locator('.requirement-list-times')).toContainText('更新于');
+  await expect(page.locator('.ant-timeline-item-title').first()).toContainText('创建于');
   await page.screenshot({
-    path: testInfo.outputPath('requirement-timeline-light.png'),
+    path: testInfo.outputPath('requirements-preview-light.png'),
     fullPage: true,
     animations: 'disabled',
   });
   await chooseAppearance(page, 'dark');
   await page.screenshot({
-    path: testInfo.outputPath('requirement-timeline-dark.png'),
+    path: testInfo.outputPath('requirements-preview-dark.png'),
     fullPage: true,
     animations: 'disabled',
   });
   for (const width of [390, 320]) {
     await page.setViewportSize({ width, height: 900 });
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
-    await expect(page.locator('.progress-record > .progress-time')).toHaveCount(3);
-    await expect
-      .poll(() =>
-        page
-          .locator('.ant-timeline-item')
-          .first()
-          .evaluate((item) => {
-            const icon = item.querySelector('.ant-timeline-item-icon')!.getBoundingClientRect();
-            const rail = item.querySelector('.ant-timeline-item-rail')!.getBoundingClientRect();
-            return Math.abs(icon.left + icon.width / 2 - (rail.left + rail.width / 2));
-          }),
-      )
-      .toBeLessThan(2);
+    await expect(page.locator('.requirement-subject > .progress-time')).toHaveCount(2);
+    const summaryHeight = await primary
+      .locator('.requirement-record-previews p')
+      .first()
+      .evaluate((el) => el.getBoundingClientRect().height);
+    expect(summaryHeight).toBeLessThanOrEqual(20);
   }
   await page.screenshot({
-    path: testInfo.outputPath('requirement-timeline-mobile.png'),
+    path: testInfo.outputPath('requirements-preview-mobile.png'),
     fullPage: true,
     animations: 'disabled',
   });
+  await page.getByRole('link', { name: /虚构：看清需求如何演变/ }).click();
+  await expect(page).toHaveURL(new RegExp(`/requirements/${ids.$first}$`));
+  await expect(page.locator('.progress-record')).toHaveCount(3);
+  await expect(
+    page.getByRole('article', { name: '虚构：另一需求的记录', exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByText('不应出现在需求阅读页的关联说明。', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: '查看对应综述', exact: true })).toHaveCount(0);
   await page.goto(`/#/projects/${project.projectId}/requirements/${ids.$second}`);
   await expect(page.locator('.progress-record')).toHaveCount(1);
-  await expect(page.getByText('关联内容', { exact: true })).toHaveCount(0);
   await expect(page.getByText('不应展示的承接入口。', { exact: true })).toHaveCount(0);
 });
 
@@ -156,7 +151,7 @@ test('reads current requirements and records once, with latest progress before c
   await page.goto(`/#/projects/${project.projectId}/requirements`);
   const links = page.locator('.requirement-list-row');
   await expect(links).toHaveCount(2);
-  await expect(links.first()).toContainText('看清需求如何演变');
+  await expect(links.filter({ hasText: '看清需求如何演变' })).toHaveCount(1);
   await page.getByRole('combobox', { name: '按需求状态筛选' }).click();
   await page.getByRole('option', { name: '暂缓', exact: true }).click();
   await expect(links).toHaveCount(1);

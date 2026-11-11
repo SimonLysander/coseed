@@ -118,7 +118,7 @@ const contract = {
     '/api/projects/{projectId}/requirements': {
       get: {
         operationId: 'listRequirements',
-        summary: '固定项目版本，按最近更新优先分页读取需求；正文修订不生成新需求',
+        summary: '固定项目版本，按创建时间倒序分页读取需求；后续更新不移动需求位置',
         parameters: [projectId, ...queryParameters(requirementsQuerySchema)],
         responses: {
           200: {

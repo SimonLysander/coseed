@@ -77,6 +77,8 @@ export const recordViewSchema = z.strictObject({
 export const requirementSummarySchema = z.strictObject({
   ...meta,
   title: z.string(),
+  markdown: z.string(),
+  recentRecords: z.array(z.strictObject({ id, title: z.string(), markdown: z.string() })).max(2),
   status: requirementStatusSchema,
   recordCount: number,
   statusChangedAt: number,

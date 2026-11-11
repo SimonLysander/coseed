@@ -4,6 +4,17 @@ import { createReadingMarkdown } from './create-markdown.js';
 const markdown = createReadingMarkdown();
 export type ContentHeadingLevel = 3 | 4 | 5 | 6;
 
+export function contentPreview(text: string): string {
+  const tokens = markdown.parse(text, {});
+  const paragraph = tokens.find(
+    (token, index) => token.type === 'inline' && tokens[index - 1]?.type === 'paragraph_open',
+  );
+  const inline = paragraph ?? tokens.find((token) => token.type === 'inline');
+  return inline?.children
+    ? markdown.renderer.renderInlineAsText(inline.children, markdown.options, {})
+    : (tokens.find((token) => token.content)?.content ?? '');
+}
+
 export function renderContentMarkdown(text: string, headingStart: ContentHeadingLevel = 3) {
   const tokens = markdown.parse(text, {});
   const highestHeading = tokens.reduce(
