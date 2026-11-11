@@ -9,6 +9,126 @@ import {
 import { chooseAppearance } from '../helpers/appearance.js';
 const title = () => `虚构需求测试 ${randomUUID().slice(0, 6)}`;
 
+test('keeps requirements as the entry, shows their own dates, and removes content associations', async ({
+  page,
+  request,
+  baseURL,
+}, testInfo) => {
+  const project = await createFixture(request, title());
+  const { ids } = await seedRequirementFixture(baseURL!, project.projectId);
+  await saveRequirementFixture(baseURL!, project.projectId, 3, [
+    {
+      action: 'upsert',
+      objectType: 'overview',
+      id: project.projectId,
+      expectedRevision: null,
+      citations: [
+        { sourceId: '$material', side: 'after', path: '', explanationMd: '虚构测试综述。' },
+      ],
+      content: {
+        product: { markdown: '虚构测试项目。' },
+        concepts: { entries: [], relations: [] },
+        examples: { introductionMd: null, actors: [], useCases: [], sections: [] },
+      },
+    },
+    change(
+      'requirement',
+      ids.$first!,
+      {
+        title: '虚构：看清需求如何演变',
+        markdown: '保留需求说明及时间线。',
+        status: 'ready_for_implementation',
+      },
+      3,
+      {
+        links: [
+          {
+            target: { kind: 'overview', part: { kind: 'product' } },
+            explanationMd: '不应出现在需求阅读页的关联说明。',
+          },
+        ],
+      },
+    ),
+    change(
+      'record',
+      '$second-progress',
+      {
+        requirementId: ids.$second,
+        title: '虚构：另一需求的记录',
+        markdown: '单独属于另一项需求。',
+        occurredAt: null,
+      },
+      null,
+      {
+        links: [
+          {
+            target: { kind: 'record', id: ids.$old1, revisionNo: 1 },
+            explanationMd: '不应展示的承接入口。',
+          },
+        ],
+      },
+    ),
+  ]);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto(`/#/projects/${project.projectId}/requirements`);
+  await expect(page.locator('.requirement-list-row')).toHaveCount(2);
+  await expect(page.locator('.progress-record')).toHaveCount(0);
+  await expect(page.locator('.requirement-list-times')).toHaveCount(2);
+  await expect(page.locator('.requirement-list-times').first()).toContainText('首次收录于');
+  await expect(page.locator('.requirement-list-times').first()).toContainText('最近更新于');
+  await page.getByRole('link', { name: /虚构：看清需求如何演变/ }).click();
+  await expect(page.locator('.progress-record')).toHaveCount(3);
+  await expect(page.locator('.requirement-times')).toContainText('首次收录于');
+  await expect(page.locator('.requirement-times')).toContainText('最近更新于');
+  await expect(page.getByText('不应出现在需求阅读页的关联说明。', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: '查看对应综述', exact: true })).toHaveCount(0);
+  await expect(
+    page.getByRole('article', { name: '虚构：另一需求的记录', exact: true }),
+  ).toHaveCount(0);
+  const titleColumn = page.locator('.ant-timeline-item-title .progress-time');
+  await expect(titleColumn).toHaveCount(3);
+  const timeBox = await titleColumn.first().boundingBox();
+  const bodyBox = await page.locator('.progress-record').first().boundingBox();
+  expect(timeBox!.x + timeBox!.width).toBeLessThan(bodyBox!.x);
+  await page.screenshot({
+    path: testInfo.outputPath('requirement-timeline-light.png'),
+    fullPage: true,
+    animations: 'disabled',
+  });
+  await chooseAppearance(page, 'dark');
+  await page.screenshot({
+    path: testInfo.outputPath('requirement-timeline-dark.png'),
+    fullPage: true,
+    animations: 'disabled',
+  });
+  for (const width of [390, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
+    await expect(page.locator('.progress-record > .progress-time')).toHaveCount(3);
+    await expect
+      .poll(() =>
+        page
+          .locator('.ant-timeline-item')
+          .first()
+          .evaluate((item) => {
+            const icon = item.querySelector('.ant-timeline-item-icon')!.getBoundingClientRect();
+            const rail = item.querySelector('.ant-timeline-item-rail')!.getBoundingClientRect();
+            return Math.abs(icon.left + icon.width / 2 - (rail.left + rail.width / 2));
+          }),
+      )
+      .toBeLessThan(2);
+  }
+  await page.screenshot({
+    path: testInfo.outputPath('requirement-timeline-mobile.png'),
+    fullPage: true,
+    animations: 'disabled',
+  });
+  await page.goto(`/#/projects/${project.projectId}/requirements/${ids.$second}`);
+  await expect(page.locator('.progress-record')).toHaveCount(1);
+  await expect(page.getByText('关联内容', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('不应展示的承接入口。', { exact: true })).toHaveCount(0);
+});
+
 test('opens the real empty requirements page from the sidebar without loading graph engines', async ({
   page,
   request,
@@ -58,7 +178,7 @@ test('reads current requirements and records once, with latest progress before c
   await expect(records.nth(1)).toContainText('保留原始来源');
   await expect(records.nth(2)).toContainText('更正后的决定');
   await expect(records.nth(2)).toContainText('第 2 版');
-  await expect(records.nth(2)).toContainText('发生时间未知');
+  await expect(page.getByText('发生时间未知', { exact: true })).toHaveCount(2);
   await expect(page.getByText('原始决定：由用户发起阶段回顾。', { exact: true })).toHaveCount(0);
   await page.reload();
   await expect(records).toHaveCount(3);

@@ -62,6 +62,7 @@ export function createAntdTheme(mode: ColorMode, reducedMotion: boolean): ThemeC
         iconGap: t.space['3'],
       },
       Input: { activeShadow: 'none' },
+      Timeline: { tailColor: t.color.border.interactive, itemPaddingBottom: t.space['9'] },
       Modal: { titleFontSize: t.type.dialogTitle.size, boxShadow: t.shape.floatingShadow },
     },
   };

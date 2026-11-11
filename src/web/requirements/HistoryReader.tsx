@@ -10,65 +10,11 @@ import type {
   RecordView,
   RequirementView,
 } from '../../contracts/requirements-http.js';
-import type { HistoricalLink } from '../../contracts/project-content.js';
 
 export interface Inspection {
   type: 'requirement' | 'record';
   id: string;
   revisionNo?: number;
-}
-export function RelatedRecords({
-  links,
-  onInspect,
-}: {
-  links: HistoricalLink[];
-  onInspect: (target: Inspection) => void;
-}) {
-  if (!links.length) return null;
-  return (
-    <Collapse
-      ghost
-      size="small"
-      items={[
-        {
-          key: 'links',
-          label: '关联内容',
-          children: (
-            <ul className="requirement-related">
-              {links.map((link, i) => (
-                <li key={i}>
-                  {link.target.kind === 'record' ? (
-                    <Button
-                      type="link"
-                      onClick={() => {
-                        if (link.target.kind === 'record')
-                          onInspect({
-                            type: 'record',
-                            id: link.target.id,
-                            revisionNo: link.target.revisionNo,
-                          });
-                      }}
-                    >
-                      记录 · 第 {link.target.revisionNo} 版
-                    </Button>
-                  ) : (
-                    <span>
-                      {link.target.kind === 'overview'
-                        ? `综述 · 第 ${link.target.revisionNo} 版`
-                        : link.target.kind === 'diagram'
-                          ? `设计图 · 项目版本 ${link.target.projectVersion}`
-                          : '业务设计内容'}
-                    </span>
-                  )}
-                  <Markdown text={link.explanationMd} headingStart={4} />
-                </li>
-              ))}
-            </ul>
-          ),
-        },
-      ]}
-    />
-  );
 }
 function RevisionBody({
   value,
@@ -116,9 +62,6 @@ function RevisionBody({
             </Button>
           ))}
         </div>
-      )}
-      {value.objectType === 'record' && (
-        <RelatedRecords links={value.links} onInspect={onInspect} />
       )}
     </section>
   );

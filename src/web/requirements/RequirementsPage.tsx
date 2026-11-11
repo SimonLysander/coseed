@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Alert, Button, Input, List, Select, Skeleton, Space, Timeline } from 'antd';
+import { Alert, Button, Input, List, Select, Skeleton, Space } from 'antd';
 import { Link, useParams } from 'react-router';
 import { RefreshCwIcon } from '@animateicons/react/lucide/refresh-cw-icon';
 import { ArrowLeftIcon } from '@animateicons/react/lucide/arrow-left-icon';
@@ -11,9 +11,9 @@ import {
   type RequirementStatus,
 } from '../../contracts/content/requirements.js';
 import { recordsQuery, requirementQuery, requirementsPath, requirementsQuery } from './queries.js';
-import { HistoryReader, RelatedRecords, type Inspection } from './HistoryReader.js';
+import { HistoryReader, type Inspection } from './HistoryReader.js';
 import { StatusTag, date } from './StatusTag.js';
-import type { CurrentLink } from '../../contracts/project-content.js';
+import { RecordTimeline } from './timeline/RecordTimeline.js';
 import './requirements.css';
 
 function Refresh({ projectId, busy }: { projectId: string; busy: boolean }) {
@@ -51,40 +51,6 @@ function Failure({
         </Button>
       }
     />
-  );
-}
-function CurrentLinks({ projectId, links }: { projectId: string; links: CurrentLink[] }) {
-  if (!links.length) return null;
-  return (
-    <ul className="requirement-related">
-      {links.map((link, index) => {
-        const target = link.target;
-        const section =
-          target.kind === 'overview'
-            ? target.part.kind === 'product'
-              ? 'product'
-              : target.part.kind === 'examples_introduction'
-                ? 'examples'
-                : target.part.kind === 'example' || target.part.kind === 'example_diagram'
-                  ? `example/${encodeURIComponent(target.part.id)}`
-                  : target.part.kind === 'concept' || target.part.kind === 'concept_relation'
-                    ? 'concepts'
-                    : 'examples'
-            : null;
-        return (
-          <li key={index}>
-            {section ? (
-              <Link to={`/projects/${encodeURIComponent(projectId)}/overview/${section}`}>
-                查看对应综述
-              </Link>
-            ) : (
-              <span className="requirement-meta">关联业务设计</span>
-            )}
-            <Markdown text={link.explanationMd} headingStart={4} />
-          </li>
-        );
-      })}
-    </ul>
   );
 }
 function RequirementList({
@@ -175,8 +141,20 @@ function RequirementList({
                     <span>{item.title}</span>
                     <StatusTag status={item.status} />
                   </div>
-                  <span className="requirement-meta">
-                    {item.recordCount} 条推进记录 · 更新于 {date(item.savedAt)}
+                  <span className="requirement-meta">{item.recordCount} 条推进记录</span>
+                  <span className="requirement-list-times requirement-meta">
+                    <span>
+                      首次收录于{' '}
+                      <time dateTime={new Date(item.createdAt).toISOString()}>
+                        {date(item.createdAt)}
+                      </time>
+                    </span>
+                    <span>
+                      最近更新于{' '}
+                      <time dateTime={new Date(item.savedAt).toISOString()}>
+                        {date(item.savedAt)}
+                      </time>
+                    </span>
                   </span>
                 </Link>
               </List.Item>
@@ -225,38 +203,7 @@ function ProgressRecords({
       {!records.length ? (
         <p className="requirement-meta">还没有推进记录。</p>
       ) : (
-        <Timeline
-          className="requirements-timeline"
-          items={records.map((record) => ({
-            key: record.id,
-            color: 'var(--ds-color-accent-solid)',
-            content: (
-              <article className="progress-record" aria-label={record.content.title}>
-                <h3>{record.content.title}</h3>
-                <p className="requirement-meta">收录于 {date(record.createdAt)}</p>
-                <p className="requirement-meta">
-                  {record.content.occurredAt === null
-                    ? '发生时间未知'
-                    : `发生于 ${date(record.content.occurredAt)}`}
-                  {record.revisionNo > 1
-                    ? ` · 第 ${record.revisionNo} 版，修订于 ${date(record.savedAt)}`
-                    : ''}
-                </p>
-                <Markdown text={record.content.markdown} headingStart={4} />
-                <div className="progress-record-actions">
-                  <Button
-                    type="link"
-                    size="small"
-                    onClick={() => onInspect({ type: 'record', id: record.id })}
-                  >
-                    修订历史与来源
-                  </Button>
-                </div>
-                <RelatedRecords links={record.links} onInspect={onInspect} />
-              </article>
-            ),
-          }))}
-        />
+        <RecordTimeline records={records} onInspect={onInspect} />
       )}
       {query.hasNextPage && (
         <Button
@@ -320,6 +267,20 @@ function RequirementDetail({
         <p className="requirement-meta">
           {data.project.name} · 项目版本 {data.project.version}
         </p>
+        <div className="requirement-times requirement-meta">
+          <span>
+            首次收录于{' '}
+            <time dateTime={new Date(requirement.createdAt).toISOString()}>
+              {date(requirement.createdAt)}
+            </time>
+          </span>
+          <span>
+            最近更新于{' '}
+            <time dateTime={new Date(requirement.savedAt).toISOString()}>
+              {date(requirement.savedAt)}
+            </time>
+          </span>
+        </div>
         {query.isError && (
           <Failure stale message={query.error.message} retry={() => void query.refetch()} />
         )}
@@ -334,7 +295,6 @@ function RequirementDetail({
         >
           需求修订与状态依据
         </Button>
-        <CurrentLinks projectId={projectId} links={requirement.links} />
       </section>
       <section aria-label="推进记录">
         <div className="requirements-section-title">

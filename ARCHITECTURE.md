@@ -87,4 +87,4 @@ React Router 的 HashRouter 管理项目与章节链接；旧 `#/overview` 恢�
 
 列表首请求、需求详情固定一个项目版本，后续页及历史必须携带该版本。需求按最近更新排列；推进记录按首次收录的版本和同批次序倒序，修订旧记录不挪位置，真实发生时间单独显示。状态变化时间从最近一次真实状态变化得到，正文修订不产生假的状态事件。状态依据固定记录的具体版本。
 
-`src/web/requirements/` 使用现有路由、查询、Markdown 和 Ant Design Timeline/Drawer/Collapse。修订面板按打开时的版本读取，原始来源按需展开。项目隔离、状态依据、旧归属和移除历史继续由共同存储模型约束。交互和验证入口见 [需求推进阅读](docs/requirements/requirements-reading.md)。
+`src/web/requirements/` 使用现有路由、查询、Markdown 和 Ant Design Timeline/Drawer/Collapse，需求为主对象，记录只在所属需求内阅读。需求独立显示首次收录及最近更新时间；`timeline/` 呈现内部记录的时间栏、轴线和完整结论。主页面不展示跨内容关联，修订面板按打开时的版本读取，原始来源按需展开。项目隔离、状态依据、旧归属和移除历史继续由共同存储模型约束。交互和验证入口见 [需求推进阅读](docs/requirements/requirements-reading.md)。

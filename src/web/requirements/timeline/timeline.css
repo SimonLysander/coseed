@@ -1,0 +1,39 @@
+.requirements-timeline {
+  margin-block-start: calc(var(--ds-space-8) * 1px);
+}
+.requirements-timeline .ant-timeline-item-content {
+  min-width: 0;
+}
+.progress-time {
+  display: grid;
+  gap: calc(var(--ds-space-2) * 1px);
+  color: var(--ds-color-text-secondary);
+  font-size: calc(var(--ds-type-caption-size) * 1px);
+  line-height: calc(var(--ds-type-caption-lineHeight) * 1px);
+  font-variant-numeric: tabular-nums;
+}
+.progress-captured {
+  color: var(--ds-color-text-muted);
+}
+.progress-record > .progress-time {
+  margin-block-end: calc(var(--ds-space-5) * 1px);
+}
+.progress-record > h3 {
+  margin: 0;
+  font-size: calc(var(--ds-type-reading-size) * 1px);
+  line-height: calc(var(--ds-type-reading-lineHeight) * 1px);
+  font-weight: var(--ds-type-sectionTitle-weight);
+}
+.progress-record > .reading-markdown {
+  margin-top: calc(var(--ds-space-4) * 1px);
+}
+.progress-record-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--ds-space-4) * 1px);
+  margin-block-start: calc(var(--ds-space-4) * 1px);
+}
+.progress-record-actions .ant-btn {
+  padding-inline: 0;
+}
