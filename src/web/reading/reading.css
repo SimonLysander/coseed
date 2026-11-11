@@ -1,8 +1,37 @@
 .reading-markdown {
+  display: flow-root;
+  min-width: 0;
   overflow-wrap: anywhere;
+  font-size: calc(var(--ds-type-reading-size) * 1px);
+  line-height: calc(var(--ds-type-reading-lineHeight) * 1px);
+}
+.reading-markdown :where(p, ul, ol, blockquote, pre, table, hr) {
+  margin: 0;
+}
+.reading-markdown > * + * {
+  margin-block-start: calc(var(--ds-space-5) * 1px);
 }
 .reading-markdown :where(h1, h2, h3, h4, h5, h6) {
-  margin-block: calc(var(--ds-space-6) * 1px) calc(var(--ds-space-4) * 1px);
+  margin-block: calc(var(--ds-space-8) * 1px) 0;
+}
+.reading-markdown :where(h3, h4, h5, h6) {
+  color: var(--ds-color-text-primary);
+  font-size: calc(var(--ds-type-ui-size) * 1px);
+  line-height: calc(var(--ds-type-ui-lineHeight) * 1px);
+  font-weight: var(--ds-type-sectionTitle-weight);
+}
+.reading-markdown > :where(h1, h2, h3, h4, h5, h6) + * {
+  margin-block-start: calc(var(--ds-space-4) * 1px);
+}
+.reading-markdown > :first-child {
+  margin-block-start: 0;
+}
+.reading-markdown > :last-child {
+  margin-block-end: 0;
+}
+.reading-markdown strong {
+  color: var(--ds-color-text-primary);
+  font-weight: var(--ds-type-sectionTitle-weight);
 }
 .reading-markdown .reading-content-heading {
   color: var(--ds-color-text-primary);
@@ -45,11 +74,22 @@
   mask: url('./assets/rough-oval.svg') center / 100% 100% no-repeat;
 }
 .reading-markdown :where(ul, ol) {
-  padding-left: calc(var(--ds-space-8) * 1px);
+  padding-inline-start: calc(var(--ds-space-8) * 1px);
   line-height: calc(var(--ds-type-reading-lineHeight) * 1px);
   font-size: calc(var(--ds-type-reading-size) * 1px);
 }
+.reading-markdown li + li,
+.reading-markdown li > :where(ul, ol) {
+  margin-block-start: calc(var(--ds-space-2) * 1px);
+}
+.reading-markdown li::marker {
+  color: var(--ds-color-accent-solid);
+}
+.reading-markdown :where(li, blockquote) > * + * {
+  margin-block-start: calc(var(--ds-space-4) * 1px);
+}
 .reading-markdown pre {
+  min-width: 0;
   max-width: 100%;
   overflow: auto;
   padding: calc(var(--ds-space-5) * 1px);
@@ -57,21 +97,42 @@
   background: var(--ds-color-surface-hover);
 }
 .reading-markdown :not(pre) > code {
-  padding: 2px 4px;
+  padding: calc(var(--ds-space-1) * 1px) calc(var(--ds-space-2) * 1px);
   border-radius: var(--ds-shape-smallRadius);
   background: var(--ds-color-surface-hover);
 }
-.reading-markdown table {
-  display: block;
+.reading-table-scroll {
+  min-width: 0;
   max-width: 100%;
-  overflow: auto;
+  overflow-x: auto;
+}
+.reading-table-scroll:focus-visible {
+  outline: calc(var(--ds-shape-focusStroke) * 1px) solid var(--ds-color-border-focus);
+  outline-offset: calc(var(--ds-shape-focusOffset) * 1px);
+  border-radius: var(--ds-shape-smallRadius);
+}
+.reading-markdown table {
+  width: 100%;
   border-collapse: collapse;
   font-size: calc(var(--ds-type-ui-size) * 1px);
+  line-height: calc(var(--ds-type-ui-lineHeight) * 1px);
+}
+.reading-markdown thead {
+  background: var(--ds-color-surface-hover);
+}
+.reading-markdown th {
+  color: var(--ds-color-text-primary);
+  font-weight: var(--ds-type-sectionTitle-weight);
 }
 .reading-markdown :where(td, th) {
-  padding: calc(var(--ds-space-4) * 1px);
-  border-bottom: 1px solid var(--ds-color-border-subtle);
+  min-width: 8em;
+  padding: calc(var(--ds-space-4) * 1px) calc(var(--ds-space-5) * 1px);
+  border-bottom: calc(var(--ds-shape-stroke) * 1px) solid var(--ds-color-border-subtle);
   text-align: left;
+  vertical-align: top;
+}
+.reading-markdown :where(td, th):first-child {
+  min-width: 6em;
 }
 .reading-markdown img {
   max-width: 100%;
@@ -79,7 +140,11 @@
 }
 .reading-markdown blockquote {
   margin-inline: 0;
-  padding-left: calc(var(--ds-space-6) * 1px);
-  border-left: 2px solid var(--ds-color-border-subtle);
+  padding-inline-start: calc(var(--ds-space-6) * 1px);
+  border-inline-start: calc(var(--ds-shape-stroke) * 2 * 1px) solid var(--ds-color-accent-solid);
   color: var(--ds-color-text-secondary);
+}
+.reading-markdown hr {
+  border: 0;
+  border-block-start: calc(var(--ds-shape-stroke) * 1px) solid var(--ds-color-border-subtle);
 }

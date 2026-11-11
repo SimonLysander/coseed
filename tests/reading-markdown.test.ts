@@ -19,3 +19,14 @@ it('nests headings within records and notes without altering code or enabling HT
   expect(html).toContain('# 代码中的文字');
   expect(html).not.toContain('<script>');
 });
+
+it('keeps semantic table headers and column alignment inside a keyboard-accessible scroll area', () => {
+  const html = renderContentMarkdown('| 资料 | 数量 |\n| --- | ---: |\n| 项目综述 | 1 |');
+  expect(html).toContain(
+    '<div class="reading-table-scroll" role="region" aria-label="表格内容" tabindex="0"><table>',
+  );
+  expect(html).toContain('<th scope="col">资料</th>');
+  expect(html).toContain('<th style="text-align:right" scope="col">数量</th>');
+  expect(html).toContain('<td style="text-align:right">1</td>');
+  expect(html).toContain('</table>\n</div>');
+});

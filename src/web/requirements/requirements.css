@@ -148,7 +148,7 @@
 .requirement-evidence > section + section {
   margin-top: calc(var(--ds-space-6) * 1px);
 }
-.requirement-history-body p {
+.requirement-history-body > p {
   margin-block: calc(var(--ds-space-4) * 1px);
 }
 .requirement-source {

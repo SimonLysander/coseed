@@ -1,7 +1,7 @@
-import MarkdownIt from 'markdown-it';
+import { createReadingMarkdown } from './create-markdown.js';
 
 // Project material is content, never executable HTML. markdown-it rejects unsafe link schemes.
-const markdown = new MarkdownIt({ html: false, linkify: false });
+const markdown = createReadingMarkdown();
 export type ContentHeadingLevel = 3 | 4 | 5 | 6;
 
 export function renderContentMarkdown(text: string, headingStart: ContentHeadingLevel = 3) {

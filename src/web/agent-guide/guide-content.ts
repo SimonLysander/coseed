@@ -1,8 +1,8 @@
-import MarkdownIt from 'markdown-it';
+import { createReadingMarkdown } from '../reading/create-markdown.js';
 import source from '../../../docs/operations/agent-integration.md?raw';
 import localDevelopmentUrl from '../../../docs/operations/local-development.md?url';
 
-const markdown = new MarkdownIt({ html: false, linkify: false });
+const markdown = createReadingMarkdown();
 const renderLink = markdown.renderer.rules.link_open;
 markdown.renderer.rules.link_open = (tokens, index, options, environment, renderer) => {
   const token = tokens[index]!;

@@ -84,6 +84,7 @@
 .overview-concepts > div {
   display: grid;
   grid-template-columns: calc(var(--ds-layout-readingConceptLabelWidth) * 1px) minmax(0, 1fr);
+  align-items: baseline;
   column-gap: calc(var(--ds-space-6) * 1px);
 }
 .overview-concepts dt {
