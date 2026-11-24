@@ -1,0 +1,17 @@
+services:
+  coseed:
+    build:
+      context: .
+      args:
+        - NODE_IMAGE_REPOSITORY
+        - NPM_CONFIG_REGISTRY
+    ports:
+      - '127.0.0.1:${COSEED_PORT:-4310}:4310'
+    environment:
+      COSEED_LOG_LEVEL: ${COSEED_LOG_LEVEL:-info}
+    volumes:
+      - coseed-data:/var/lib/coseed
+    restart: unless-stopped
+
+volumes:
+  coseed-data:

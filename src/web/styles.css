@@ -1,0 +1,243 @@
+.workbench {
+  display: flex;
+  min-height: 100dvh;
+  font-size: calc(var(--ds-type-ui-size) * 1px);
+  line-height: calc(var(--ds-type-ui-lineHeight) * 1px);
+}
+.sidebar {
+  position: sticky;
+  top: 0;
+  flex-shrink: 0;
+  width: calc(var(--ds-layout-sidebarWidth) * 1px);
+  height: 100dvh;
+  overflow-y: auto;
+  padding: 20px 12px 16px;
+  border-right: 1px solid var(--ds-color-border-subtle);
+  background: var(--ds-color-surface-sidebar);
+}
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+.brand {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding-inline: 12px;
+  color: var(--ds-color-text-primary);
+  text-decoration: none;
+  font-family: var(--ds-font-brand);
+  font-size: calc(var(--ds-type-brand-size) * 1px);
+  line-height: calc(var(--ds-type-brand-lineHeight) * 1px);
+  font-weight: 400;
+}
+.brand-mark {
+  display: flex;
+  align-items: center;
+  min-height: calc(var(--ds-type-brand-lineHeight) * 1px);
+  color: var(--ds-color-accent-solid);
+}
+.sidebar-content .ant-menu {
+  display: grid;
+  gap: calc(var(--ds-space-2) * 1px);
+  background: transparent;
+  border-inline-end: 0 !important;
+  font-size: calc(var(--ds-type-navigation-size) * 1px);
+}
+.sidebar-content .ds-nav-item:is(.ant-menu-item, .ant-btn) {
+  position: relative;
+  isolation: isolate;
+  transition: none;
+}
+.sidebar-content .ds-nav-item:is(.ant-menu-item, .ant-btn):not([aria-current='page']):hover {
+  background-color: transparent;
+}
+/* Only hover opacity animates, so a theme switch paints the new palette immediately. */
+.sidebar-content .ds-nav-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background-color: var(--ds-color-surface-hover);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity calc(var(--ds-motion-durationMs-feedback) * 1ms) ease-out;
+}
+.sidebar-content .ds-nav-item[aria-current='page']::before {
+  transition: none;
+}
+@media (hover: hover) {
+  .sidebar-content .ds-nav-item:not([aria-current='page']):hover::before {
+    opacity: 1;
+  }
+}
+.sidebar-content .ant-menu-item.ds-nav-item {
+  display: grid;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding-inline: calc(var(--ds-space-5) * 1px) !important;
+  line-height: calc(var(--ds-type-navigation-lineHeight) * 1px);
+  border-radius: var(--ds-shape-controlRadius);
+}
+.sidebar-content .ant-menu-title-content {
+  margin-inline-start: 0 !important;
+}
+.sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: calc(var(--ds-space-2) * 1px);
+  margin-top: auto;
+  padding: calc(var(--ds-space-6) * 1px) 0 0;
+}
+.sidebar-bottom .ant-btn.ds-nav-item {
+  display: grid;
+  column-gap: calc(var(--ds-space-4) * 1px);
+  width: 100%;
+  height: auto;
+  border: 0;
+  border-radius: var(--ds-shape-controlRadius);
+  text-align: left;
+  justify-content: stretch;
+  padding-inline: calc(var(--ds-space-5) * 1px);
+  font-size: calc(var(--ds-type-navigation-size) * 1px);
+}
+.sidebar-bottom .ant-btn-color-default.ds-nav-item {
+  color: var(--ds-color-text-secondary);
+}
+.sidebar-bottom .ant-btn.ds-nav-item:not([aria-current='page']):hover {
+  color: var(--ds-color-text-secondary);
+}
+.sidebar-bottom .ant-btn.ds-nav-item[aria-current='page'],
+.sidebar-bottom .ant-btn.ds-nav-item[aria-current='page']:hover {
+  color: var(--ds-color-accent-solid);
+  background: var(--ds-color-accent-soft);
+}
+.sidebar-guide-link {
+  text-decoration: none;
+}
+.sidebar-action-label {
+  min-width: 0;
+  white-space: nowrap;
+  text-align: left;
+}
+.main-area {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.connection-error {
+  color: var(--ds-color-state-error-foreground);
+}
+.empty-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: calc(var(--ds-layout-readingWidth) * 1px);
+  margin: 32px auto;
+  padding: 32px 20px;
+  text-align: center;
+}
+.empty-illustration {
+  width: 144px;
+  height: 105px;
+  margin-bottom: 20px;
+}
+.empty-page h1 {
+  margin: 0;
+}
+.empty-description {
+  margin: 14px 0 0;
+  color: var(--ds-color-text-secondary);
+  font-size: calc(var(--ds-type-reading-size) * 1px);
+  line-height: calc(var(--ds-type-reading-lineHeight) * 1px);
+}
+.empty-rule {
+  width: 36px;
+  height: 1px;
+  background: var(--ds-color-accent-solid);
+  margin-top: 24px;
+  clip-path: polygon(0 10%, 70% 0, 100% 25%, 99% 100%, 25% 80%, 0 100%);
+}
+.empty-note {
+  margin: 12px 0 0;
+  color: var(--ds-color-text-muted);
+  font-size: 12px;
+  line-height: 20px;
+}
+.connection-error p {
+  max-width: 440px;
+  font-size: 13px;
+  line-height: 22px;
+}
+.workbench-menu {
+  display: none;
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .sidebar {
+    width: calc(var(--ds-layout-sidebarRailWidth) * 1px);
+    padding-inline: 4px;
+  }
+  .brand {
+    padding-inline: 10px;
+  }
+  .brand > span:last-child,
+  .sidebar .sidebar-action-label,
+  .sidebar .appearance-label {
+    display: none;
+  }
+  .sidebar nav {
+    margin-top: 32px;
+  }
+  .sidebar .ant-menu-title-content {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .sidebar .ant-menu-item.ds-nav-item {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    padding-inline: 0 !important;
+  }
+  .sidebar-bottom .ant-btn.ds-nav-item {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    width: 100%;
+    padding-inline: 0;
+  }
+}
+@media (max-width: 767px) {
+  .sidebar {
+    display: none;
+  }
+  .workbench-menu.ant-btn {
+    position: fixed;
+    top: calc(var(--ds-space-4) * 1px);
+    left: calc(var(--ds-space-4) * 1px);
+    z-index: var(--ds-layer-sticky);
+    display: inline-flex;
+    width: calc(var(--ds-size-coarsePointerTarget) * 1px);
+    height: calc(var(--ds-size-coarsePointerTarget) * 1px);
+    padding: 0;
+    color: var(--ds-color-text-primary);
+    background: var(--ds-color-surface-page);
+  }
+  .main-area {
+    padding-top: calc((var(--ds-size-coarsePointerTarget) + 2 * var(--ds-space-4)) * 1px);
+  }
+  .empty-page {
+    margin-top: 16px;
+    padding-inline: 20px;
+  }
+}
+
+.guide-loading {
+  margin: calc(var(--ds-layout-pagePadding) * 1px);
+  color: var(--ds-color-text-secondary);
+}

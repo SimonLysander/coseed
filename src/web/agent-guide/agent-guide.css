@@ -1,0 +1,200 @@
+.guide-page {
+  flex: 1;
+  min-width: 0;
+  padding: calc(var(--ds-layout-pagePadding) * 1px);
+}
+.guide-heading {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--ds-space-5) * 1px);
+}
+.guide-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--ds-space-6) * 1px);
+}
+.guide-title-row h1 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.guide-toc {
+  top: calc(var(--ds-layout-pagePadding) * 1px);
+  max-height: calc(100dvh - 2 * var(--ds-layout-pagePadding) * 1px);
+}
+.guide-article > .guide-section {
+  scroll-margin-top: calc(var(--ds-layout-pagePadding) * 1px);
+}
+.guide-lead {
+  color: var(--ds-color-text-secondary);
+}
+.guide-resource {
+  display: grid;
+  gap: calc(var(--ds-space-2) * 1px);
+  padding: calc(var(--ds-space-4) * 1px) calc(var(--ds-space-6) * 1px);
+  border-radius: var(--ds-shape-controlRadius);
+  background: var(--ds-color-accent-soft);
+}
+.guide-resource-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--ds-space-3) * 1px);
+}
+.guide-resource p {
+  margin: 0;
+  color: var(--ds-color-text-secondary);
+  font-size: calc(var(--ds-type-ui-size) * 1px);
+  line-height: calc(var(--ds-type-ui-lineHeight) * 1px);
+}
+.guide-resource-link {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--ds-space-2) * 1px);
+  color: var(--ds-color-accent-solid);
+  font-size: calc(var(--ds-type-ui-size) * 1px);
+  font-weight: var(--ds-type-sectionTitle-weight);
+  text-decoration: none;
+}
+.guide-resource-link:is(:hover, :focus-visible) {
+  text-decoration: underline;
+}
+.guide-resource-actions .ant-btn {
+  font-size: calc(var(--ds-type-label-size) * 1px);
+}
+.guide-copy-result,
+.guide-copy-error {
+  font-size: calc(var(--ds-type-label-size) * 1px);
+}
+.guide-copy-result {
+  color: var(--ds-color-accent-solid);
+}
+.guide-copy-error {
+  color: var(--ds-color-state-error-foreground);
+}
+.guide-section {
+  overflow-wrap: anywhere;
+}
+.guide-toc > p {
+  margin: 0 0 calc(var(--ds-space-4) * 1px);
+  color: var(--ds-color-text-muted);
+  font-size: calc(var(--ds-type-label-size) * 1px);
+}
+.guide-toc nav {
+  display: grid;
+  gap: calc(var(--ds-space-2) * 1px);
+}
+.guide-toc a {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr);
+  align-items: baseline;
+  gap: calc(var(--ds-space-4) * 1px);
+  padding: calc(var(--ds-space-3) * 1px) calc(var(--ds-space-4) * 1px);
+  color: var(--ds-color-text-secondary);
+  font-size: calc(var(--ds-type-navigation-size) * 1px);
+  line-height: calc(var(--ds-type-navigation-lineHeight) * 1px);
+  text-decoration: none;
+  border-radius: var(--ds-shape-controlRadius);
+}
+.guide-toc a > span {
+  color: var(--ds-color-text-muted);
+}
+.guide-toc a:hover {
+  color: var(--ds-color-text-primary);
+}
+.guide-toc a[aria-current='location'] {
+  color: var(--ds-color-accent-solid);
+  background: var(--ds-color-accent-soft);
+}
+.guide-toc a[aria-current='location'] > span {
+  color: inherit;
+}
+.guide-mobile-tools {
+  display: none;
+}
+@media (max-width: 1279px) {
+  .guide-mobile-tools {
+    display: block;
+  }
+  .guide-mobile-tools .ant-btn {
+    padding-inline: calc(var(--ds-space-4) * 1px);
+  }
+}
+@media (max-width: 1023px) {
+  .guide-page {
+    padding: calc(var(--ds-layout-mobilePagePadding) * 1px);
+  }
+}
+@media (max-width: 767px) {
+  .guide-article > .guide-section {
+    scroll-margin-top: calc(
+      (
+          var(--ds-size-coarsePointerTarget) + 2 * var(--ds-space-4) +
+            var(--ds-layout-mobilePagePadding)
+        ) *
+        1px
+    );
+  }
+  .guide-title-row {
+    flex-wrap: wrap;
+    gap: calc(var(--ds-space-4) * 1px);
+  }
+}
+@media (pointer: coarse) {
+  .guide-toc a,
+  .guide-mobile-tools .ant-btn,
+  .guide-resource-actions > * {
+    min-height: calc(var(--ds-size-coarsePointerTarget) * 1px);
+  }
+}
+
+.guide-section > .reading-markdown {
+  margin-block-start: calc(var(--ds-space-5) * 1px);
+}
+.guide-note {
+  margin: calc(var(--ds-space-4) * 1px) 0 0;
+  border-inline-start: 2px solid var(--ds-color-accent-solid);
+  padding-inline-start: calc(var(--ds-space-6) * 1px);
+  color: var(--ds-color-text-secondary);
+  font-size: calc(var(--ds-type-ui-size) * 1px);
+  line-height: calc(var(--ds-type-ui-lineHeight) * 1px);
+}
+.guide-connection {
+  display: grid;
+  gap: calc(var(--ds-space-4) * 1px);
+  margin-block: calc(var(--ds-space-5) * 1px);
+}
+.guide-connection-row {
+  display: grid;
+  grid-template-columns: 5em minmax(0, 1fr);
+  align-items: baseline;
+  gap: calc(var(--ds-space-4) * 1px);
+}
+.guide-connection-row > span:first-child,
+.guide-key-item,
+.guide-issued-key label {
+  color: var(--ds-color-text-secondary);
+  font-size: calc(var(--ds-type-label-size) * 1px);
+}
+.guide-key-actions,
+.guide-key-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--ds-space-4) * 1px);
+}
+.guide-key-actions .ant-input-affix-wrapper {
+  flex: 1;
+  min-width: 8em;
+}
+.guide-connection code {
+  overflow-wrap: anywhere;
+}
+.guide-key-item code {
+  font-family: var(--ds-font-code);
+}
+.guide-issued-key {
+  display: grid;
+  gap: calc(var(--ds-space-3) * 1px);
+}

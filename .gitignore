@@ -1,0 +1,14 @@
+node_modules/
+dist/
+coverage/
+test-results/
+playwright-report/
+.coseed/
+coseed.sqlite
+coseed.sqlite-*
+.env
+.env.*
+!.env.example
+*.tgz
+*.tsbuildinfo
+.DS_Store
